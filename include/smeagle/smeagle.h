@@ -4,28 +4,28 @@
 
 namespace smeagle {
 
-  /**  Language codes to be used with the Smeagle class */
-  enum class LanguageCode { EN, DE, ES, FR };
+  /**  Output Format codes to be used with the Smeagle class */
+  enum class FormatCode { Terminal, Json };
 
   /**
    * @brief A class for saying hello in multiple languages
    */
   class Smeagle {
-    std::string name;
+    std::string library;
 
   public:
     /**
-     * @brief Creates a new smeagle
+     * @brief Creates a new smeagle to parse the precious
      * @param name the name to greet
      */
-    Smeagle(std::string name);
+    Smeagle(std::string library);
 
     /**
-     * @brief Creates a localized string containing the greeting
-     * @param lang the language to greet in
-     * @return a string containing the greeting
+     * @brief Parse the library with dyninst
+     * @param fmt the format to print to the screen
+     * @return a string containing the output
      */
-    std::string greet(LanguageCode lang = LanguageCode::EN) const;
+    int parse(FormatCode fmt = FormatCode::Terminal);
   };
 
 }  // namespace smeagle

@@ -23,12 +23,14 @@ endif()
 
 include(cmake/CPM.cmake)
 
-include_directories(/opt/view/include)
-link_directories(/opt/view/lib)
+find_package(Dyninst REQUIRED)
+include_directories(DYNINST_INCLUDE_DIRS)
+link_directories(DYNINST_LIBRARIES)
+
+#include(symtabAPI)
 
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.6.0")
-
 CPMAddPackage(
   NAME fmt
   GIT_TAG 7.1.3
@@ -49,13 +51,17 @@ file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/
 # target: add_library(Smeagle INTERFACE)
 add_library(Smeagle ${headers} ${sources})
 
+#set(Smeagle_LIBRARIES, $DYNINST_LIBRARIES)
+
+# /opt/view/lib/cmake/Dyninst
+
 set_target_properties(Smeagle PROPERTIES CXX_STANDARD 17)
 
 # being a cross-platform target, we enforce standards conformance on MSVC
 target_compile_options(Smeagle PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 
 # Link dependencies
-target_link_libraries(Smeagle PRIVATE fmt::fmt)
+target_link_libraries(Smeagle PRIVATE fmt::fmt symtabAPI)
 
 target_include_directories(
   Smeagle PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

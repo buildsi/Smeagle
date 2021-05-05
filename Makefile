@@ -1,7 +1,7 @@
 .PHONY: all test standalone docs
 
 all:
-	cmake -S all -B build
+	cmake --log-level=VERBOSE -DsymtabAPI_DIR=/opt/view/lib/cmake/Dyninst -S all -B build
 	cmake --build build
 
 

@@ -1,21 +1,33 @@
 #include <fmt/format.h>
 #include <smeagle/smeagle.h>
-#include "dynC.h"
+#include "Symtab.h"
+
+using namespace Dyninst;
+using namespace SymtabAPI;
 
 using namespace smeagle;
 
-Smeagle::Smeagle(std::string _name) : name(std::move(_name)) {}
+Smeagle::Smeagle(std::string _library) : library(std::move(_library)) {}
 
-std::string Smeagle::greet(LanguageCode lang) const {
-  switch (lang) {
-    default:
-    case LanguageCode::EN:
-      return fmt::format("Hello, {}!", name);
-    case LanguageCode::DE:
-      return fmt::format("Hallo {}!", name);
-    case LanguageCode::ES:
-      return fmt::format("¡Hola {}!", name);
-    case LanguageCode::FR:
-      return fmt::format("Bonjour {}!", name);
+int Smeagle::parse(FormatCode fmt) {
+
+  switch(fmt) {
+   default:
+   case FormatCode::Json:
+     std::cout << "You chose json.\n";
+     break;
+   case FormatCode::Terminal:
+     std::cout << "You chose terminal.\n";
+     break;
   }
+  
+  // Read the library into the Symtab object
+  Symtab *obj = NULL;
+  bool err = Symtab::openFile(obj, library);
+  if (!err){
+    std::cout << "There was a problem reading " << library << "\n";
+    return 1;
+  }
+
+  return 0;
 }

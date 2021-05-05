@@ -20,7 +20,7 @@ to change. :)
 To cleanly separate the library and subproject code, the outer `CMakeList.txt` only defines the library itself while the tests and other subprojects are self-contained in their own directories. 
 During development it is usually convenient to [build all subprojects at once](#build-everything-at-once).
 
-### Develop using a container
+## Develop using a container
 
 The [Dockerfile](Dockerfile) will easily create an environment with all the dependencies that you
 need.
@@ -29,6 +29,26 @@ need.
 docker build -t smeagle .
 docker run --rm -it -v $PWD:/code smeagle bash
 ```
+
+You should then be in the mounted `/code` directory, and you can compile
+as follows:
+
+```bash
+$ make
+```
+
+You can also make the standalone client, the docs, or run tests.
+
+```bash
+$ make docs
+$ make test
+$ make standalone
+```
+
+## Details
+
+If you don't want to use the container, it will be up to you to reproduce
+the environment in the Dockerfile. Commands of interest include:
 
 ### Install dependencies
 

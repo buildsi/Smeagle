@@ -9,10 +9,8 @@ TEST_CASE("Smeagle") {
 
   Smeagle smeagle("Tests");
 
-  CHECK(smeagle.greet(LanguageCode::EN) == "Hello, Tests!");
-  CHECK(smeagle.greet(LanguageCode::DE) == "Hallo Tests!");
-  CHECK(smeagle.greet(LanguageCode::ES) == "¡Hola Tests!");
-  CHECK(smeagle.greet(LanguageCode::FR) == "Bonjour Tests!");
+  CHECK(smeagle.parse(FormatCode::Terminal) == "Hello, 0!");
+  CHECK(smeagle.parse(FormatCode::Json) == "Hallo 1!");
 }
 
 TEST_CASE("Smeagle version") {

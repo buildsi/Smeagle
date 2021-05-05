@@ -7,24 +7,22 @@
 #include <unordered_map>
 
 auto main(int argc, char** argv) -> int {
-  const std::unordered_map<std::string, smeagle::LanguageCode> languages{
-      {"en", smeagle::LanguageCode::EN},
-      {"de", smeagle::LanguageCode::DE},
-      {"es", smeagle::LanguageCode::ES},
-      {"fr", smeagle::LanguageCode::FR},
+  const std::unordered_map<std::string, smeagle::FormatCode> formats{
+      {"terminal", smeagle::FormatCode::Terminal},
+      {"json", smeagle::FormatCode::Json},
   };
 
-  cxxopts::Options options(*argv, "A program to welcome the world!");
+  cxxopts::Options options(*argv, "Extract library metadata, the precious.");
 
-  std::string language;
-  std::string name;
+  std::string library;
+  std::string fmt;
 
   // clang-format off
   options.add_options()
     ("h,help", "Show help")
     ("v,version", "Print the current version number")
-    ("n,name", "Name to greet", cxxopts::value(name)->default_value("World"))
-    ("l,lang", "Language code to use", cxxopts::value(language)->default_value("en"))
+    ("l,library", "Library to inspect", cxxopts::value(library))
+    ("f,fmt", "Format to output in", cxxopts::value(fmt)->default_value("terminal"))
   ;
   // clang-format on
 
@@ -40,14 +38,20 @@ auto main(int argc, char** argv) -> int {
     return 0;
   }
 
-  auto langIt = languages.find(language);
-  if (langIt == languages.end()) {
-    std::cerr << "unknown language code: " << language << std::endl;
+  // Library is required
+  if (result["library"].count() == 0) {
+    std::cout << "A library is required.\n";
+    return 0;
+  }
+
+  auto format = formats.find(fmt);
+  if (format == formats.end()) {
+    std::cerr << "unknown format: " << fmt << std::endl;
     return 1;
   }
 
-  smeagle::Smeagle smeagle(name);
-  std::cout << smeagle.greet(langIt->second) << std::endl;
+  smeagle::Smeagle smeagle(library);
+  //std::cout << smeagle.parse(format->second) << std::endl;
 
   return 0;
 }
