@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
 
 # ---- Project ----
 
@@ -23,11 +23,11 @@ endif()
 
 include(cmake/CPM.cmake)
 
+include_directories(/opt/view/include)
+link_directories(/opt/view/lib)
+
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.6.0")
-
-# Add Dyninst
-CPMAddPackage("gh:dyninst/dyninst@11.0.0")
 
 CPMAddPackage(
   NAME fmt
@@ -61,8 +61,6 @@ target_include_directories(
   Smeagle PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
                  $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
-
-add_compile_options(-pthread)
 
 # ---- Create an installable target ----
 # this allows users to install and find the library via `find_package()`.

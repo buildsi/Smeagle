@@ -1,5 +1,6 @@
 #include <fmt/format.h>
 #include <smeagle/smeagle.h>
+#include "dynC.h"
 
 using namespace smeagle;
 
