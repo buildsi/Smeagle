@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 #include <smeagle/smeagle.h>
 #include "Symtab.h"
+#include "Function.h"
 
 using namespace Dyninst;
 using namespace SymtabAPI;
@@ -104,17 +105,19 @@ int Smeagle::parse(FormatCode fmt) {
       std::string sname = symbol->getMangledName();
 
       // If It's a function, get the parameters.
-      // We should be able to fill a vector here, if we can get the function
-      //if (symbol->isFunction()) {
-      //    Function *func = symbol->getFunction();
-      //    std::cout << "Function " << func->getName() << "\n";  
-      //}
+      if (symbol->isFunction()) {
+          Function *func = symbol->getFunction();
+          std::string fname = func->getName();
+          std::cout << "function(" <<  sname << "," << fname << ")" << "\n";
+
+          // TODO get parameters here
+      }
     
       // Get the type of the symbol (this doesn't compile because Symbol.h cannot be found in include)
-      std::string stype = getStringSymbol(symbol);
+      // std::string stype = getStringSymbol(symbol);
 
       std::cout << "symbol(" <<  sname << ")" << "\n";
-      std::cout << "symbol_type(" <<  sname << "," <<  stype << ")" << "\n";
+      // std::cout << "symbol_type(" <<  sname << "," <<  stype << ")" << "\n";
     }
   }
   return 0;
