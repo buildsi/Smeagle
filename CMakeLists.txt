@@ -27,8 +27,6 @@ find_package(Dyninst REQUIRED)
 include_directories(DYNINST_INCLUDE_DIRS)
 link_directories(DYNINST_LIBRARIES)
 
-#include(symtabAPI)
-
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.6.0")
 CPMAddPackage(
@@ -50,10 +48,6 @@ file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/
 # Note: for header-only libraries change all PUBLIC flags to INTERFACE and create an interface
 # target: add_library(Smeagle INTERFACE)
 add_library(Smeagle ${headers} ${sources})
-
-#set(Smeagle_LIBRARIES, $DYNINST_LIBRARIES)
-
-# /opt/view/lib/cmake/Dyninst
 
 set_target_properties(Smeagle PROPERTIES CXX_STANDARD 17)
 

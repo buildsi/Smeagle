@@ -13,6 +13,10 @@ include(../cmake/tools.cmake)
 
 # ---- Dependencies ----
 
+find_package(Dyninst REQUIRED)
+include_directories(DYNINST_INCLUDE_DIRS)
+link_directories(DYNINST_LIBRARIES)
+
 include(../cmake/CPM.cmake)
 
 CPMAddPackage("gh:onqtam/doctest#2.4.5")
@@ -28,7 +32,7 @@ endif()
 
 file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
 add_executable(SmeagleTests ${sources})
-target_link_libraries(SmeagleTests doctest::doctest Smeagle::Smeagle)
+target_link_libraries(SmeagleTests doctest::doctest Smeagle::Smeagle symtabAPI)
 set_target_properties(SmeagleTests PROPERTIES CXX_STANDARD 17)
 
 # enable compiler warnings
