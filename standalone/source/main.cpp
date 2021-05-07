@@ -51,7 +51,7 @@ auto main(int argc, char** argv) -> int {
   }
 
   smeagle::Smeagle smeagle(library);
-  std::cout << smeagle.parse(format->second) << std::endl;
+  smeagle.parse(format->second);
 
   return 0;
 }
