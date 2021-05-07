@@ -37,6 +37,37 @@ as follows:
 $ make
 ```
 
+or just for the standalone client and not tests (there is a current bug with compiling tests):
+
+```bash
+$ make standalone
+```
+
+And then you can ask for help, and run against a binary. For example, I built tcl with spack
+and copied a library into the root folder.
+
+```bash
+$ ./build/standalone/Smeagle -h
+Extract library metadata, the precious.
+Usage:
+  ./build/standalone/Smeagle [OPTION...]
+
+  -h, --help         Show help
+  -v, --version      Print the current version number
+  -l, --library arg  Library to inspect
+  -f, --fmt arg      Format to output in (default: terminal)
+```
+```bash
+root@98ad59b3999d:/code# ./build/standalone/Smeagle -l libtcl8.6.so 
+interface(TclFindElement)
+abi_typelocation(function,libtcl8.6.so,TclFindElement,interp,Tcl_Interp *,unknown)
+abi_typelocation(function,libtcl8.6.so,TclFindElement,list,const char *,unknown)
+abi_typelocation(function,libtcl8.6.so,TclFindElement,listLength,int,%rdx)
+...
+```
+
+The part that I'm focusing on now is parsing the types into actual locations 
+(the unknown strings above I haven't done yet).
 You can also make the standalone client, the docs, or run tests.
 
 ```bash

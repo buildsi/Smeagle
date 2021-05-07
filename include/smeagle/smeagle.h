@@ -28,7 +28,20 @@ namespace smeagle {
      * @brief Get the name of a symbol type from the enum int
      * @param symbol the symbol object
      */
-    std::string getStringSymbol(Symbol * symbol);
+    std::string getStringSymbolType(Symbol * symbol);
+
+    /**
+     * @brief Get a string representation of a location from a type
+     * @param paramType the parameter (variable) type
+     */
+    std::string getStringLocationFromType(Type * paramType, int order);
+
+
+    /**
+     * @brief Parse a function into parameters, types, locations
+     * @param symbol the symbol that is determined to be a function
+     */
+    void parseFunctionABILocation(Symbol * symbol);
 
     /**
      * @brief Parse the library with dyninst
