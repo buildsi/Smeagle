@@ -152,7 +152,7 @@ void Corpus::toAsp() {
 
         std::cout << "abi_typelocation(" << library << ", " << typeloc.type 
                   << ", " << typeloc.parent << ", " << typeloc.name << ", "
-                  << typeloc.type << "," << typeloc.location << std::endl;
+                  << typeloc.type << ", " << typeloc.location << ")" << std::endl;
 
     }
 }
