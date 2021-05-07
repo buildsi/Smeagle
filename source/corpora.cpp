@@ -85,7 +85,7 @@ std::string Corpus::getStringLocationFromType(Type *paramType, int order) {
   if (isconst) {
     loc = "stack";
   } else if (issse) {
-    loc = fmt::format("{}mm", order-1);
+    loc = fmt::format("xmm%s", order-1);
   } else if (isinteger) {
     switch (order) {
       case 1: {
@@ -110,6 +110,30 @@ std::string Corpus::getStringLocationFromType(Type *paramType, int order) {
       }
       case 6: {
         loc = "%r9";
+        break;
+      }
+      case 7: {
+        loc = "%r10";
+        break;
+      }
+      case 8: {
+        loc = "%r11";
+        break;
+      }
+      case 9: {
+        loc = "%r12";
+        break;
+      }
+      case 10: {
+        loc = "%r13";
+        break;
+      }
+      case 11: {
+        loc = "%r14";
+        break;
+      }
+      case 12: {
+        loc = "%r15";
         break;
       }
       // Greater than 6 is stored in memory
