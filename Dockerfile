@@ -11,7 +11,7 @@ RUN cd /tmp && \
     make && \
     make install
 RUN cd /tmp && \
-    git clone https://github.com/cheshirekow/cmake_format &&
+    git clone https://github.com/cheshirekow/cmake_format && \
     cd cmake_format && \
     pip3 install .
 WORKDIR /code
