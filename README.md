@@ -76,6 +76,12 @@ $ make docs
 $ make fmt
 $ make test
 ```
+**important** be careful about formatting code from the container -
+it changes all permissions. If you do this and need to fix (from outside the container):
+
+```bash
+$ sudo chown -R $USER .
+```
 
 See [Format.cmake](https://github.com/TheLartians/Format.cmake) for details
 on the formatting.
