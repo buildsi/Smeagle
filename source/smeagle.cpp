@@ -1,7 +1,8 @@
 #include <fmt/format.h>
 #include <smeagle/smeagle.h>
-
 #include <regex>
+#include <iostream>
+#include <fmt/core.h>
 
 #include "Function.h"
 #include "Symtab.h"
@@ -21,19 +22,24 @@ std::string Smeagle::getStringLocationFromType(Type *paramType, int order) {
   std::regex checkinteger("(int|char|short|long|pointer|bool)");
 
   // Is it a constant?
-  std::regex checkconstant("const");
+  std::regex checkconstant("(const)");
+
+  // float,double,_Decimal32,_Decimal64and__m64are in class SSE.
+  std::regex checksse("(double|decimal|float|Decimal|m64)");
 
   // Does the type string match one of the types?
-  bool isinteger = (std::regex_match(paramTypeString, checkinteger));
-  bool isconst = (std::regex_match(paramTypeString, checkconstant));
+  bool isinteger = (std::regex_search(paramTypeString, checkinteger));
+  bool isconst = (std::regex_search(paramTypeString, checkconstant));
+  bool issse = (std::regex_search(paramTypeString, checksse));
 
-  // This is the final location string we will return
-  std::string loc = "unknown";
+  // Default to its own type (so we can see)
+  std::string loc = paramTypeString;
 
   // I think constants are stored on the stack?
-  // TODO this regex is not working
   if (isconst) {
     loc = "stack";
+  } else if (issse) {
+    loc = fmt::format("{}mm", order-1);
   } else if (isinteger) {
     switch (order) {
       case 1: {
@@ -64,13 +70,6 @@ std::string Smeagle::getStringLocationFromType(Type *paramType, int order) {
       default: { loc = "memory"; }
     }
   }
-
-  // TODO check for double and float
-  // float,double,_Decimal32,_Decimal64and__m64are in class SSE.
-  // SSE = ['double', 'decimal']
-
-  // elif die_type in SSE and order <= 8:
-  //    return "%xmm" + str(order - 1)
 
   return loc;
 }
