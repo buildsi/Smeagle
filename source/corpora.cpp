@@ -64,6 +64,23 @@ std::string Corpus::getStringSymbolType(Symbol *symbol) {
   return sname;
 }
 
+// Get a location offset for a variable
+std::string Corpus::getParamLocationOffset(localVar * param){
+    std::vector<VariableLocation> locs = param->getLocationLists();
+
+    // I think we need to do something with these location entries
+    // https://github.com/dyninst/dyninst/blob/7ce24bf14a7745492754adb5ede560dd343e6585/symtabAPI/src/dwarfWalker.C#L2490
+    std::string offset;
+    for (auto i = locs.begin(); i != locs.end(); ++i) {
+        VariableLocation current = *i;
+        offset = current.frameOffsetAbs;
+        //std::cout << offset << std::endl;
+    }
+           
+    return offset;
+}
+
+
 // Get a string location from a Type
 std::string Corpus::getStringLocationFromType(Type *paramType, int order) {
   // We need a string version of the type
@@ -182,14 +199,20 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
       std::string paramName = param->getName();
       Type *paramType = param->getType();
       std::string loc = getStringLocationFromType(paramType, order);
+ 
+      // Get param location offset (e.g, framebase+x)
+      std::string locoffset = getParamLocationOffset(param);
 
       // Create a new typelocation to parse later
       TypeLocation typeloc;
       typeloc.name = paramName;
       typeloc.parent = fname;
       typeloc.type = paramType->getName();
+
+      // TODO how to determine if export/import?
       typeloc.exportOrImport = "export";
       typeloc.location = loc;
+      typeloc.locoffset = locoffset;
       typelocs.push_back (typeloc);
       order += 1;
     }

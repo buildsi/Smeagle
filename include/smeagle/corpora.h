@@ -21,6 +21,7 @@ namespace smeagle {
     std::string parent;
     std::string type;
     std::string exportOrImport;  
+    std::string locoffset;
     std::string location;
   };
 
@@ -54,6 +55,11 @@ namespace smeagle {
      */
     std::string getStringSymbolType(Symbol* symbol);
 
+    /**
+     * @brief get the location offset for a parameter / variable
+     * @param param the parameter to get location offset for
+     */
+    std::string getParamLocationOffset(localVar * param);
     /**
      * @brief Get a string representation of a location from a type
      * @param paramType the parameter (variable) type
