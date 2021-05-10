@@ -13,7 +13,8 @@
 
 auto main(int argc, char** argv) -> int {
   const std::unordered_map<std::string, smeagle::FormatCode> formats{
-      {"terminal", smeagle::FormatCode::Terminal},
+      {"yaml", smeagle::FormatCode::Yaml},
+      {"asp", smeagle::FormatCode::Asp},
       {"json", smeagle::FormatCode::Json},
   };
 
@@ -27,7 +28,7 @@ auto main(int argc, char** argv) -> int {
     ("h,help", "Show help")
     ("v,version", "Print the current version number")
     ("l,library", "Library to inspect", cxxopts::value(library))
-    ("f,fmt", "Format to output in", cxxopts::value(fmt)->default_value("terminal"))
+    ("f,fmt", "Format to output in", cxxopts::value(fmt)->default_value("yaml"))
   ;
   // clang-format on
 

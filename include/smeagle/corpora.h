@@ -50,6 +50,16 @@ namespace smeagle {
     void toAsp();
 
     /**
+     * @brief Dump a corpus to json
+     */
+    void toJson();
+
+    /**
+     * @brief Dump a corpus to yaml
+     */
+    void toYaml();
+
+    /**
      * @brief Get the name of a symbol type from the enum int
      * @param symbol the symbol object
      */

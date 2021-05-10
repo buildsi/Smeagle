@@ -69,13 +69,13 @@ int Smeagle::parse(FormatCode fmt) {
   switch (fmt) {
     default:
     case FormatCode::Json:
-      corpus.toAsp();
-      break;
-    case FormatCode::Terminal:
-      corpus.toAsp();
+      corpus.toJson();
       break;
     case FormatCode::Asp:
       corpus.toAsp();
+      break;
+    case FormatCode::Yaml:
+      corpus.toYaml();
       break;
   }
 

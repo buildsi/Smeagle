@@ -15,7 +15,7 @@ using namespace SymtabAPI;
 namespace smeagle {
 
   /**  Output Format codes to be used with the Smeagle class */
-  enum class FormatCode { Terminal, Json, Asp };
+  enum class FormatCode { Yaml, Json, Asp };
 
   /**
    * @brief A class for saying hello in multiple languages
@@ -35,7 +35,7 @@ namespace smeagle {
      * @param fmt the format to print to the screen
      * @return a string containing the output
      */
-    int parse(FormatCode fmt = FormatCode::Terminal);
+    int parse(FormatCode fmt = FormatCode::Yaml);
   };
 
 }  // namespace smeagle

@@ -74,7 +74,7 @@ std::string Corpus::getParamLocationOffset(localVar * param){
     for (auto i = locs.begin(); i != locs.end(); ++i) {
         VariableLocation current = *i;
         offset = current.frameOffsetAbs;
-        //std::cout << offset << std::endl;
+        //std::cout << current.stClass << std::endl;
     }
            
     return offset;
@@ -172,11 +172,46 @@ void Corpus::toAsp() {
     std::cout << "corpus(" << library << ")," << std::endl; 
     for (auto &typeloc : typelocs) {
 
-        std::cout << "abi_typelocation(" << library << ", " << typeloc.type 
-                  << ", " << typeloc.parent << ", " << typeloc.name << ", "
-                  << typeloc.type << ", " << typeloc.location << ")" << std::endl;
+        std::cout << "abi_typelocation(" << library << ", " << typeloc.parent
+                  << ", " << typeloc.name << ", " << typeloc.type << ", "
+                  << typeloc.location << ")" << std::endl;
+    }
+}
+
+// dump all Type Locations to yaml output
+void Corpus::toYaml() {
+
+    std::cout << "library: \"" << library << "\"\nlocations: " << std::endl; 
+    for (auto &typeloc : typelocs) {
+
+        std::cout << " - library: " << library << "\n   parent: " << typeloc.parent
+                  << "\n   name: " << typeloc.name << "\n   type: " << typeloc.type
+                  << "\n   location: " << typeloc.location << "\n" << std::endl;
+    }
+}
+
+
+// dump all Type Locations to json
+void Corpus::toJson() {
+
+    std::cout << "{ \"library\": \"" << library << "\", \"locations\": [" << std::endl; 
+    for (auto &typeloc : typelocs) {
+
+        // Check if we are at the last entry (no comma) or not
+        std::string endcomma;
+        if (&typeloc == &typelocs.back())
+            endcomma = "";
+        else {
+            endcomma = ",";
+        }
+        std::cout << "{\"library\": \"" << library << "\", \"parent\": \"" 
+                  << typeloc.parent << "\", \"name\": \"" << typeloc.name << "\", \"type\": \""
+                  << typeloc.type << "\", \"location\": \"" << typeloc.location
+                  << "\"}" << endcomma << std::endl;
 
     }
+    std::cout << "]}" << std::endl; 
+
 }
 
 // parse a function for parameters and abi location
