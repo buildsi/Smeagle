@@ -70,14 +70,20 @@ std::string Corpus::getParamLocationOffset(localVar * param){
 
     // I think we need to do something with these location entries
     // https://github.com/dyninst/dyninst/blob/7ce24bf14a7745492754adb5ede560dd343e6585/symtabAPI/src/dwarfWalker.C#L2490
-    std::string offset;
+    std::stringstream result;
+
     for (auto i = locs.begin(); i != locs.end(); ++i) {
         VariableLocation current = *i;
-        offset = current.frameOffsetAbs;
-        //std::cout << current.stClass << std::endl;
+
+        // We only want to know where parameter is at the entrypoint
+        result << std::hex << current.lowPC << " to " << current.hiPC 
+               << " " << current.mr_reg.name() <<  " "
+               << std::dec << current.frameOffset;
+
+        break;
     }
            
-    return offset;
+    return result.str();
 }
 
 
@@ -173,8 +179,8 @@ void Corpus::toAsp() {
     for (auto &typeloc : typelocs) {
 
         std::cout << "abi_typelocation(" << library << ", " << typeloc.parent
-                  << ", " << typeloc.name << ", " << typeloc.type << ", "
-                  << typeloc.location << ")" << std::endl;
+                  << ", " << typeloc.name << ", " << typeloc.type << ", \""
+                  << typeloc.locoffset << "\")" << std::endl;
     }
 }
 
@@ -186,7 +192,7 @@ void Corpus::toYaml() {
 
         std::cout << " - library: " << library << "\n   parent: " << typeloc.parent
                   << "\n   name: " << typeloc.name << "\n   type: " << typeloc.type
-                  << "\n   location: " << typeloc.location << "\n" << std::endl;
+                  << "\n   location: " << typeloc.locoffset << "\n" << std::endl;
     }
 }
 
@@ -206,9 +212,8 @@ void Corpus::toJson() {
         }
         std::cout << "{\"library\": \"" << library << "\", \"parent\": \"" 
                   << typeloc.parent << "\", \"name\": \"" << typeloc.name << "\", \"type\": \""
-                  << typeloc.type << "\", \"location\": \"" << typeloc.location
-                  << "\"}" << endcomma << std::endl;
-
+                  << typeloc.type << "\", \"location\": \"" << typeloc.locoffset << "\"}"
+                  << endcomma << std::endl;
     }
     std::cout << "]}" << std::endl; 
 
@@ -226,6 +231,17 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
   // The function name looks equivalent to the symbol name
   std::string fname = func->getName();
 
+  // This is for debugging
+  // auto frange = func->getRanges();
+  // std::cout << fname << std::endl;
+
+  // This is for debugging
+  // for (auto &range : frange) {
+  //    std::cout << "  " << std::hex << range.low() << " to " << range.high() << std::endl << std::endl;  
+  //}
+
+  // TODO filter out to just global linkage
+
   // Get parameters with types and names
   if (func->getParams(params)) {
     // We need to keep track of the order
@@ -237,6 +253,11 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
  
       // Get param location offset (e.g, framebase+x)
       std::string locoffset = getParamLocationOffset(param);
+
+      // This is for debugging
+      // std::cout << "  " << paramName << std::endl;
+      // std::cout << "  " << paramType << std::endl;
+      // std::cout << "  " << locoffset << std::endl;
 
       // Create a new typelocation to parse later
       TypeLocation typeloc;

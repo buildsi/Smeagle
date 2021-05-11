@@ -27,6 +27,7 @@ find_package(Dyninst REQUIRED)
 include_directories(DYNINST_INCLUDE_DIRS)
 link_directories(DYNINST_LIBRARIES)
 
+
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.6.0")
 CPMAddPackage(
@@ -55,7 +56,7 @@ set_target_properties(Smeagle PROPERTIES CXX_STANDARD 17)
 target_compile_options(Smeagle PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 
 # Link dependencies
-target_link_libraries(Smeagle PRIVATE fmt::fmt symtabAPI)
+target_link_libraries(Smeagle PRIVATE fmt::fmt symtabAPI common instructionAPI)
 
 target_include_directories(
   Smeagle PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

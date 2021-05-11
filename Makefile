@@ -2,7 +2,7 @@
 
 all:
 	cmake --log-level=VERBOSE -DsymtabAPI_DIR=/opt/view/lib/cmake/Dyninst -S all -B build
-	cmake --build build  -DsymtabAPI_DIR=/opt/view/lib/cmake/Dyninst
+	cmake --build build -DsymtabAPI_DIR=/opt/view/lib/cmake/Dyninst
 
 
 test:
