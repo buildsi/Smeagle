@@ -20,6 +20,7 @@ namespace smeagle {
     std::string name;
     std::string parent;
     std::string type;
+    std::string reg;
     std::string exportOrImport;  
     std::string locoffset;
     std::string location;
@@ -73,8 +74,16 @@ namespace smeagle {
     /**
      * @brief Get a string representation of a location from a type
      * @param paramType the parameter (variable) type
+     * @param order the order of the parameter
      */
     std::string getStringLocationFromType(Type* paramType, int order);
+
+    /**
+     * @brief Update the framebase based on the parameter type
+     * @param paramType the parameter (variable) type
+     * @param framebase the current location on the stack
+     */
+    int updateFramebaseFromType(Type * paramType, int framebase);
 
   };
 

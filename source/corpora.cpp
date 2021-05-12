@@ -64,12 +64,44 @@ std::string Corpus::getStringSymbolType(Symbol *symbol) {
   return sname;
 }
 
+// Get a framebase for a variable based on stack location and type
+int Corpus::updateFramebaseFromType(Type * paramType, int framebase){
+
+    // sizeof 16 with alignment bytes 16
+    std::regex check16("(__int128|long double|__float128|__m128)");
+
+    // sizeof 8 with alignment bytes 8
+    std::regex check8("(long|[*]|double|m_64|__int128)");
+
+    // sizeof 1 with alginment bytes 1
+    std::regex check1("(char|bool)");
+
+    // sizeof 2 with alignment bytes 2
+    std::regex check2("short");
+
+    // sizeof 4 with alignment bytes 4
+    std::regex check4("(int|enum|float)");
+
+    std::string paramTypeString = paramType->getName();
+
+    if (std::regex_search(paramTypeString, check16)){
+        framebase += 16;
+    } else if (std::regex_search(paramTypeString, check8)){
+        framebase += 8;
+    } else if (std::regex_search(paramTypeString, check1)){
+        framebase += 1;
+    } else if (std::regex_search(paramTypeString, check2)){
+        framebase += 2;
+    } else if (std::regex_search(paramTypeString, check4)){
+        framebase += 4;
+    } 
+    return framebase; 
+}
+
 // Get a location offset for a variable
+// This function is not used because LocationLists are not reliable
 std::string Corpus::getParamLocationOffset(localVar * param){
     std::vector<VariableLocation> locs = param->getLocationLists();
-
-    // I think we need to do something with these location entries
-    // https://github.com/dyninst/dyninst/blob/7ce24bf14a7745492754adb5ede560dd343e6585/symtabAPI/src/dwarfWalker.C#L2490
     std::stringstream result;
 
     for (auto i = locs.begin(); i != locs.end(); ++i) {
@@ -180,7 +212,7 @@ void Corpus::toAsp() {
 
         std::cout << "abi_typelocation(" << library << ", " << typeloc.parent
                   << ", " << typeloc.name << ", " << typeloc.type << ", \""
-                  << typeloc.locoffset << "\")" << std::endl;
+                  << typeloc.location << ", " << typeloc.reg << "\")" << std::endl;
     }
 }
 
@@ -192,7 +224,8 @@ void Corpus::toYaml() {
 
         std::cout << " - library: " << library << "\n   parent: " << typeloc.parent
                   << "\n   name: " << typeloc.name << "\n   type: " << typeloc.type
-                  << "\n   location: " << typeloc.locoffset << "\n" << std::endl;
+                  << "\n   location: " <<  typeloc.location << "\n   register: " 
+                  << typeloc.reg << "\n" << std::endl;
     }
 }
 
@@ -212,7 +245,8 @@ void Corpus::toJson() {
         }
         std::cout << "{\"library\": \"" << library << "\", \"parent\": \"" 
                   << typeloc.parent << "\", \"name\": \"" << typeloc.name << "\", \"type\": \""
-                  << typeloc.type << "\", \"location\": \"" << typeloc.locoffset << "\"}"
+                  << typeloc.type << "\", \"location\": \"" << typeloc.location << "\", " 
+                  << "\"register\": \"" << typeloc.reg << "\"}"
                   << endcomma << std::endl;
     }
     std::cout << "]}" << std::endl; 
@@ -244,33 +278,37 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
 
   // Get parameters with types and names
   if (func->getParams(params)) {
-    // We need to keep track of the order
+
+    // We need to keep track of the order and framebase, which starts at 8
+    std::string framebaseStr;
+    int framebase = 8;
     int order = 1;
+
     for (auto &param : params) {
       std::string paramName = param->getName();
       Type *paramType = param->getType();
-      std::string loc = getStringLocationFromType(paramType, order);
- 
-      // Get param location offset (e.g, framebase+x)
-      std::string locoffset = getParamLocationOffset(param);
 
-      // This is for debugging
-      // std::cout << "  " << paramName << std::endl;
-      // std::cout << "  " << paramType << std::endl;
-      // std::cout << "  " << locoffset << std::endl;
+      // Get param register location based on type
+      std::string loc = getStringLocationFromType(paramType, order);
+
+      // This uses location lists, not reliable
+      // std::string locoffset = getParamLocationOffset(param);
 
       // Create a new typelocation to parse later
       TypeLocation typeloc;
       typeloc.name = paramName;
       typeloc.parent = fname;
       typeloc.type = paramType->getName();
-
+     
       // TODO how to determine if export/import?
       typeloc.exportOrImport = "export";
-      typeloc.location = loc;
-      typeloc.locoffset = locoffset;
+      typeloc.reg = loc;
+      typeloc.location = "framebase+" + std::to_string(framebase);
       typelocs.push_back (typeloc);
       order += 1;
+
+      // Update the framebase for the next parameter based on the type
+      framebase = updateFramebaseFromType(paramType, framebase);      
     }
   }
 }
