@@ -145,7 +145,7 @@ std::string Corpus::getStringLocationFromType(Type *paramType, int order) {
   if (isconst) {
     loc = "stack";
   } else if (issse) {
-    loc = fmt::format("xmm%s", order-1);
+    loc = "xmm" + std::to_string(order - 1);
   } else if (isinteger) {
     switch (order) {
       case 1: {
