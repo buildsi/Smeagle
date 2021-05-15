@@ -26,6 +26,19 @@ namespace smeagle {
     std::string location;
   };
 
+  // A register class for AMD64 is defined on page 16 of the System V abi pdf
+  enum RegisterClass {    
+    INTEGER,     // Integer types that fit into one of the general purpose registers    
+    SSE,         // Types that fit into an SSE register
+    SSEUP,       // ^.. and can ve passed and returned in he most significant half of it
+    X87,         // Types that will be returned via the x87 FPU
+    X87UP,       // ^
+    COMPLEX_X87, // Types that will be returned via the x87 FPU
+    NO_CLASS,    // Initalizer in the algorithms, used for padding and empty
+                 // tructures and unions
+    MEMORY       // Types that will be passed and returned in memory via the stack
+  };
+
   /**
    * @brief A class for holding corpus metadata
    */
@@ -71,12 +84,19 @@ namespace smeagle {
      * @param param the parameter to get location offset for
      */
     std::string getParamLocationOffset(localVar * param);
+    
     /**
      * @brief Get a string representation of a location from a type
-     * @param paramType the parameter (variable) type
+     * @param regClass the RegisterClass
      * @param order the order of the parameter
      */
-    std::string getStringLocationFromType(Type* paramType, int order);
+    std::string getStringLocationFromRegisterClass(RegisterClass regClasses, int order);
+
+    /**
+     * @brief Get a RegisterClass based on a parameter type
+     * @param paramType the parameter (variable) type
+     */
+    std::vector <RegisterClass> getRegisterClassFromType(Type *paramType);
 
     /**
      * @brief Update the framebase based on the parameter type

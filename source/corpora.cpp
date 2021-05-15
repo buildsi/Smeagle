@@ -119,8 +119,9 @@ std::string Corpus::getParamLocationOffset(localVar * param){
 }
 
 
-// Get a string location from a Type
-std::string Corpus::getStringLocationFromType(Type *paramType, int order) {
+// Get register class given the argument type
+std::vector <RegisterClass> Corpus::getRegisterClassFromType(Type *paramType) {
+
   // We need a string version of the type
   std::string paramTypeString = paramType->getName();
 
@@ -133,20 +134,73 @@ std::string Corpus::getStringLocationFromType(Type *paramType, int order) {
   // float,double,_Decimal32,_Decimal64and__m64are in class SSE.
   std::regex checksse("(double|decimal|float|Decimal|m64)");
 
+  // __float128 and__m128are split into two halves, least significant SSE,
+  // most significant in SSEUP.
+  std::regex checksseup("(m128|float128)");
+
+  // The 64-bit mantissa of arguments of type long double belongs to classX87
+  // the 16-bit exponent plus 6 bytes of padding belongs to class X87UP
+  std::regex checklongdouble("(long|double)");
+
+  // A variable of type complex long double is classified as type COMPLEX_X87
+  std::regex checkcomplexlong("(complex long double)");
+
+  // We will return a vector of classes
+  std::vector <RegisterClass> regClasses;
+
   // Does the type string match one of the types?
   bool isinteger = (std::regex_search(paramTypeString, checkinteger));
   bool isconst = (std::regex_search(paramTypeString, checkconstant));
   bool issse = (std::regex_search(paramTypeString, checksse));
+  bool issseup = (std::regex_search(paramTypeString, checksseup));
+  bool islongdouble = (std::regex_search(paramTypeString, checklongdouble));
+  bool iscomplexlong = (std::regex_search(paramTypeString, checkcomplexlong));
 
-  // Default to its own type (so we can see)
-  std::string loc = paramTypeString;
-
-  // I think constants are stored on the stack?
+  // A parameter can have more than one class!
   if (isconst) {
-    loc = "stack";
-  } else if (issse) {
+    regClass.push_back(RegisterClass::MEMORY);
+  }
+  if (issseup) {
+    regClasses.insert(regClass.end(), {RegisterClass::SSE, RegisterClass::SSE_UP});
+  } 
+  if (issse) {
+    regClasses.push_back(RegisterClass::SSE);
+  } 
+  if (isinteger) {
+    regClasses.push_back(RegisterClass::INTEGER);
+  } 
+  if (iscomplexlong) {
+    regClasses.push_back(RegisterClass::COMPLEX_X87);
+  }
+  if (islongdouble) {
+    regClasses.insert(regClass.end(), {RegisterClass::X87, RegisterClass::X87_UP});
+  } 
+  
+  // check if the length is 0, default to RegisterClass::NO_CLASS;
+  if (regClass.size() == 0) {
+      regClasses.push_back(RegisterClass::NO_CLASS);
+  }
+
+  // The classification of aggregate (structures and arrays) and union types worksas follows:
+  // TODO need to look for struct / arrays?
+  // page 18 of abi document
+  return regClasses;
+}
+
+// Get a string location from a register class
+std::string Corpus::getStringLocationFromRegisterClass(RegisterClass regClasses, int order) {
+
+  // Return a string representation of the register
+  std::string regString;
+
+  // If the class is memory, pass the argument on the stack
+  if (regClasses.size() == 1 && regClasses[0] == RegisterClass::Memory) {
+    regString = "stack";
+
+  // If the class is INTEGER, the next available register in sequence is used
+  } else if (regClasses.size() == 1 && regClasses[0] == RegisterClass::SSE) {
     loc = "xmm" + std::to_string(order - 1);
-  } else if (isinteger) {
+  } else if (regClass == RegisterClass::INTEGER) {
     switch (order) {
       case 1: {
         loc = "%rdi";
@@ -172,6 +226,8 @@ std::string Corpus::getStringLocationFromType(Type *paramType, int order) {
         loc = "%r9";
         break;
       }
+
+      // the document doesn't say it goes up this high
       case 7: {
         loc = "%r10";
         break;
@@ -265,17 +321,6 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
   // The function name looks equivalent to the symbol name
   std::string fname = func->getName();
 
-  // This is for debugging
-  // auto frange = func->getRanges();
-  // std::cout << fname << std::endl;
-
-  // This is for debugging
-  // for (auto &range : frange) {
-  //    std::cout << "  " << std::hex << range.low() << " to " << range.high() << std::endl << std::endl;  
-  //}
-
-  // TODO filter out to just global linkage
-
   // Get parameters with types and names
   if (func->getParams(params)) {
 
@@ -288,8 +333,11 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
       std::string paramName = param->getName();
       Type *paramType = param->getType();
 
-      // Get param register location based on type
-      std::string loc = getStringLocationFromType(paramType, order);
+      // Get register class based on type
+      std::vector <RegisterClass> regClasses = getRegisterClassFromType(paramType);
+
+      // Get register name from register classes
+      std::string loc = getStringLocationFromRegisterClass(regClasses);
 
       // This uses location lists, not reliable
       // std::string locoffset = getParamLocationOffset(param);
