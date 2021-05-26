@@ -24,9 +24,6 @@ endif()
 include(cmake/CPM.cmake)
 
 find_package(Dyninst REQUIRED)
-include_directories(DYNINST_INCLUDE_DIRS)
-link_directories(DYNINST_LIBRARIES)
-
 
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.6.0")
@@ -62,6 +59,7 @@ target_include_directories(
   Smeagle PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
                  $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
+target_include_directories(Smeagle PUBLIC ${DYNINST_INCLUDE_DIR})
 
 # ---- Create an installable target ----
 # this allows users to install and find the library via `find_package()`.
