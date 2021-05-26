@@ -50,9 +50,6 @@ add_library(Smeagle ${headers} ${sources})
 
 set_target_properties(Smeagle PROPERTIES CXX_STANDARD 17)
 
-# being a cross-platform target, we enforce standards conformance on MSVC
-target_compile_options(Smeagle PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
-
 # Link dependencies
 target_link_libraries(Smeagle PRIVATE fmt::fmt Boost::boost common symtabAPI)
 
