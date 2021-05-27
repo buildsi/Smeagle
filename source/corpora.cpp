@@ -158,10 +158,10 @@ std::vector <RegisterClass> Corpus::getRegisterClassFromType(Type *paramType) {
 
   // A parameter can have more than one class!
   if (isconst) {
-    regClass.push_back(RegisterClass::MEMORY);
+    regClasses.push_back(RegisterClass::MEMORY);
   }
   if (issseup) {
-    regClasses.insert(regClass.end(), {RegisterClass::SSE, RegisterClass::SSE_UP});
+    regClasses.insert(regClasses.end(), {RegisterClass::SSE, RegisterClass::SSEUP});
   } 
   if (issse) {
     regClasses.push_back(RegisterClass::SSE);
@@ -173,11 +173,11 @@ std::vector <RegisterClass> Corpus::getRegisterClassFromType(Type *paramType) {
     regClasses.push_back(RegisterClass::COMPLEX_X87);
   }
   if (islongdouble) {
-    regClasses.insert(regClass.end(), {RegisterClass::X87, RegisterClass::X87_UP});
+    regClasses.insert(regClasses.end(), {RegisterClass::X87, RegisterClass::X87UP});
   } 
   
   // check if the length is 0, default to RegisterClass::NO_CLASS;
-  if (regClass.size() == 0) {
+  if (regClasses.size() == 0) {
       regClasses.push_back(RegisterClass::NO_CLASS);
   }
 
@@ -188,76 +188,76 @@ std::vector <RegisterClass> Corpus::getRegisterClassFromType(Type *paramType) {
 }
 
 // Get a string location from a register class
-std::string Corpus::getStringLocationFromRegisterClass(RegisterClass regClasses, int order) {
+std::string Corpus::getStringLocationFromRegisterClass(RegisterClass regClass, int order) {
 
   // Return a string representation of the register
   std::string regString;
 
   // If the class is memory, pass the argument on the stack
-  if (regClasses.size() == 1 && regClasses[0] == RegisterClass::Memory) {
+  if (regClass == RegisterClass::MEMORY) {
     regString = "stack";
 
   // If the class is INTEGER, the next available register in sequence is used
-  } else if (regClasses.size() == 1 && regClasses[0] == RegisterClass::SSE) {
-    loc = "xmm" + std::to_string(order - 1);
+  } else if (regClass == RegisterClass::SSE) {
+    regString = "xmm" + std::to_string(order - 1);
   } else if (regClass == RegisterClass::INTEGER) {
     switch (order) {
       case 1: {
-        loc = "%rdi";
+        regString = "%rdi";
         break;
       }
       case 2: {
-        loc = "%rsi";
+        regString = "%rsi";
         break;
       }
       case 3: {
-        loc = "%rdx";
+        regString = "%rdx";
         break;
       }
       case 4: {
-        loc = "%rcx";
+        regString = "%rcx";
         break;
       }
       case 5: {
-        loc = "%r8";
+        regString = "%r8";
         break;
       }
       case 6: {
-        loc = "%r9";
+        regString = "%r9";
         break;
       }
 
       // the document doesn't say it goes up this high
       case 7: {
-        loc = "%r10";
+        regString = "%r10";
         break;
       }
       case 8: {
-        loc = "%r11";
+        regString = "%r11";
         break;
       }
       case 9: {
-        loc = "%r12";
+        regString = "%r12";
         break;
       }
       case 10: {
-        loc = "%r13";
+        regString = "%r13";
         break;
       }
       case 11: {
-        loc = "%r14";
+        regString = "%r14";
         break;
       }
       case 12: {
-        loc = "%r15";
+        regString = "%r15";
         break;
       }
       // Greater than 6 is stored in memory
-      default: { loc = "memory"; }
+      default: { regString = "memory"; }
     }
   }
 
-  return loc;
+  return regString;
 }
 
 // dump all Type Locations to asp
@@ -337,7 +337,7 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
       std::vector <RegisterClass> regClasses = getRegisterClassFromType(paramType);
 
       // Get register name from register classes
-      std::string loc = getStringLocationFromRegisterClass(regClasses);
+//      std::string loc = getStringLocationFromRegisterClass(regClasses);
 
       // This uses location lists, not reliable
       // std::string locoffset = getParamLocationOffset(param);
@@ -350,7 +350,7 @@ void Corpus::parseFunctionABILocation(Symbol *symbol) {
      
       // TODO how to determine if export/import?
       typeloc.exportOrImport = "export";
-      typeloc.reg = loc;
+//      typeloc.reg = loc;
       typeloc.location = "framebase+" + std::to_string(framebase);
       typelocs.push_back (typeloc);
       order += 1;
