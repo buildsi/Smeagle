@@ -10,21 +10,9 @@
 #include "Function.h"
 #include "Symtab.h"
 
-using namespace Dyninst;
-using namespace SymtabAPI;
+#include "smeagle/TypeLocation.h"
 
 namespace smeagle {
-
-  // A type location has a name, type, export/import, and location
-  struct TypeLocation {
-    std::string name;
-    std::string parent;
-    std::string type;
-    std::string reg;
-    std::string exportOrImport;  
-    std::string locoffset;
-    std::string location;
-  };
 
   // A register class for AMD64 is defined on page 16 of the System V abi pdf
   enum RegisterClass {    
