@@ -56,7 +56,7 @@ int Smeagle::parse(FormatCode fmt) {
     if (symbol->isInDynSymtab()) {
       // If It's a function, parse the parameters
       if (symbol->isFunction()) {
-        corpus.parseFunctionABILocation(symbol);
+        corpus.parseFunctionABILocation(symbol, obj->getArchitecture());
 
         // The symbol is something else (we likely want a subset of these?)
       }  // else {
