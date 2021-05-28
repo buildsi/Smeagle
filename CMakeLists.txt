@@ -24,9 +24,7 @@ endif()
 include(cmake/CPM.cmake)
 
 find_package(Dyninst REQUIRED)
-include_directories(DYNINST_INCLUDE_DIRS)
-link_directories(DYNINST_LIBRARIES)
-
+find_package(Boost REQUIRED)
 
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.6.0")
@@ -38,29 +36,33 @@ CPMAddPackage(
 )
 
 # ---- Add source files ----
-
-# Note: globbing sources is considered bad practice as CMake's generators may not detect new files
-# automatically. Keep that in mind when changing files, or explicitly mention them here.
-file(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
-file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
+set(include_dirs
+	smeagle/include
+	source/detail
+)
+set(sources
+	source/corpora.cpp
+	source/smeagle.cpp
+	source/detail/parser/x86_64.cpp
+	source/detail/parser/ppc64le.cpp
+	source/detail/parser/aarch64.cpp
+)
 
 # ---- Create library ----
-
-# Note: for header-only libraries change all PUBLIC flags to INTERFACE and create an interface
-# target: add_library(Smeagle INTERFACE)
-add_library(Smeagle ${headers} ${sources})
+add_library(Smeagle ${sources})
 
 set_target_properties(Smeagle PROPERTIES CXX_STANDARD 17)
 
-# being a cross-platform target, we enforce standards conformance on MSVC
-target_compile_options(Smeagle PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
-
 # Link dependencies
-target_link_libraries(Smeagle PRIVATE fmt::fmt symtabAPI common instructionAPI)
+target_link_libraries(Smeagle PRIVATE fmt::fmt Boost::boost common symtabAPI)
 
 target_include_directories(
-  Smeagle PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-                 $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+  Smeagle
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+         ${Boost_INCLUDE_DIRS}
+         ${include_dirs}
+         ${DYNINST_INCLUDE_DIR}
 )
 
 # ---- Create an installable target ----

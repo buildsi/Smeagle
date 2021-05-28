@@ -2,3 +2,8 @@
 /.vscode
 /cpm_modules
 .DS_Store
+
+# Eclipse files
+.cproject
+.project
+.settings
