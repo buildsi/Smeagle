@@ -5,13 +5,22 @@
 
 #pragma once
 
-// A type location has a name, type, export/import, and location
-struct TypeLocation {
+#include <string>
+
+namespace smeagle {
+
+/***
+ * \brief Representation of a parameter in an interface
+ *
+ * A parameter can be a formal parameter of a function definition,
+ * an actual parameter at a callsite, or a return value from a function.
+ *
+ */
+struct parameter {
 	std::string name;
-	std::string parent;
 	std::string type;
-	std::string reg;
 	std::string exportOrImport;
-	std::string locoffset;
 	std::string location;
 };
+
+}

@@ -23,10 +23,9 @@ void Corpus::toAsp() {
 
     std::cout << "corpus(" << library << ")," << std::endl;
     for (auto &typeloc : typelocs) {
-
-        std::cout << "abi_typelocation(" << library << ", " << typeloc.parent
-                  << ", " << typeloc.name << ", " << typeloc.type << ", \""
-                  << typeloc.location << ", " << typeloc.reg << "\")" << std::endl;
+        std::cout << "abi_typelocation(" << library
+                  << ", " << p.name << ", " << p.type << ", \""
+                  << p.location << "\")" << std::endl;
     }
 }
 
@@ -35,11 +34,11 @@ void Corpus::toYaml() {
 
     std::cout << "library: \"" << library << "\"\nlocations: " << std::endl;
     for (auto &typeloc : typelocs) {
-
-        std::cout << " - library: " << library << "\n   parent: " << typeloc.parent
-                  << "\n   name: " << typeloc.name << "\n   type: " << typeloc.type
-                  << "\n   location: " <<  typeloc.location << "\n   register: "
-                  << typeloc.reg << "\n" << std::endl;
+        std::cout << " - library: " << library
+                  << "\n   name: " << p.name
+				  << "\n   type: " << p.type
+                  << "\n   location: " <<  p.location
+				  << "\n" << std::endl;
     }
 }
 
@@ -57,10 +56,11 @@ void Corpus::toJson() {
         else {
             endcomma = ",";
         }
-        std::cout << "{\"library\": \"" << library << "\", \"parent\": \""
-                  << typeloc.parent << "\", \"name\": \"" << typeloc.name << "\", \"type\": \""
-                  << typeloc.type << "\", \"location\": \"" << typeloc.location << "\", "
-                  << "\"register\": \"" << typeloc.reg << "\"}"
+        std::cout << "{\"library\": \"" << library
+				  << "\", \"name\": \"" << p.name
+				  << "\", \"type\": \"" << p.type
+				  << "\", \"location\": \"" << p.location
+				  << "\"}"
                   << endcomma << std::endl;
     }
     std::cout << "]}" << std::endl;
