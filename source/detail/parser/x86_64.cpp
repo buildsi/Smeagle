@@ -308,14 +308,14 @@ namespace smeagle::x86_64 {
 	      // std::string locoffset = getParamLocationOffset(param);
 
 	      // Create a new typelocation to parse later
-	      parameter typeloc;
-	      typeloc.name = paramName;
-	      typeloc.type = paramType->getName();
+	      parameter p;
+	      p.name = paramName;
+	      p.type = paramType->getName();
 
 	      // TODO how to determine if export/import?
-	      typeloc.exportOrImport = "export";
-	      typeloc.location = "framebase+" + std::to_string(framebase);
-	      typelocs.push_back(typeloc);
+	      p.exportOrImport = "export";
+	      p.location = "framebase+" + std::to_string(framebase);
+	      typelocs.push_back(p);
 	      order += 1;
 
 	      // Update the framebase for the next parameter based on the type

@@ -19,7 +19,7 @@ namespace smeagle {
    */
   class Corpus {
     std::string library;
-    std::vector <parameter> typelocs;
+    std::vector <parameter> params;
 
   public:
     /**
