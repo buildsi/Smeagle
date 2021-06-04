@@ -3,12 +3,13 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <fmt/format.h>
-#include <smeagle/smeagle.h>
-#include <smeagle/corpora.h>
-#include <regex>
-#include <iostream>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <smeagle/corpora.h>
+#include <smeagle/smeagle.h>
+
+#include <iostream>
+#include <regex>
 
 #include "Function.h"
 #include "Symtab.h"
@@ -19,10 +20,8 @@ using namespace smeagle;
 
 Smeagle::Smeagle(std::string _library) : library(std::move(_library)) {}
 
-
 // Parse the library with smeagle
 int Smeagle::parse(FormatCode fmt) {
-
   // We are going to read functions and symbols
   Symtab *obj = NULL;
   std::vector<Symbol *> symbols;
@@ -49,7 +48,7 @@ int Smeagle::parse(FormatCode fmt) {
 
   // Create a corpus
   Corpus corpus(library);
-  
+
   // Loop through the vector and look at symbols
   for (auto &symbol : symbols) {
     // We are interested in symbols in the dynamic symbol table

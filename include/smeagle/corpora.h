@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "Symtab.h"
-
 #include "smeagle/parameter.h"
 
 namespace smeagle {
@@ -19,7 +18,7 @@ namespace smeagle {
    */
   class Corpus {
     std::string library;
-    std::vector <parameter> params;
+    std::vector<parameter> params;
 
   public:
     /**
@@ -34,7 +33,7 @@ namespace smeagle {
     void parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *, Dyninst::Architecture);
 
     /**
-     * @brief Dump a corpus to asp 
+     * @brief Dump a corpus to asp
      */
     void toAsp();
 
@@ -49,4 +48,4 @@ namespace smeagle {
     void toYaml();
   };
 
-}  // namespace corpora
+}  // namespace smeagle

@@ -5,6 +5,4 @@
 
 #pragma once
 
-namespace smeagle::ppc64le {
-
-}  // namespace smeagle::ppc64le
+namespace smeagle::ppc64le {}  // namespace smeagle::ppc64le

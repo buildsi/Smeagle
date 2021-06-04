@@ -5,6 +5,4 @@
 
 #include "ppc64le.hpp"
 
-namespace smeagle::ppc64le {
-
-}  // namespace smeagle::ppc64le
+namespace smeagle::ppc64le {}  // namespace smeagle::ppc64le

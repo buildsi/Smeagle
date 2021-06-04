@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "Symtab.h"
-
 #include "smeagle/parameter.h"
 
 namespace smeagle::x86_64 {
