@@ -36,16 +36,9 @@ CPMAddPackage(
 )
 
 # ---- Add source files ----
-set(include_dirs
-	smeagle/include
-	source/detail
-)
-set(sources
-	source/corpora.cpp
-	source/smeagle.cpp
-	source/detail/parser/x86_64.cpp
-	source/detail/parser/ppc64le.cpp
-	source/detail/parser/aarch64.cpp
+set(include_dirs smeagle/include source/detail)
+set(sources source/corpora.cpp source/smeagle.cpp source/detail/parser/x86_64.cpp
+            source/detail/parser/ppc64le.cpp source/detail/parser/aarch64.cpp
 )
 
 # ---- Create library ----
@@ -59,10 +52,8 @@ target_link_libraries(Smeagle PRIVATE fmt::fmt Boost::boost common symtabAPI)
 target_include_directories(
   Smeagle
   PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
-         ${Boost_INCLUDE_DIRS}
-         ${include_dirs}
-         ${DYNINST_INCLUDE_DIR}
+         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}> ${Boost_INCLUDE_DIRS}
+         ${include_dirs} ${DYNINST_INCLUDE_DIR}
 )
 
 # ---- Create an installable target ----
