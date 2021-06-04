@@ -1,12 +1,10 @@
-name: Style
+name: Build Smeagle
 
 on:
-  push:
-    branches:
-      - main
   pull_request: []
 
 env:
+  CTEST_OUTPUT_ON_FAILURE: 1
   CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm_modules
 
 jobs:
@@ -14,15 +12,6 @@ jobs:
     container: ghcr.io/autamus/dyninst
     runs-on: ubuntu-latest
     steps:
-
-      - name: Force Install GIT latest
-        run: |
-          apt-get update && apt-get install -y software-properties-common \
-          && apt-get update \
-          && add-apt-repository -y ppa:git-core/ppa \
-          && apt-get update \
-          && apt-get install -y git
-
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
@@ -33,7 +22,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y wget g++ libssl-dev git libtbb-dev python3-dev build-essential \
-              python3-jinja2 python3-pygments ghostscript doxygen python3-yaml python3-pip clang-format
+              python3-jinja2 python3-pygments ghostscript doxygen python3-yaml python3-pip
 
           cd /tmp
           wget https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2.tar.gz
@@ -48,7 +37,9 @@ jobs:
           cd cmake_format
           pip3 install .
 
-      - name: Check format
-        run: |
-          alias python='python3'
-          make fmt
+      - name: build and install library
+        run: make 
+        
+# TODO add tests       
+#      - name: test
+#        run: make test
