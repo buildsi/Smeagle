@@ -9,9 +9,9 @@
 
 #include "Symtab.h"
 
-#include "smeagle/TypeLocation.h"
+#include "smeagle/parameter.h"
 
 namespace smeagle::x86_64 {
 
-  std::vector<TypeLocation> parse_parameters(Dyninst::SymtabAPI::Symbol *symbol);
+  std::vector<parameter> parse_parameters(Dyninst::SymtabAPI::Symbol *symbol);
 }  // namespace smeagle::x86_64

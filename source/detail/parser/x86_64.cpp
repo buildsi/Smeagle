@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-#include "smeagle/TypeLocation.h"
+#include "smeagle/parameter.h"
 
 #include "Function.h"
 #include "Symtab.h"
@@ -273,7 +273,7 @@ namespace smeagle::x86_64 {
     return regString;
   }
 
-  std::vector<TypeLocation> parse_parameters(st::Symbol *symbol) {
+  std::vector<parameter> parse_parameters(st::Symbol *symbol) {
 	  // Get the name and type of the symbol
 	  std::string sname = symbol->getMangledName();
 	  std::string stype = getStringSymbolType(symbol);
@@ -284,7 +284,7 @@ namespace smeagle::x86_64 {
 	  // The function name looks equivalent to the symbol name
 	  std::string fname = func->getName();
 
-	  std::vector<TypeLocation> typelocs;
+	  std::vector<parameter> typelocs;
 
 	  // Get parameters with types and names
 	  if (func->getParams(params)) {
@@ -308,16 +308,14 @@ namespace smeagle::x86_64 {
 	      // std::string locoffset = getParamLocationOffset(param);
 
 	      // Create a new typelocation to parse later
-	      TypeLocation typeloc;
-	      typeloc.name = paramName;
-	      typeloc.parent = fname;
-	      typeloc.type = paramType->getName();
+	      parameter p;
+	      p.name = paramName;
+	      p.type = paramType->getName();
 
 	      // TODO how to determine if export/import?
-	      typeloc.exportOrImport = "export";
-	//      typeloc.reg = loc;
-	      typeloc.location = "framebase+" + std::to_string(framebase);
-	      typelocs.push_back(typeloc);
+	      p.exportOrImport = "export";
+	      p.location = "framebase+" + std::to_string(framebase);
+	      typelocs.push_back(p);
 	      order += 1;
 
 	      // Update the framebase for the next parameter based on the type

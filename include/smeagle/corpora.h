@@ -10,7 +10,7 @@
 
 #include "Symtab.h"
 
-#include "smeagle/TypeLocation.h"
+#include "smeagle/parameter.h"
 
 namespace smeagle {
 
@@ -19,7 +19,7 @@ namespace smeagle {
    */
   class Corpus {
     std::string library;
-    std::vector <TypeLocation> typelocs;
+    std::vector <parameter> params;
 
   public:
     /**
