@@ -5,6 +5,4 @@
 
 #include "aarch64.hpp"
 
-namespace smeagle::aarch64 {
-
-}  // namespace smeagle::aarch64
+namespace smeagle::aarch64 {}  // namespace smeagle::aarch64

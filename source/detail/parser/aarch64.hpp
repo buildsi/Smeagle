@@ -5,5 +5,4 @@
 
 #pragma once
 
-namespace smeagle::aarch64 {
-}  // namespace smeagle::aarch64
+namespace smeagle::aarch64 {}  // namespace smeagle::aarch64

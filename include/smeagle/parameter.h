@@ -9,18 +9,18 @@
 
 namespace smeagle {
 
-/***
- * \brief Representation of a parameter in an interface
- *
- * A parameter can be a formal parameter of a function definition,
- * an actual parameter at a callsite, or a return value from a function.
- *
- */
-struct parameter {
-	std::string name;
-	std::string type;
-	std::string exportOrImport;
-	std::string location;
-};
+  /***
+   * \brief Representation of a parameter in an interface
+   *
+   * A parameter can be a formal parameter of a function definition,
+   * an actual parameter at a callsite, or a return value from a function.
+   *
+   */
+  struct parameter {
+    std::string name;
+    std::string type;
+    std::string exportOrImport;
+    std::string location;
+  };
 
-}
+}  // namespace smeagle
