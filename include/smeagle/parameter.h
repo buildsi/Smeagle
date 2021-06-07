@@ -19,7 +19,7 @@ namespace smeagle {
   struct parameter {
     std::string name;
     std::string type;
-    std::string exportOrImport;
+    std::string direction;
     std::string location;
   };
 

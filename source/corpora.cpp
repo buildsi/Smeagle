@@ -24,7 +24,7 @@ void Corpus::toAsp() {
 
   for (auto &p : params) {
     std::cout << "abi_typelocation(" << library << ", " << p.name << ", " << p.type << ", \""
-              << p.location << "\")" << std::endl;
+              << p.location << "\", " << p.direction << ")" << std::endl;
   }
 }
 
@@ -34,7 +34,7 @@ void Corpus::toYaml() {
 
   for (auto &p : params) {
     std::cout << " - library: " << library << "\n   name: " << p.name << "\n   type: " << p.type
-              << "\n   location: " << p.location << "\n"
+              << "\n   location: " << p.location << "\n   direction: " << p.direction << "\n"
               << std::endl;
   }
 }
@@ -52,7 +52,8 @@ void Corpus::toJson() {
     }
 
     std::cout << "{\"library\": \"" << library << "\", \"name\": \"" << p.name << "\", \"type\": \""
-              << p.type << "\", \"location\": \"" << p.location << "\"}" << endcomma << std::endl;
+              << p.type << "\", \"location\": \"" << p.location << "\", \"direction\": \""
+              << p.direction << "\"}" << endcomma << std::endl;
   }
   std::cout << "]}" << std::endl;
 }

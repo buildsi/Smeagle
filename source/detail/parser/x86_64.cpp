@@ -11,6 +11,7 @@
 
 #include "Function.h"
 #include "Symtab.h"
+#include "Type.h"
 #include "smeagle/parameter.h"
 
 namespace smeagle::x86_64 {
@@ -126,6 +127,29 @@ namespace smeagle::x86_64 {
     }
 
     return result.str();
+  }
+
+  // Get directionality from argument type
+  std::string getDirectionalityFromType(st::Type *paramType) {
+    auto dataType = paramType->getDataClass();
+    std::string dataTypeStr = st::dataClass2Str(dataType);
+
+    // If it's a pointer, we need to know what it's pointing to!
+    if (dataTypeStr == "pointer" || dataTypeStr == "reference") {
+      auto pointerType = paramType->getPointerType();
+
+      // if typo is pointer but type is primitive: imported
+      std::regex is_primitive("(int|char|bool|float|double|null|none|undefined)");
+      if (std::regex_search(pointerType->getName(), is_primitive)) {
+        return "import";
+      }
+
+      // but passed by pointer or reference and not primitive, value is unknown
+      return "unknown";
+    }
+
+    // Do we default to export?
+    return "export";
   }
 
   // Get register class given the argument type
@@ -294,6 +318,9 @@ namespace smeagle::x86_64 {
         // Get register class based on type
         std::vector<RegisterClass> regClasses = getRegisterClassFromType(paramType);
 
+        // Get the directionality (export or import) given the type
+        std::string direction = getDirectionalityFromType(paramType);
+
         // Get register name from register classes
         //      std::string loc = getStringLocationFromRegisterClass(regClasses);
 
@@ -305,8 +332,7 @@ namespace smeagle::x86_64 {
         p.name = paramName;
         p.type = paramType->getName();
 
-        // TODO how to determine if export/import?
-        p.exportOrImport = "export";
+        p.direction = direction;
         p.location = "framebase+" + std::to_string(framebase);
         typelocs.push_back(p);
         order += 1;
