@@ -129,13 +129,15 @@ namespace smeagle::x86_64 {
     return result.str();
   }
 
+  // return true if data class is reference or pointer
+  bool is_indirect(st::dataClass dc) { return dc == st::dataPointer || dc == st::dataReference; }
+
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {
     auto dataType = paramType->getDataClass();
-    std::string dataTypeStr = st::dataClass2Str(dataType);
 
     // If it's a pointer, we need to know what it's pointing to!
-    if (dataTypeStr == "pointer" || dataTypeStr == "reference") {
+    if (is_indirect(dataType)) {
       auto pointerType = paramType->getPointerType();
 
       // if typo is pointer but type is primitive: imported
