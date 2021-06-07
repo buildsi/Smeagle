@@ -134,10 +134,12 @@ namespace smeagle::x86_64 {
 
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {
-    auto dataType = paramType->getDataClass();
+    auto dataClass = paramType->getDataClass();
+
+    // TODO add more detailed cases here for export
 
     // If it's a pointer, we need to know what it's pointing to!
-    if (is_indirect(dataType)) {
+    if (is_indirect(dataClass)) {
       auto pointerType = paramType->getPointerType();
 
       // if typo is pointer but type is primitive: imported
@@ -151,7 +153,7 @@ namespace smeagle::x86_64 {
     }
 
     // Do we default to export?
-    return "export";
+    return "import";
   }
 
   // Get register class given the argument type
