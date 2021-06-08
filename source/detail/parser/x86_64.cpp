@@ -77,6 +77,31 @@ namespace smeagle::x86_64 {
     return sname;
   }
 
+  // Return true if the dataClass is a pointer type
+  static bool is_pointer(st::dataClass dc) { return dc == st::dataPointer; }
+
+  // Return true if the dataClass is a reference
+  static bool is_ref(st::dataClass dc) { return dc == st::dataReference; }
+
+  // Return true if dataClass is reference or pointer
+  static bool is_indirect(st::dataClass dc) {
+    return dc == st::dataPointer || dc == st::dataReference;
+  }
+
+  // Return true if dataClass is a primitive type
+  static bool is_primitive(st::dataClass dc) { return dc == st::dataEnum || dc == st::dataScalar; }
+
+  // Dereference a pointer or reference
+  static st::dataClass deref(st::Type *t) {
+    if (is_pointer(t->getDataClass())) {
+      return deref(t->getPointerType()->getConstituentType());
+    }
+    if (is_ref(t->getDataClass())) {
+      return deref(t->getRefType()->getConstituentType());
+    }
+    return t->getDataClass();
+  }
+
   // Get a framebase for a variable based on stack location and type
   int updateFramebaseFromType(st::Type *paramType, int framebase) {
     // sizeof 16 with alignment bytes 16
@@ -129,31 +154,24 @@ namespace smeagle::x86_64 {
     return result.str();
   }
 
-  // return true if data class is reference or pointer
-  bool is_indirect(st::dataClass dc) { return dc == st::dataPointer || dc == st::dataReference; }
-
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {
     auto dataClass = paramType->getDataClass();
 
-    // TODO add more detailed cases here for export
-
-    // If it's a pointer, we need to know what it's pointing to!
-    if (is_indirect(dataClass)) {
-      auto pointerType = paramType->getPointerType();
-
-      // if typo is pointer but type is primitive: imported
-      std::regex is_primitive("(int|char|bool|float|double|null|none|undefined)");
-      if (std::regex_search(pointerType->getName(), is_primitive)) {
-        return "import";
-      }
-
-      // but passed by pointer or reference and not primitive, value is unknown
-      return "unknown";
+    // Any type passed by value is always imported
+    if (!is_indirect(dataClass)) {
+      return "import";
     }
 
-    // Do we default to export?
-    return "import";
+    // Remove any reference or pointer indirection
+    dataClass = deref(paramType);
+
+    // A pointer/reference to a primitive is imported
+    if (is_primitive(dataClass)) {
+      return "import";
+    }
+    // Passed by pointer or reference and not primitive, value is unknown
+    return "unknown";
   }
 
   // Get register class given the argument type
