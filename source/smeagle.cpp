@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <regex>
+#include <stdexcept>
 
 #include "Function.h"
 #include "Symtab.h"
@@ -29,18 +30,18 @@ smeagle::Corpus Smeagle::parse() {
 
   // Read the library into the Symtab object, cut out early if there's error
   if (not Symtab::openFile(obj, library)) {
-    throw "There was a problem reading the library..";
+    throw std::runtime_error{"There was a problem reading from '" + library + "'"};
   }
 
   // Get all functions in the library
   if (not obj->getAllFunctions(funcs)) {
-    throw "There was a problem getting functions from the library.";
+    throw std::runtime_error{"There was a problem getting functions from '" + library + "'"};
   }
 
   // Get all functions in the library
   // Note: looping through this doesn't seem to work
   if (not obj->getAllSymbols(symbols)) {
-    throw "There was a problem getting symbols from the library..";
+    throw std::runtime_error{"There was a problem getting symbols from '" + library + "'"};
   }
 
   // Create a corpus
