@@ -156,15 +156,16 @@ namespace smeagle::x86_64 {
     return result.str();
   }
 
+  // Unwrap and remove typedef
+  static st::Type *remove_typedef(st::Type *t) {
+    if (is_typedef(t->getDataClass())) {
+      t = t->getTypedefType()->getConstituentType();
+    }
+    return t;
+  };
+
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {
-    const auto remove_typedef = [](st::Type *t) {
-      if (is_typedef(t->getDataClass())) {
-        t = t->getTypedefType()->getConstituentType();
-      }
-      return t;
-    };
-
     // Remove any top-level typedef
     paramType = remove_typedef(paramType);
     auto dataClass = paramType->getDataClass();
@@ -192,7 +193,16 @@ namespace smeagle::x86_64 {
 
   // Get register class given the argument type
   std::vector<RegisterClass> getRegisterClassFromType(st::Type *paramType) {
-    // We need a string version of the type
+    // Remove top-level typedef
+    paramType = remove_typedef(paramType);
+
+    // If it's a pointer, remove it
+    if (is_indirect(paramType->getDataClass())) {
+      paramType = deref(paramType);
+      paramType = remove_typedef(paramType);
+    }
+
+    // Now get a string version of the type
     std::string paramTypeString = paramType->getName();
 
     // Signed and unsigned Bool,char,short,int,long,long long, and pointers
