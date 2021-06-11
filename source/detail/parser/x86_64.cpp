@@ -157,7 +157,7 @@ namespace smeagle::x86_64 {
   }
 
   // Unwrap and remove typedef
-  const auto remove_typedef = [](st::Type *t) {
+  static st::Type *remove_typedef(st::Type *t) {
     if (is_typedef(t->getDataClass())) {
       t = t->getTypedefType()->getConstituentType();
     }
