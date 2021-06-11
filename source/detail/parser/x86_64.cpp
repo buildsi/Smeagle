@@ -11,6 +11,7 @@
 
 #include "Function.h"
 #include "Symtab.h"
+#include "Type.h"
 #include "smeagle/parameter.h"
 
 namespace smeagle::x86_64 {
@@ -76,6 +77,33 @@ namespace smeagle::x86_64 {
     return sname;
   }
 
+  // Return true if the dataClass is a pointer type
+  static bool is_pointer(st::dataClass dc) { return dc == st::dataPointer; }
+
+  // Return true if the dataClass is a reference
+  static bool is_ref(st::dataClass dc) { return dc == st::dataReference; }
+
+  // Return true if dataClass is reference or pointer
+  static bool is_indirect(st::dataClass dc) {
+    return dc == st::dataPointer || dc == st::dataReference;
+  }
+
+  // Return true if dataClass is a primitive type
+  static bool is_primitive(st::dataClass dc) { return dc == st::dataEnum || dc == st::dataScalar; }
+
+  // Dereference a pointer or reference
+  static st::Type *deref(st::Type *t) {
+    if (is_pointer(t->getDataClass())) {
+      return deref(t->getPointerType()->getConstituentType());
+    }
+    if (is_ref(t->getDataClass())) {
+      return deref(t->getRefType()->getConstituentType());
+    }
+    return t;
+  }
+
+  static bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
+
   // Get a framebase for a variable based on stack location and type
   int updateFramebaseFromType(st::Type *paramType, int framebase) {
     // sizeof 16 with alignment bytes 16
@@ -126,6 +154,40 @@ namespace smeagle::x86_64 {
     }
 
     return result.str();
+  }
+
+  // Get directionality from argument type
+  std::string getDirectionalityFromType(st::Type *paramType) {
+    const auto remove_typedef = [](st::Type *t) {
+      if (is_typedef(t->getDataClass())) {
+        t = t->getTypedefType()->getConstituentType();
+      }
+      return t;
+    };
+
+    // Remove any top-level typedef
+    paramType = remove_typedef(paramType);
+    auto dataClass = paramType->getDataClass();
+
+    // Any type passed by value is imported
+    if (!is_indirect(dataClass)) {
+      return "import";
+    }
+
+    // Remove any reference or pointer indirection
+    paramType = deref(paramType);
+
+    // Remove any remaining typedef
+    paramType = remove_typedef(paramType);
+    dataClass = paramType->getDataClass();
+
+    // A pointer/reference to a primitive is imported
+    if (is_primitive(dataClass)) {
+      return "import";
+    }
+
+    // Passed by pointer or reference and not primitive, value is unknown
+    return "unknown";
   }
 
   // Get register class given the argument type
@@ -294,6 +356,9 @@ namespace smeagle::x86_64 {
         // Get register class based on type
         std::vector<RegisterClass> regClasses = getRegisterClassFromType(paramType);
 
+        // Get the directionality (export or import) given the type
+        std::string direction = getDirectionalityFromType(paramType);
+
         // Get register name from register classes
         //      std::string loc = getStringLocationFromRegisterClass(regClasses);
 
@@ -305,8 +370,7 @@ namespace smeagle::x86_64 {
         p.name = paramName;
         p.type = paramType->getName();
 
-        // TODO how to determine if export/import?
-        p.exportOrImport = "export";
+        p.direction = direction;
         p.location = "framebase+" + std::to_string(framebase);
         typelocs.push_back(p);
         order += 1;
