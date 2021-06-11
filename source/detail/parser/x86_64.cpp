@@ -322,7 +322,9 @@ namespace smeagle::x86_64 {
           break;
         }
         // Greater than 6 is stored in memory
-        default: { regString = "memory"; }
+        default: {
+          regString = "memory";
+        }
       }
     }
 
@@ -381,5 +383,7 @@ namespace smeagle::x86_64 {
     }
     return typelocs;
   }
+
+  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) { return {}; }
 
 }  // namespace smeagle::x86_64

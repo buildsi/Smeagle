@@ -22,9 +22,11 @@ Corpus::Corpus(std::string _library) : library(std::move(_library)){};
 void Corpus::toAsp() {
   std::cout << "corpus(" << library << ")," << std::endl;
 
-  for (auto &p : params) {
-    std::cout << "abi_typelocation(" << library << ", " << p.name << ", " << p.type << ", \""
-              << p.location << "\", " << p.direction << ")" << std::endl;
+  for (auto &f : functions) {
+    for (auto const &p : f.parameters) {
+      std::cout << "abi_typelocation(" << f.function_name << ", " << p.name << ", " << p.type
+                << ", \"" << p.location << "\", " << p.direction << ")" << std::endl;
+    }
   }
 }
 
@@ -32,30 +34,56 @@ void Corpus::toAsp() {
 void Corpus::toYaml() {
   std::cout << "library: \"" << library << "\"\nlocations: " << std::endl;
 
-  for (auto &p : params) {
-    std::cout << " - library: " << library << "\n   name: " << p.name << "\n   type: " << p.type
-              << "\n   location: " << p.location << "\n   direction: " << p.direction << "\n"
-              << std::endl;
+  for (auto &f : functions) {
+    std::cout << "- function: " << f.function_name << "\n  parameters:";
+    for (auto const &p : f.parameters) {
+      std::cout << "\n    - name: " << p.name << "\n      type: " << p.type
+                << "\n      location: " << p.location << "\n      direction: " << p.direction;
+    }
+    std::cout << std::endl;
   }
 }
 
 // dump all Type Locations to json
 void Corpus::toJson() {
-  std::cout << "{ \"library\": \"" << library << "\", \"locations\": [" << std::endl;
-  for (auto &p : params) {
-    // Check if we are at the last entry (no comma) or not
+  std::cout << "{\n"
+            << " \"library\": \"" << library << "\",\n"
+            << " \"locations\":\n"
+            << " [\n";
+
+  for (auto &f : functions) {
     std::string endcomma;
-    if (&p == &params.back())
+    if (&f == &functions.back())
       endcomma = "";
     else {
       endcomma = ",";
     }
+    std::cout << "   {\n"
+              << "    \"function\": \"" << f.function_name << ",\n"
+              << "    \"parameters\":\n"
+              << "    [\n";
 
-    std::cout << "{\"library\": \"" << library << "\", \"name\": \"" << p.name << "\", \"type\": \""
-              << p.type << "\", \"location\": \"" << p.location << "\", \"direction\": \""
-              << p.direction << "\"}" << endcomma << std::endl;
+    for (auto const &p : f.parameters) {
+      // Check if we are at the last entry (no comma) or not
+      std::string endcomma;
+      if (&p == &f.parameters.back())
+        endcomma = "";
+      else {
+        endcomma = ",";
+      }
+
+      std::cout << "     {"
+                << "\"name\":\"" << p.name << "\", "
+                << "\"type\":\"" << p.type << "\", "
+                << "\"location\":\"" << p.location << "\", "
+                << "\"direction\":\"" << p.direction << "\""
+                << "}" << endcomma << '\n';
+    }
+    std::cout << "    ]\n"
+              << "   }" << endcomma << "\n";
   }
-  std::cout << "]}" << std::endl;
+  std::cout << " ]\n"
+            << "}" << std::endl;
 }
 
 // parse a function for parameters and abi location
@@ -63,7 +91,8 @@ void Corpus::parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *symbol,
                                       Dyninst::Architecture arch) {
   switch (arch) {
     case Dyninst::Architecture::Arch_x86_64:
-      params = std::move(x86_64::parse_parameters(symbol));
+      functions.emplace_back(x86_64::parse_parameters(symbol), x86_64::parse_return_value(symbol),
+                             symbol->getMangledName());
       break;
     case Dyninst::Architecture::Arch_aarch64:
       break;

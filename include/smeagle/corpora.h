@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "Symtab.h"
-#include "smeagle/parameter.h"
+#include "smeagle/abi_description.h"
 
 namespace smeagle {
 
@@ -18,7 +18,7 @@ namespace smeagle {
    */
   class Corpus {
     std::string library;
-    std::vector<parameter> params;
+    std::vector<abi_description> functions;
 
   public:
     /**
