@@ -12,5 +12,6 @@
 
 namespace smeagle::x86_64 {
 
-  std::vector<parameter> parse_parameters(Dyninst::SymtabAPI::Symbol *symbol);
+  std::vector<parameter> parse_parameters(Dyninst::SymtabAPI::Symbol* symbol);
+  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const* symbol);
 }  // namespace smeagle::x86_64
