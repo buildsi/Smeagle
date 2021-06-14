@@ -35,10 +35,11 @@ void Corpus::toYaml() {
   std::cout << "library: \"" << library << "\"\nlocations: " << std::endl;
 
   for (auto &f : functions) {
-    std::cout << "- function: " << f.function_name << "\n  parameters:";
+    std::cout << "  - function:\n      name: " << f.function_name << "\n      parameters:";
     for (auto const &p : f.parameters) {
-      std::cout << "\n    - name: " << p.name << "\n      type: " << p.type
-                << "\n      location: " << p.location << "\n      direction: " << p.direction;
+      std::cout << "\n        - name: " << p.name << "\n          type: " << p.type
+                << "\n          location: " << p.location
+                << "\n          direction: " << p.direction;
     }
     std::cout << std::endl;
   }
@@ -59,9 +60,9 @@ void Corpus::toJson() {
       endcomma = ",";
     }
     std::cout << "   {\n"
-              << "    \"function\": \"" << f.function_name << ",\n"
-              << "    \"parameters\":\n"
-              << "    [\n";
+              << "    \"function\": {\n"
+              << "      \"name\": \"" << f.function_name << ",\n"
+              << "      \"parameters\": [\n";
 
     for (auto const &p : f.parameters) {
       // Check if we are at the last entry (no comma) or not
