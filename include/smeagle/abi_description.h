@@ -15,9 +15,9 @@ namespace smeagle {
   struct abi_description {
     abi_description(std::vector<parameter> &&p, parameter &&rv, std::string &&fn)
         : parameters{std::move(p)}, return_value{std::move(rv)}, function_name{std::move(fn)} {}
-    const std::vector<parameter> parameters;
+    std::vector<parameter> parameters;
     parameter return_value;
-    const std::string function_name;
+    std::string function_name;
   };
 
 }  // namespace smeagle

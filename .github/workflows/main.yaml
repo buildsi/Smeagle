@@ -40,6 +40,5 @@ jobs:
       - name: build and install library
         run: make 
         
-# TODO add tests       
-#      - name: test
-#        run: make test
+      - name: test
+        run: make test

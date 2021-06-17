@@ -46,6 +46,10 @@ namespace smeagle {
      * @brief Dump a corpus to yaml
      */
     void toYaml();
+
+    std::vector<abi_description> const& getFunctions() const {
+    	return functions;
+    }
   };
 
 }  // namespace smeagle
