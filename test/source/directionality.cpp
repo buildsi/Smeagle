@@ -11,7 +11,18 @@ TEST_CASE("Parameter Directionality") {
 
   auto corpus = smeagle::Smeagle("libdirectionality.so").parse();
 
-  auto const& funcs = corpus.getFunctions();
+  auto funcs = corpus.getFunctions();
+
+  // We only want the "foo" function
+  funcs.erase(
+	 std::remove_if(
+		 funcs.begin(), funcs.end(),
+		 [](smeagle::abi_description const& d){
+	  	  	  return d.function_name.find("foo") == std::string::npos;
+  	  	 }
+	 ),
+	 funcs.end()
+  );
 
   REQUIRE(funcs.size() == 1);
 
