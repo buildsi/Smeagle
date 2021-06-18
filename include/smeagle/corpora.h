@@ -30,7 +30,7 @@ namespace smeagle {
      * @brief Parse a function symbol into parameters, types, locations
      * @param symbol the symbol that is determined to be a function
      */
-    void parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *, Dyninst::Architecture);
+    void parseFunctionABILocation(Dyninst::SymtabAPI::Symbol*, Dyninst::Architecture);
 
     /**
      * @brief Dump a corpus to asp
@@ -47,9 +47,7 @@ namespace smeagle {
      */
     void toYaml();
 
-    std::vector<abi_description> const& getFunctions() const {
-    	return functions;
-    }
+    std::vector<abi_description> const& getFunctions() const { return functions; }
   };
 
 }  // namespace smeagle

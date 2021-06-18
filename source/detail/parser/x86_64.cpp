@@ -104,36 +104,12 @@ namespace smeagle::x86_64 {
 
   static bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
 
+  // Get the next greater multiple of 8
+  int nextMultipleEight(int number) { return ((number + 7) & (-8)); }
+
   // Get a framebase for a variable based on stack location and type
   int updateFramebaseFromType(st::Type *paramType, int framebase) {
-    // sizeof 16 with alignment bytes 16
-    std::regex check16("(__int128|long double|__float128|__m128)");
-
-    // sizeof 8 with alignment bytes 8
-    std::regex check8("(long|[*]|double|m_64|__int128)");
-
-    // sizeof 1 with alginment bytes 1
-    std::regex check1("(char|bool)");
-
-    // sizeof 2 with alignment bytes 2
-    std::regex check2("short");
-
-    // sizeof 4 with alignment bytes 4
-    std::regex check4("(int|enum|float)");
-
-    std::string paramTypeString = paramType->getName();
-
-    if (std::regex_search(paramTypeString, check16)) {
-      framebase += 16;
-    } else if (std::regex_search(paramTypeString, check8)) {
-      framebase += 8;
-    } else if (std::regex_search(paramTypeString, check1)) {
-      framebase += 1;
-    } else if (std::regex_search(paramTypeString, check2)) {
-      framebase += 2;
-    } else if (std::regex_search(paramTypeString, check4)) {
-      framebase += 4;
-    }
+    framebase += nextMultipleEight(paramType->getSize());
     return framebase;
   }
 
@@ -192,7 +168,7 @@ namespace smeagle::x86_64 {
   }
 
   // Get register class given the argument type
-  std::vector<RegisterClass> getRegisterClassFromType(st::Type *paramType) {
+  std::pair<RegisterClass, RegisterClass> getRegisterClassFromType(st::Type *paramType) {
     // Remove top-level typedef
     paramType = remove_typedef(paramType);
 
@@ -226,7 +202,7 @@ namespace smeagle::x86_64 {
     std::regex checkcomplexlong("(complex long double)");
 
     // We will return a vector of classes
-    std::vector<RegisterClass> regClasses;
+    std::pair<RegisterClass, RegisterClass> regClasses;
 
     // Does the type string match one of the types?
     bool isinteger = (std::regex_search(paramTypeString, checkinteger));
@@ -238,27 +214,22 @@ namespace smeagle::x86_64 {
 
     // A parameter can have more than one class!
     if (isconst) {
-      regClasses.push_back(RegisterClass::MEMORY);
+      regClasses = {RegisterClass::MEMORY, RegisterClass::NO_CLASS};
     }
     if (issseup) {
-      regClasses.insert(regClasses.end(), {RegisterClass::SSE, RegisterClass::SSEUP});
+      regClasses = {RegisterClass::SSE, RegisterClass::SSEUP};
     }
     if (issse) {
-      regClasses.push_back(RegisterClass::SSE);
+      regClasses = {RegisterClass::SSE, RegisterClass::NO_CLASS};
     }
     if (isinteger) {
-      regClasses.push_back(RegisterClass::INTEGER);
+      regClasses = {RegisterClass::INTEGER, RegisterClass::NO_CLASS};
     }
     if (iscomplexlong) {
-      regClasses.push_back(RegisterClass::COMPLEX_X87);
+      regClasses = {RegisterClass::COMPLEX_X87, RegisterClass::NO_CLASS};
     }
     if (islongdouble) {
-      regClasses.insert(regClasses.end(), {RegisterClass::X87, RegisterClass::X87UP});
-    }
-
-    // check if the length is 0, default to RegisterClass::NO_CLASS;
-    if (regClasses.size() == 0) {
-      regClasses.push_back(RegisterClass::NO_CLASS);
+      regClasses = {RegisterClass::X87, RegisterClass::X87UP};
     }
 
     // The classification of aggregate (structures and arrays) and union types worksas follows:
@@ -268,9 +239,9 @@ namespace smeagle::x86_64 {
   }
 
   // Get a string location from a register class
-  std::string getStringLocationFromRegisterClass(RegisterClass regClass, int order) {
+  std::string getRegisterString(RegisterClass regClass, int order) {
     // Return a string representation of the register
-    std::string regString;
+    std::string regString = "";
 
     // If the class is memory, pass the argument on the stack
     if (regClass == RegisterClass::MEMORY) {
@@ -339,6 +310,17 @@ namespace smeagle::x86_64 {
     return regString;
   }
 
+  // Get a single string of locations from register classes
+  std::string getRegistersString(std::pair<RegisterClass, RegisterClass> regClasses, int order) {
+    std::string locA = getRegisterString(regClasses.first, order);
+    std::string locB = getRegisterString(regClasses.second, order);
+
+    if (locB == "") {
+      return locA;
+    }
+    return locA + "|" + locB;
+  }
+
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
     // Get the name and type of the symbol
     std::string sname = symbol->getMangledName();
@@ -364,13 +346,10 @@ namespace smeagle::x86_64 {
         st::Type *paramType = param->getType();
 
         // Get register class based on type
-        std::vector<RegisterClass> regClasses = getRegisterClassFromType(paramType);
+        std::pair<RegisterClass, RegisterClass> regClasses = getRegisterClassFromType(paramType);
 
         // Get the directionality (export or import) given the type
         std::string direction = getDirectionalityFromType(paramType);
-
-        // Get register name from register classes
-        //      std::string loc = getStringLocationFromRegisterClass(regClasses);
 
         // This uses location lists, not reliable
         // std::string locoffset = getParamLocationOffset(param);
@@ -379,14 +358,24 @@ namespace smeagle::x86_64 {
         parameter p;
         p.name = paramName;
         p.type = paramType->getName();
+        std::string location;
+
+        // If we have a RegisterClass::MEMORY we will be using a framebase
+        if (regClasses.first == RegisterClass::MEMORY) {
+          location = "framebase+" + std::to_string(framebase);
+
+          // Update the framebase for the next parameter based on the type
+          framebase = updateFramebaseFromType(paramType, framebase);
+
+          // Otherwise we generate a string from register classes
+        } else {
+          location = getRegistersString(regClasses, order);
+        }
 
         p.direction = direction;
-        p.location = "framebase+" + std::to_string(framebase);
+        p.location = location;
         typelocs.push_back(p);
         order += 1;
-
-        // Update the framebase for the next parameter based on the type
-        framebase = updateFramebaseFromType(paramType, framebase);
       }
     }
     return typelocs;
