@@ -104,36 +104,12 @@ namespace smeagle::x86_64 {
 
   static bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
 
+  // Get the next greater multiple of 8
+  int nextMultipleEight(int number) { return ((number + 7) & (-8)); }
+
   // Get a framebase for a variable based on stack location and type
   int updateFramebaseFromType(st::Type *paramType, int framebase) {
-    // sizeof 16 with alignment bytes 16
-    std::regex check16("(__int128|long double|__float128|__m128)");
-
-    // sizeof 8 with alignment bytes 8
-    std::regex check8("(long|[*]|double|m_64|__int128)");
-
-    // sizeof 1 with alginment bytes 1
-    std::regex check1("(char|bool)");
-
-    // sizeof 2 with alignment bytes 2
-    std::regex check2("short");
-
-    // sizeof 4 with alignment bytes 4
-    std::regex check4("(int|enum|float)");
-
-    std::string paramTypeString = paramType->getName();
-
-    if (std::regex_search(paramTypeString, check16)) {
-      framebase += 16;
-    } else if (std::regex_search(paramTypeString, check8)) {
-      framebase += 8;
-    } else if (std::regex_search(paramTypeString, check1)) {
-      framebase += 1;
-    } else if (std::regex_search(paramTypeString, check2)) {
-      framebase += 2;
-    } else if (std::regex_search(paramTypeString, check4)) {
-      framebase += 4;
-    }
+    framebase += nextMultipleEight(paramType->getSize());
     return framebase;
   }
 
