@@ -20,11 +20,10 @@ Corpus::Corpus(std::string _library) : library(std::move(_library)){};
 
 // dump all Type Locations to asp
 void Corpus::toAsp() {
-  std::cout << "corpus(" << library << ")," << std::endl;
-
   for (auto &f : functions) {
     for (auto const &p : f.parameters) {
-      std::cout << "abi_typelocation(" << f.function_name << ", " << p.name << ", " << p.type
+      std::cout << "abi_typelocation("
+                << "\"" << library << "\", " << f.function_name << ", " << p.name << ", " << p.type
                 << ", \"" << p.location << "\", " << p.direction << ")" << std::endl;
     }
   }
