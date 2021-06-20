@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
+#include <optional>
 #include <regex>
+#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
@@ -30,6 +32,111 @@ namespace smeagle::x86_64 {
                   // tructures and unions
     MEMORY        // Types that will be passed and returned in memory via the stack
   };
+
+  // A FramebaseAllocator keeps track of framebase index
+  class FramebaseAllocator {
+  private:
+    int nextMultipleEight(int number);
+    int framebase = 8;
+    void updateFramebaseFromType(st::Type *paramType);
+
+  public:
+    std::string nextFramebaseFromType(st::Type *paramType);
+  };
+
+  // Get a framebase for a variable based on stack location and type
+  // Framebase values must be 8 byte aligned.
+  void FramebaseAllocator::updateFramebaseFromType(st::Type *paramType) {
+    framebase += nextMultipleEight(paramType->getSize());
+  }
+
+  // Get the next greater multiple of 8
+  int FramebaseAllocator::nextMultipleEight(int number) { return ((number + 7) & (-8)); }
+
+  // Get the next framebase
+  std::string FramebaseAllocator::nextFramebaseFromType(st::Type *paramType) {
+    std::string framebaseStr = "framebase+" + std::to_string(framebase);
+
+    // Update the framebase for the next parameter based on the type
+    updateFramebaseFromType(paramType);
+
+    return framebaseStr;
+  }
+
+  // A RegisterAllocator can provide the next register location
+  class RegisterAllocator {
+  public:
+    RegisterAllocator();
+    std::string getRegisterString(RegisterClass regClass, st::Type *paramType);
+    std::string getRegistersString(std::pair<RegisterClass, RegisterClass> regClasses,
+                                   st::Type *paramType);
+
+  private:
+    FramebaseAllocator fallocator;
+    std::stack<std::string> intRegisters{{"%r9", "%r8", "%rcx", "%rdx", "%rsi", "%rdi"}};
+    std::stack<std::string> sseRegisters;
+    std::optional<std::string> getNextIntRegister();
+    std::optional<std::string> getNextSseRegister();
+    int framebase = 8;
+  };
+
+  // Constructor
+  RegisterAllocator::RegisterAllocator() {
+    // Populate the sse register stack
+    for (int i = 1; i < 8; ++i) {
+      sseRegisters.push("%xmm" + std::to_string(i));
+    }
+  }
+
+  // Get the next available integer register
+  std::optional<std::string> RegisterAllocator::getNextIntRegister() {
+    // If we are empty, return stack
+    if (intRegisters.empty()) return {};
+    std::string regString = intRegisters.top();
+    intRegisters.pop();
+    return regString;
+  }
+
+  // Get the next available integer register
+  std::optional<std::string> RegisterAllocator::getNextSseRegister() {
+    // If we are empty, return stack
+    if (sseRegisters.empty()) return {};
+    std::string regString = sseRegisters.top();
+    sseRegisters.pop();
+    return regString;
+  }
+
+  // Given two registers, return one combined string
+  std::string RegisterAllocator::getRegistersString(
+      std::pair<RegisterClass, RegisterClass> regClasses, st::Type *paramType) {
+    std::string locA = this->getRegisterString(regClasses.first, paramType);
+    std::string locB = this->getRegisterString(regClasses.second, paramType);
+
+    // If B is empty (NO_CLASS) then return A
+    if (locB == "") {
+      return locA;
+    }
+    return locA + "|" + locB;
+  }
+
+  // Get a string location from a register class
+  std::string RegisterAllocator::getRegisterString(RegisterClass regClass, st::Type *paramType) {
+    std::optional<std::string> regString;
+
+    // If the class is memory, pass the argument on the stack
+    if (regClass == RegisterClass::NO_CLASS) regString = "";
+    if (regClass == RegisterClass::SSE) regString = this->getNextSseRegister();
+    if (regClass == RegisterClass::INTEGER) regString = this->getNextIntRegister();
+    if (regClass == RegisterClass::MEMORY) regString = std::nullopt;
+
+    // If we don't have a value, we need a framebase
+    if (!regString.has_value()) {
+      regString = fallocator.nextFramebaseFromType(paramType);
+    }
+
+    // If we've run out of registers we get to this point
+    return regString.value();
+  }
 
   // Given a symbol, get a string representation of its type
   std::string getStringSymbolType(st::Symbol *symbol) {
@@ -103,15 +210,6 @@ namespace smeagle::x86_64 {
   }
 
   static bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
-
-  // Get the next greater multiple of 8
-  int nextMultipleEight(int number) { return ((number + 7) & (-8)); }
-
-  // Get a framebase for a variable based on stack location and type
-  int updateFramebaseFromType(st::Type *paramType, int framebase) {
-    framebase += nextMultipleEight(paramType->getSize());
-    return framebase;
-  }
 
   // Get a location offset for a variable
   // This function is not used because LocationLists are not reliable
@@ -238,89 +336,6 @@ namespace smeagle::x86_64 {
     return regClasses;
   }
 
-  // Get a string location from a register class
-  std::string getRegisterString(RegisterClass regClass, int order) {
-    // Return a string representation of the register
-    std::string regString = "";
-
-    // If the class is memory, pass the argument on the stack
-    if (regClass == RegisterClass::MEMORY) {
-      regString = "stack";
-
-      // If the class is INTEGER, the next available register in sequence is used
-    } else if (regClass == RegisterClass::SSE) {
-      regString = "xmm" + std::to_string(order - 1);
-    } else if (regClass == RegisterClass::INTEGER) {
-      switch (order) {
-        case 1: {
-          regString = "%rdi";
-          break;
-        }
-        case 2: {
-          regString = "%rsi";
-          break;
-        }
-        case 3: {
-          regString = "%rdx";
-          break;
-        }
-        case 4: {
-          regString = "%rcx";
-          break;
-        }
-        case 5: {
-          regString = "%r8";
-          break;
-        }
-        case 6: {
-          regString = "%r9";
-          break;
-        }
-
-        // the document doesn't say it goes up this high
-        case 7: {
-          regString = "%r10";
-          break;
-        }
-        case 8: {
-          regString = "%r11";
-          break;
-        }
-        case 9: {
-          regString = "%r12";
-          break;
-        }
-        case 10: {
-          regString = "%r13";
-          break;
-        }
-        case 11: {
-          regString = "%r14";
-          break;
-        }
-        case 12: {
-          regString = "%r15";
-          break;
-        }
-        // Greater than 6 is stored in memory
-        default: { regString = "memory"; }
-      }
-    }
-
-    return regString;
-  }
-
-  // Get a single string of locations from register classes
-  std::string getRegistersString(std::pair<RegisterClass, RegisterClass> regClasses, int order) {
-    std::string locA = getRegisterString(regClasses.first, order);
-    std::string locB = getRegisterString(regClasses.second, order);
-
-    if (locB == "") {
-      return locA;
-    }
-    return locA + "|" + locB;
-  }
-
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
     // Get the name and type of the symbol
     std::string sname = symbol->getMangledName();
@@ -336,10 +351,8 @@ namespace smeagle::x86_64 {
 
     // Get parameters with types and names
     if (func->getParams(params)) {
-      // We need to keep track of the order and framebase, which starts at 8
-      std::string framebaseStr;
-      int framebase = 8;
-      int order = 1;
+      // Create a RegisterAllocator lookup class
+      RegisterAllocator allocator;
 
       for (auto &param : params) {
         std::string paramName = param->getName();
@@ -358,24 +371,9 @@ namespace smeagle::x86_64 {
         parameter p;
         p.name = paramName;
         p.type = paramType->getName();
-        std::string location;
-
-        // If we have a RegisterClass::MEMORY we will be using a framebase
-        if (regClasses.first == RegisterClass::MEMORY) {
-          location = "framebase+" + std::to_string(framebase);
-
-          // Update the framebase for the next parameter based on the type
-          framebase = updateFramebaseFromType(paramType, framebase);
-
-          // Otherwise we generate a string from register classes
-        } else {
-          location = getRegistersString(regClasses, order);
-        }
-
+        p.location = allocator.getRegistersString(regClasses, paramType);
         p.direction = direction;
-        p.location = location;
         typelocs.push_back(p);
-        order += 1;
       }
     }
     return typelocs;
