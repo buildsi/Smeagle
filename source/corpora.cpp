@@ -10,9 +10,9 @@
 #include <string>
 
 #include "Symtab.h"
-#include "parser/aarch64.hpp"
-#include "parser/ppc64le.hpp"
-#include "parser/x86_64.hpp"
+#include "parser/aarch64/aarch64.hpp"
+#include "parser/ppc64le/ppc64le.hpp"
+#include "parser/x86_64/x86_64.hpp"
 
 using namespace smeagle;
 

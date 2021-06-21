@@ -29,7 +29,9 @@ else()
 endif()
 
 # ---- Create binary ----
-add_executable(SmeagleTests source/main.cpp source/smeagle.cpp source/directionality.cpp source/allocation.cpp)
+add_executable(
+  SmeagleTests source/main.cpp source/smeagle.cpp source/directionality.cpp source/allocation.cpp
+)
 target_link_libraries(SmeagleTests doctest::doctest Smeagle::Smeagle symtabAPI)
 set_target_properties(SmeagleTests PROPERTIES CXX_STANDARD 17)
 
