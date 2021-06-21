@@ -6,7 +6,7 @@
 namespace smeagle::x86_64 {
 
   // A register class for AMD64 is defined on page 16 of the System V abi pdf
-  enum RegisterClass {
+  enum class RegisterClass {
     INTEGER,      // Integer types that fit into one of the general purpose registers
     SSE,          // Types that fit into an SSE register
     SSEUP,        // ^.. and can ve passed and returned in he most significant half of it

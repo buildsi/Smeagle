@@ -21,18 +21,18 @@ namespace smeagle::x86_64 {
   namespace st = Dyninst::SymtabAPI;
 
   // Return true if the dataClass is a pointer type
-  static bool is_pointer(st::dataClass dc) { return dc == st::dataPointer; }
+  inline bool is_pointer(st::dataClass dc) { return dc == st::dataPointer; }
 
   // Return true if the dataClass is a reference
-  static bool is_ref(st::dataClass dc) { return dc == st::dataReference; }
+  inline bool is_ref(st::dataClass dc) { return dc == st::dataReference; }
 
   // Return true if dataClass is reference or pointer
-  static bool is_indirect(st::dataClass dc) {
+  inline bool is_indirect(st::dataClass dc) {
     return dc == st::dataPointer || dc == st::dataReference;
   }
 
   // Return true if dataClass is a primitive type
-  static bool is_primitive(st::dataClass dc) { return dc == st::dataEnum || dc == st::dataScalar; }
-  static bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
+  inline bool is_primitive(st::dataClass dc) { return dc == st::dataEnum || dc == st::dataScalar; }
+  inline bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
 
 }  // namespace smeagle::x86_64
