@@ -339,7 +339,6 @@ namespace smeagle::x86_64 {
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
     // Get the name and type of the symbol
     std::string sname = symbol->getMangledName();
-    std::string stype = getStringSymbolType(symbol);
 
     st::Function *func = symbol->getFunction();
     std::vector<st::localVar *> params;
