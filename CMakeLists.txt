@@ -56,6 +56,8 @@ target_include_directories(
          ${include_dirs} ${DYNINST_INCLUDE_DIR}
 )
 
+target_include_directories(Smeagle PUBLIC ${DYNINST_INCLUDE_DIR})
+
 # ---- Create an installable target ----
 # this allows users to install and find the library via `find_package()`.
 
