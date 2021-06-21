@@ -8,6 +8,7 @@
 #include <string>
 
 #include "Symtab.h"
+#include "corpora.h"
 
 using namespace Dyninst;
 using namespace SymtabAPI;
@@ -35,7 +36,7 @@ namespace smeagle {
      * @param fmt the format to print to the screen
      * @return a string containing the output
      */
-    int parse(FormatCode fmt = FormatCode::Yaml);
+    smeagle::Corpus parse();
   };
 
 }  // namespace smeagle

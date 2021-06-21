@@ -3,12 +3,14 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <fmt/format.h>
-#include <smeagle/smeagle.h>
-#include <smeagle/corpora.h>
-#include <regex>
-#include <iostream>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <smeagle/corpora.h>
+#include <smeagle/smeagle.h>
+
+#include <iostream>
+#include <regex>
+#include <stdexcept>
 
 #include "Function.h"
 #include "Symtab.h"
@@ -19,10 +21,8 @@ using namespace smeagle;
 
 Smeagle::Smeagle(std::string _library) : library(std::move(_library)) {}
 
-
 // Parse the library with smeagle
-int Smeagle::parse(FormatCode fmt) {
-
+smeagle::Corpus Smeagle::parse() {
   // We are going to read functions and symbols
   Symtab *obj = NULL;
   std::vector<Symbol *> symbols;
@@ -30,33 +30,30 @@ int Smeagle::parse(FormatCode fmt) {
 
   // Read the library into the Symtab object, cut out early if there's error
   if (not Symtab::openFile(obj, library)) {
-    std::cout << "There was a problem reading " << library << "\n";
-    return 1;
+    throw std::runtime_error{"There was a problem reading from '" + library + "'"};
   }
 
   // Get all functions in the library
   if (not obj->getAllFunctions(funcs)) {
-    std::cout << "There was a problem getting functions from " << library << "\n";
-    return 1;
+    throw std::runtime_error{"There was a problem getting functions from '" + library + "'"};
   }
 
   // Get all functions in the library
   // Note: looping through this doesn't seem to work
   if (not obj->getAllSymbols(symbols)) {
-    std::cout << "There was a problem getting symbols from " << library << "\n";
-    return 1;
+    throw std::runtime_error{"There was a problem getting symbols from '" + library + "'"};
   }
 
   // Create a corpus
   Corpus corpus(library);
-  
+
   // Loop through the vector and look at symbols
   for (auto &symbol : symbols) {
     // We are interested in symbols in the dynamic symbol table
     if (symbol->isInDynSymtab()) {
       // If It's a function, parse the parameters
       if (symbol->isFunction()) {
-        corpus.parseFunctionABILocation(symbol);
+        corpus.parseFunctionABILocation(symbol, obj->getArchitecture());
 
         // The symbol is something else (we likely want a subset of these?)
       }  // else {
@@ -65,19 +62,6 @@ int Smeagle::parse(FormatCode fmt) {
     }
   }
 
-  // Generate output (for now, all are asp).
-  switch (fmt) {
-    default:
-    case FormatCode::Json:
-      corpus.toJson();
-      break;
-    case FormatCode::Asp:
-      corpus.toAsp();
-      break;
-    case FormatCode::Yaml:
-      corpus.toYaml();
-      break;
-  }
-
-  return 0;
+  // Return the corpus for further processing
+  return corpus;
 }

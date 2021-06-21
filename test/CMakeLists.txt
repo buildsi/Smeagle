@@ -29,11 +29,18 @@ else()
 endif()
 
 # ---- Create binary ----
-
-file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
-add_executable(SmeagleTests ${sources})
+add_executable(
+  SmeagleTests source/main.cpp source/smeagle.cpp source/directionality.cpp source/allocation.cpp
+)
 target_link_libraries(SmeagleTests doctest::doctest Smeagle::Smeagle symtabAPI)
 set_target_properties(SmeagleTests PROPERTIES CXX_STANDARD 17)
+
+# ---- Test Libraries ----
+add_library(directionality SHARED source/libs/directionality.cpp)
+target_compile_options(directionality PRIVATE "-g")
+
+add_library(allocation SHARED source/libs/allocation.cpp)
+target_compile_options(allocation PRIVATE "-g")
 
 # enable compiler warnings
 if(NOT TEST_INSTALLED_VERSION)

@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+#include <smeagle/corpora.h>
 #include <smeagle/smeagle.h>
 #include <smeagle/version.h>
 
@@ -57,7 +58,21 @@ auto main(int argc, char** argv) -> int {
   }
 
   smeagle::Smeagle smeagle(library);
-  smeagle.parse(format->second);
+  smeagle::Corpus corpus = smeagle.parse();
+
+  // Generate output (json, asp, or yaml)
+  switch (format->second) {
+    default:
+    case smeagle::FormatCode::Json:
+      corpus.toJson();
+      break;
+    case smeagle::FormatCode::Asp:
+      corpus.toAsp();
+      break;
+    case smeagle::FormatCode::Yaml:
+      corpus.toYaml();
+      break;
+  }
 
   return 0;
 }
