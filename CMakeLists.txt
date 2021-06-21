@@ -36,9 +36,11 @@ CPMAddPackage(
 )
 
 # ---- Add source files ----
-set(include_dirs smeagle/include source/detail)
-set(sources source/corpora.cpp source/smeagle.cpp source/detail/parser/x86_64.cpp
-            source/detail/parser/ppc64le.cpp source/detail/parser/aarch64.cpp
+set(include_dirs smeagle/include source/parser)
+set(sources
+    source/corpora.cpp source/smeagle.cpp source/parser/x86_64/x86_64.cpp
+    source/parser/ppc64le/ppc64le.cpp source/parser/aarch64/aarch64.cpp
+    source/parser/x86_64/allocators.cpp
 )
 
 # ---- Create library ----
