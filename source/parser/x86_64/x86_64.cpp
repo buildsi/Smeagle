@@ -22,52 +22,6 @@ namespace smeagle::x86_64 {
 
   namespace st = Dyninst::SymtabAPI;
 
-  // Given a symbol, get a string representation of its type
-  std::string getStringSymbolType(st::Symbol *symbol) {
-    st::Symbol::SymbolType stype = symbol->getType();
-    std::string sname;
-
-    switch (stype) {
-      case (st::Symbol::SymbolType::ST_FUNCTION): {
-        sname = "function";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_UNKNOWN): {
-        sname = "unknown";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_OBJECT): {
-        sname = "object";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_SECTION): {
-        sname = "section";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_MODULE): {
-        sname = "module";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_TLS): {
-        sname = "tls";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_DELETED): {
-        sname = "deleted";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_INDIRECT): {
-        sname = "indirect";
-        break;
-      }
-      case (st::Symbol::SymbolType::ST_NOTYPE): {
-        sname = "notype";
-        break;
-      }
-    }
-    return sname;
-  }
-
   // Dereference a pointer or reference
   static st::Type *deref(st::Type *t) {
     if (is_pointer(t->getDataClass())) {
@@ -207,8 +161,6 @@ namespace smeagle::x86_64 {
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
     // Get the name and type of the symbol
     std::string sname = symbol->getMangledName();
-    std::string stype = getStringSymbolType(symbol);
-
     st::Function *func = symbol->getFunction();
     std::vector<st::localVar *> params;
 
