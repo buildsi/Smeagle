@@ -47,7 +47,7 @@ namespace smeagle::x86_64 {
     // Constructor
     RegisterAllocator() {
       // Populate the sse register stack
-      for (int i = 1; i < 8; ++i) {
+      for (int i = 7; i >= 0; --i) {
         sseRegisters.push("%xmm" + std::to_string(i));
       }
     }
