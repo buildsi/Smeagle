@@ -185,8 +185,6 @@ TEST_CASE("Register Allocation - Floating Point types") {
 }
 
 TEST_CASE("Register Allocation - Fixed-Width Integer types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
   SUBCASE("int8_t") {
     auto funcs = get_one(corpus, "test_int8_t");
     CHECK(funcs.size() == 1);
