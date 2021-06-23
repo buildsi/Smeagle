@@ -37,6 +37,9 @@ namespace smeagle {
      * @return a string containing the output
      */
     smeagle::Corpus parse();
+
+    // Determine if the library has exceptions with smeagle
+    bool has_exceptions();
   };
 
 }  // namespace smeagle

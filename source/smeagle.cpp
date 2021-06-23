@@ -21,6 +21,28 @@ using namespace smeagle;
 
 Smeagle::Smeagle(std::string _library) : library(std::move(_library)) {}
 
+// Determine if the library has exceptions with smeagle
+bool Smeagle::has_exceptions() {
+  Symtab *obj = NULL;
+  std::vector<ExceptionBlock *> exceptions;
+
+  // Read the library into the Symtab object, cut out early if there's error
+  if (not Symtab::openFile(obj, library)) {
+    throw std::runtime_error{"There was a problem reading from '" + library + "'"};
+  }
+
+  // Create a corpus
+  Corpus corpus(library);
+
+  // Parse exceptions
+  obj->getAllExceptions(exceptions);
+  std::cout << library << ": " << exceptions.size() << " exceptions." << std::endl;
+  if (exceptions.size() == 0) {
+    return false;
+  }
+  return true;
+}
+
 // Parse the library with smeagle
 smeagle::Corpus Smeagle::parse() {
   // We are going to read functions and symbols
