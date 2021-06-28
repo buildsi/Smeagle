@@ -23,7 +23,15 @@ During development it is usually convenient to [build all subprojects at once](#
 ## Develop using a container
 
 The [Dockerfile](Dockerfile) will easily create an environment with all the dependencies that you
-need.
+need. If you need to have a base of Dyninst from master, then build that first:
+
+```bash
+$ docker build -f Dockerfile.dyninst -t ghcr.io/autamus/dyninst:master .
+```
+
+And ensure that this is the base container of [Dockerfile](Dockerfile). Otherwise
+you can uncomment the line to use dyninst from autamus. When you are ready, here is
+how to build the container:
 
 ```bash
 docker build -t smeagle .
