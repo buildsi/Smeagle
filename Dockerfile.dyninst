@@ -1,0 +1,58 @@
+# Build stage with Spack pre-installed and ready to be used
+# docker build -f Dockerfile.dyninst -t ghcr.io/autamus/dyninst:05-25-master .
+FROM spack/ubuntu-bionic:latest as builder
+
+RUN git clone https://github.com/autamus/registry && \
+    cd registry && \
+    mv spack/d/dyninst /opt/spack/var/spack/repos/builtin/packages/dyninst
+
+# Install OS packages needed to build the software
+RUN apt-get -yqq update && apt-get -yqq upgrade \
+ && apt-get -yqq install python3-boto3 \
+ && rm -rf /var/lib/apt/lists/*
+
+# What we want to install and how we want to install it
+# is specified in a manifest file (spack.yaml)
+RUN mkdir /opt/spack-environment \
+&&  (echo "spack:" \
+&&   echo "  specs:" \
+&&   echo "  - dyninst@master" \
+&&   echo "  view: /opt/view" \
+&&   echo "  packages:" \
+&&   echo "    all:" \
+&&   echo "      target:" \
+&&   echo "      - x86_64" \
+&&   echo "  config:" \
+&&   echo "    compiler:" \
+&&   echo "      target: x86_64" \
+&&   echo "    install_missing_compilers: true" \
+&&   echo "    install_tree: /opt/software" \
+&&   echo "  mirrors:" \
+&&   echo "    autamus: s3://autamus-cache" \
+&&   echo "  concretization: together") > /opt/spack-environment/spack.yaml
+
+# Install the software, remove unnecessary deps
+RUN cd /opt/spack-environment && spack env activate . && curl http://s3.amazonaws.com/autamus-cache/build_cache/_pgp/FFEB24B0A9D81F6D5597F9900B59588C86C41BE7.pub > key.pub && spack gpg trust key.pub && spack install --fail-fast --monitor --monitor-save-local --monitor-tags autamus; stat=$?; cd ~/.spack/reports/monitor/; tar -czvf monitor.tar.gz *; curl -F "upload=@monitor.tar.gz" http://localhost:4500/upload; exit $stat && spack gc -y; 
+
+# Strip all the binaries
+RUN find -L /opt/view/* -type f -exec readlink -f '{}' \; | \
+    xargs file -i | \
+    grep 'charset=binary' | \
+    grep 'x-executable\|x-archive\|x-sharedlib' | \
+    awk -F: '{print $1}' | xargs strip -s
+
+# Modifications to the environment that are necessary to run
+RUN cd /opt/spack-environment && \
+    spack env activate --sh -d . >> /etc/profile.d/z10_spack_environment.sh
+
+# Bare OS image to run the installed executables
+FROM ubuntu:18.04
+
+ENV PATH=/opt/view/bin:/opt/spack/bin:$PATH
+
+COPY --from=builder /opt/spack-environment /opt/spack-environment
+COPY --from=builder /opt/software /opt/software
+COPY --from=builder /opt/view /opt/view
+COPY --from=builder /etc/profile.d/z10_spack_environment.sh /etc/profile.d/z10_spack_environment.sh
+
+ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l", "-c"]
