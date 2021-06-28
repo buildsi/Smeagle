@@ -29,8 +29,10 @@ auto main(int argc, char** argv) -> int {
     ("h,help", "Show help")
     ("v,version", "Print the current version number")
     ("l,library", "Library to inspect", cxxopts::value(library))
+    ("has-exceptions", "Show if a library has exceptions")
     ("f,fmt", "Format to output in", cxxopts::value(fmt)->default_value("yaml"))
   ;
+
   // clang-format on
 
   auto result = options.parse(argc, argv);
@@ -58,6 +60,11 @@ auto main(int argc, char** argv) -> int {
   }
 
   smeagle::Smeagle smeagle(library);
+
+  if (result["has-exceptions"].as<bool>()) {
+    smeagle.has_exceptions();
+    return 0;
+  }
   smeagle::Corpus corpus = smeagle.parse();
 
   // Generate output (json, asp, or yaml)
