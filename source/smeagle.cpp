@@ -31,9 +31,6 @@ bool Smeagle::has_exceptions() {
     throw std::runtime_error{"There was a problem reading from '" + library + "'"};
   }
 
-  // Create a corpus
-  Corpus corpus(library);
-
   // Parse exceptions
   obj->getAllExceptions(exceptions);
   std::cout << library << ": " << exceptions.size() << " exceptions." << std::endl;
