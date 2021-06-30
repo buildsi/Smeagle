@@ -55,20 +55,20 @@ namespace smeagle::x86_64 {
   };
 
   namespace detail {
-    inline std::pair<st::Type *, int> dedecorate(st::Type *t, int ptr_cnt) {
+    inline std::pair<st::Type *, int> unwrap_underlying_type(st::Type *t, int ptr_cnt) {
       if (is_ref(t->getDataClass())) {
-        return dedecorate(t->getRefType()->getConstituentType(), ptr_cnt);
+        return unwrap_underlying_type(t->getRefType()->getConstituentType(), ptr_cnt);
       }
       if (is_pointer(t->getDataClass())) {
-        return dedecorate(t->getPointerType()->getConstituentType(), ++ptr_cnt);
+        return unwrap_underlying_type(t->getPointerType()->getConstituentType(), ++ptr_cnt);
       }
       if (is_typedef(t->getDataClass())) {
-        return dedecorate(t->getTypedefType()->getConstituentType(), ptr_cnt);
+        return unwrap_underlying_type(t->getTypedefType()->getConstituentType(), ptr_cnt);
       }
       return {t, ptr_cnt};
     }
   }  // namespace detail
 
   // Remove typedef, pointer, and reference-ness
-  inline auto dedecorate(st::Type *t) { return detail::dedecorate(t, 0); }
+  inline auto unwrap_underlying_type(st::Type *t) { return detail::unwrap_underlying_type(t, 0); }
 }  // namespace smeagle::x86_64
