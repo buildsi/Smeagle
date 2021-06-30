@@ -44,6 +44,8 @@ namespace smeagle::x86_64 {
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {
     // Remove any top-level typedef
+    // NB: We can't call `dedecorate` here as we need to keep
+    //     any reference type for the call to `is_indirect` work.
     paramType = remove_typedef(paramType);
     auto dataClass = paramType->getDataClass();
 
@@ -52,15 +54,11 @@ namespace smeagle::x86_64 {
       return "import";
     }
 
-    // Remove any reference or pointer indirection
-    paramType = deref(paramType);
-
-    // Remove any remaining typedef
-    paramType = remove_typedef(paramType);
-    dataClass = paramType->getDataClass();
+    // Remove any remaining typedef or indirection
+    paramType = dedecorate(paramType).first;
 
     // A pointer/reference to a primitive is imported
-    if (is_primitive(dataClass)) {
+    if (is_primitive(paramType->getDataClass())) {
       return "import";
     }
 
