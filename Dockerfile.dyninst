@@ -1,5 +1,5 @@
 # Build stage with Spack pre-installed and ready to be used
-# docker build -f Dockerfile.dyninst -t ghcr.io/autamus/dyninst:05-25-master .
+# docker build -f Dockerfile.dyninst -t ghcr.io/autamus/dyninst:master .
 FROM spack/ubuntu-bionic:latest as builder
 
 RUN git clone https://github.com/autamus/registry && \

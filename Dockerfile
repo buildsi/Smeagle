@@ -1,4 +1,6 @@
-FROM ghcr.io/autamus/dyninst
+FROM ghcr.io/autamus/dyninst:master
+# uncomment to use dyninst latest release
+#FROM ghcr.io/autamus/dyninst
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y wget g++ libssl-dev libtbb-dev python3-dev build-essential \
