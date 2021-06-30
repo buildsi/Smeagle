@@ -22,17 +22,6 @@ namespace smeagle::x86_64 {
 
   namespace st = Dyninst::SymtabAPI;
 
-  // Dereference a pointer or reference
-  static st::Type *deref(st::Type *t) {
-    if (is_pointer(t->getDataClass())) {
-      return deref(t->getPointerType()->getConstituentType());
-    }
-    if (is_ref(t->getDataClass())) {
-      return deref(t->getRefType()->getConstituentType());
-    }
-    return t;
-  }
-
   // Get a location offset for a variable
   // This function is not used because LocationLists are not reliable
   std::string getParamLocationOffset(st::localVar *param) {
@@ -51,14 +40,6 @@ namespace smeagle::x86_64 {
 
     return result.str();
   }
-
-  // Unwrap and remove typedef
-  static st::Type *remove_typedef(st::Type *t) {
-    if (is_typedef(t->getDataClass())) {
-      t = t->getTypedefType()->getConstituentType();
-    }
-    return t;
-  };
 
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {

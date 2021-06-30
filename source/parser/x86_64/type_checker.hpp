@@ -35,4 +35,22 @@ namespace smeagle::x86_64 {
   inline bool is_primitive(st::dataClass dc) { return dc == st::dataEnum || dc == st::dataScalar; }
   inline bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
 
+  // Dereference a pointer or reference
+  inline st::Type *deref(st::Type *t) {
+    if (is_pointer(t->getDataClass())) {
+      return deref(t->getPointerType()->getConstituentType());
+    }
+    if (is_ref(t->getDataClass())) {
+      return deref(t->getRefType()->getConstituentType());
+    }
+    return t;
+  }
+  // Unwrap and remove typedef
+  inline st::Type *remove_typedef(st::Type *t) {
+    if (is_typedef(t->getDataClass())) {
+      t = t->getTypedefType()->getConstituentType();
+    }
+    return t;
+  };
+
 }  // namespace smeagle::x86_64
