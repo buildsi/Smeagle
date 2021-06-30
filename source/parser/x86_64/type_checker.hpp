@@ -27,9 +27,7 @@ namespace smeagle::x86_64 {
   inline bool is_ref(st::dataClass dc) { return dc == st::dataReference; }
 
   // Return true if dataClass is reference or pointer
-  inline bool is_indirect(st::dataClass dc) {
-    return dc == st::dataPointer || dc == st::dataReference;
-  }
+  inline bool is_indirect(st::dataClass dc) { return is_pointer(dc) || is_ref(dc); }
 
   // Return true if dataClass is a primitive type
   inline bool is_primitive(st::dataClass dc) { return dc == st::dataScalar; }
