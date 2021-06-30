@@ -5,18 +5,10 @@
 
 #pragma once
 
-#include <iostream>
-#include <optional>
-#include <regex>
-#include <stack>
-#include <string>
 #include <utility>
-#include <vector>
 
-#include "Function.h"
 #include "Symtab.h"
 #include "Type.h"
-#include "smeagle/parameter.h"
 
 namespace smeagle::x86_64 {
 
