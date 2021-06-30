@@ -22,17 +22,6 @@ namespace smeagle::x86_64 {
 
   namespace st = Dyninst::SymtabAPI;
 
-  // Dereference a pointer or reference
-  static st::Type *deref(st::Type *t) {
-    if (is_pointer(t->getDataClass())) {
-      return deref(t->getPointerType()->getConstituentType());
-    }
-    if (is_ref(t->getDataClass())) {
-      return deref(t->getRefType()->getConstituentType());
-    }
-    return t;
-  }
-
   // Get a location offset for a variable
   // This function is not used because LocationLists are not reliable
   std::string getParamLocationOffset(st::localVar *param) {
@@ -52,17 +41,11 @@ namespace smeagle::x86_64 {
     return result.str();
   }
 
-  // Unwrap and remove typedef
-  static st::Type *remove_typedef(st::Type *t) {
-    if (is_typedef(t->getDataClass())) {
-      t = t->getTypedefType()->getConstituentType();
-    }
-    return t;
-  };
-
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {
     // Remove any top-level typedef
+    // NB: We can't call `dedecorate` here as we need to keep
+    //     any reference type for the call to `is_indirect` work.
     paramType = remove_typedef(paramType);
     auto dataClass = paramType->getDataClass();
 
@@ -71,15 +54,11 @@ namespace smeagle::x86_64 {
       return "import";
     }
 
-    // Remove any reference or pointer indirection
-    paramType = deref(paramType);
-
-    // Remove any remaining typedef
-    paramType = remove_typedef(paramType);
-    dataClass = paramType->getDataClass();
+    // Remove any remaining typedef or indirection
+    paramType = unwrap_underlying_type(paramType).first;
 
     // A pointer/reference to a primitive is imported
-    if (is_primitive(dataClass)) {
+    if (is_primitive(paramType->getDataClass())) {
       return "import";
     }
 
