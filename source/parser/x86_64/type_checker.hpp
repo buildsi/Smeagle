@@ -32,8 +32,9 @@ namespace smeagle::x86_64 {
   }
 
   // Return true if dataClass is a primitive type
-  inline bool is_primitive(st::dataClass dc) { return dc == st::dataEnum || dc == st::dataScalar; }
+  inline bool is_primitive(st::dataClass dc) { return dc == st::dataScalar; }
   inline bool is_typedef(st::dataClass dc) { return dc == st::dataTypedef; }
+  inline bool is_enum(st::dataClass dc) { return dc == st::dataEnum; }
 
   // Dereference a pointer or reference
   inline st::Type *deref(st::Type *t) {
