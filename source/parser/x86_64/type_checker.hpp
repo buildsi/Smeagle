@@ -55,6 +55,7 @@ namespace smeagle::x86_64 {
   };
 
   namespace detail {
+    // This should only be called from 'decorate(st::Type*)'!
     inline std::pair<st::Type *, int> unwrap_underlying_type(st::Type *t, int ptr_cnt) {
       if (is_ref(t->getDataClass())) {
         return unwrap_underlying_type(t->getRefType()->getConstituentType(), ptr_cnt);
@@ -70,5 +71,8 @@ namespace smeagle::x86_64 {
   }  // namespace detail
 
   // Remove typedef, pointer, and reference-ness
+  // Returns a std::pair<st::Type* t, int ptr_cnt>
+  //      t       - the representation of the underlying type
+  //      ptr_cnt - the number of pointer indirections decorating 't'
   inline auto unwrap_underlying_type(st::Type *t) { return detail::unwrap_underlying_type(t, 0); }
 }  // namespace smeagle::x86_64
