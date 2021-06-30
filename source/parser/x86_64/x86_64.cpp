@@ -55,7 +55,7 @@ namespace smeagle::x86_64 {
     }
 
     // Remove any remaining typedef or indirection
-    paramType = dedecorate(paramType).first;
+    paramType = unwrap_underlying_type(paramType).first;
 
     // A pointer/reference to a primitive is imported
     if (is_primitive(paramType->getDataClass())) {
