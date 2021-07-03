@@ -17,350 +17,399 @@ auto const& get_one(smeagle::Corpus const& corpus, char const* name) {
 					 });
 }
 
-TEST_CASE("Register Allocation String and char types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("string") {
-    auto funcs = get_one(corpus, "test_stringchar_string");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("char") {
-    auto funcs = get_one(corpus, "test_stringchar_char");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("wchar_t") {
-    auto funcs = get_one(corpus, "test_stringchar_wchar_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
+namespace {
+	auto corpus = smeagle::Smeagle("liballocation.so").parse();
 }
 
-TEST_CASE("Register Allocation Signed String and char types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("signed char") {
-    auto funcs = get_one(corpus, "test_signed_char");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-}
-
-TEST_CASE("Register Allocation Unsigned String and char types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("unsigned char") {
-    auto funcs = get_one(corpus, "test_unsigned_char");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-}
-
-TEST_CASE("Register Allocation Float types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("float") {
-    auto funcs = get_one(corpus, "test_float_float");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%xmm0");
-  }
-
-  SUBCASE("double (double floating point)") {
-    auto funcs = get_one(corpus, "test_float_double");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-}
-
-TEST_CASE("Register Allocation Unsigned Integral types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("unsigned int") {
-    auto funcs = get_one(corpus, "test_integral_unsigned_int");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-}
-
-TEST_CASE("Register Allocation Signed Integral types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("signed int") {
-    auto funcs = get_one(corpus, "test_signedintegral_signed_int");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-}
-
-TEST_CASE("Register Allocation Null types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("void") {
-    auto funcs = get_one(corpus, "test_null_void");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    REQUIRE(parameters.size() == 0);
-  }
-}
-
-TEST_CASE("Register Allocation Boolean types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
+TEST_CASE("Register Allocation - Integral Types") {
   SUBCASE("bool") {
-    auto funcs = get_one(corpus, "test_boolean_boolean");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
+    auto func = get_one(corpus, "test_bool");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
     CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer8");
   }
-}
-
-TEST_CASE("Register Allocation Fixed Width Integer types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("int8_t") {
-    auto funcs = get_one(corpus, "test_type_int8_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
+  SUBCASE("char") {
+    auto func = get_one(corpus, "test_char");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
     CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer8");
   }
-
-  SUBCASE("int16_t") {
-    auto funcs = get_one(corpus, "test_type_int16_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("int32_t") {
-    auto funcs = get_one(corpus, "test_type_int32_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("int64_t") {
-    auto funcs = get_one(corpus, "test_type_int64_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("int_fast8_t") {
-    auto funcs = get_one(corpus, "test_type_int_fast8_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("int_fast16_t") {
-    auto funcs = get_one(corpus, "test_type_int_fast16_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("int_fast32_t") {
-    auto funcs = get_one(corpus, "test_type_int_fast32_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("int_fast64_t") {
-    auto funcs = get_one(corpus, "test_type_int_fast64_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("int_least8_t") {
-    auto funcs = get_one(corpus, "test_type_int_least8_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("int_least16_t") {
-    auto funcs = get_one(corpus, "test_type_int_least16_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("int_least32_t") {
-    auto funcs = get_one(corpus, "test_type_int_least32_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("int_least64_t") {
-    auto funcs = get_one(corpus, "test_type_int_least64_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("uint8_t") {
-    auto funcs = get_one(corpus, "test_type_uint8_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint16_t") {
-    auto funcs = get_one(corpus, "test_type_uint16_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint32_t") {
-    auto funcs = get_one(corpus, "test_type_uint32_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint64_t") {
-    auto funcs = get_one(corpus, "test_type_uint64_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint_fast8_t") {
-    auto funcs = get_one(corpus, "test_type_uint_fast8_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint_fast16_t") {
-    auto funcs = get_one(corpus, "test_type_uint_fast16_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("uint_fast32_t") {
-    auto funcs = get_one(corpus, "test_type_uint_fast32_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("uint_fast64_t") {
-    auto funcs = get_one(corpus, "test_type_uint_fast64_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("uint_least8_t") {
-    auto funcs = get_one(corpus, "test_type_uint_least8_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint_least16_t") {
-    auto funcs = get_one(corpus, "test_type_uint_least16_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint_least32_t") {
-    auto funcs = get_one(corpus, "test_type_uint_least32_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uint_least64_t") {
-    auto funcs = get_one(corpus, "test_type_uint_least64_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("intmax_t") {
-    auto funcs = get_one(corpus, "test_type_intmax_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("intptr_t") {
-    auto funcs = get_one(corpus, "test_type_intptr_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-
-  SUBCASE("uintmax_t") {
-    auto funcs = get_one(corpus, "test_type_uintmax_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
-  SUBCASE("uintptr_t") {
-    auto funcs = get_one(corpus, "test_type_uintptr_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
-  }
-}
-
-TEST_CASE("Register Allocation Integral types") {
-  auto corpus = smeagle::Smeagle("liballocation.so").parse();
-
-  SUBCASE("int") {
-    auto funcs = get_one(corpus, "test_single_int");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "%rdi");
-  }
-
   SUBCASE("short") {
-    auto funcs = get_one(corpus, "test_type_short");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
+    auto func = get_one(corpus, "test_short");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer16");
+  }
+  SUBCASE("int") {
+    auto func = get_one(corpus, "test_int");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer32");
+  }
+  SUBCASE("long") {
+    auto func = get_one(corpus, "test_long");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+  SUBCASE("long long") {
+    auto func = get_one(corpus, "test_long_long");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+}
+TEST_CASE("Register Allocation - Signed Integral Types") {
+  SUBCASE("signed") {
+    auto func = get_one(corpus, "test_signed");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer32");
+  }
+  SUBCASE("signed char") {
+    auto func = get_one(corpus, "test_signed_char");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer8");
+  }
+  SUBCASE("signed short") {
+    auto func = get_one(corpus, "test_signed_short");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer16");
+  }
+  SUBCASE("signed int") {
+    auto func = get_one(corpus, "test_signed_int");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer32");
+  }
+  SUBCASE("signed long") {
+    auto func = get_one(corpus, "test_signed_long");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+  SUBCASE("signed long long") {
+    auto func = get_one(corpus, "test_signed_long_long");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+}
+TEST_CASE("Register Allocation - Unsigned Integral Types") {
+  SUBCASE("unsigned") {
+    auto func = get_one(corpus, "test_unsigned");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer32");
+  }
+  SUBCASE("unsigned char") {
+    auto func = get_one(corpus, "test_unsigned_char");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer8");
+  }
+  SUBCASE("unsigned short") {
+    auto func = get_one(corpus, "test_unsigned_short");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer16");
+  }
+  SUBCASE("unsigned int") {
+    auto func = get_one(corpus, "test_unsigned_int");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer32");
+  }
+  SUBCASE("unsigned long") {
+    auto func = get_one(corpus, "test_unsigned_long");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+  SUBCASE("unsigned long long") {
+    auto func = get_one(corpus, "test_unsigned_long_long");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+}
+TEST_CASE("Register Allocation - Floating Point Types") {
+  SUBCASE("float") {
+    auto func = get_one(corpus, "test_float");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%xmm0");
+    CHECK(parameters[0].type == "Float32");
+  }
+  SUBCASE("double") {
+    auto func = get_one(corpus, "test_double");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%xmm0");
+    CHECK(parameters[0].type == "Float64");
+  }
+  SUBCASE("long double") {
+    auto func = get_one(corpus, "test_long_double");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "framebase+8");
+    CHECK(parameters[0].type == "Float128");
+  }
+  SUBCASE("float _Complex") {
+    auto func = get_one(corpus, "test_float__Complex");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "framebase+8");
+    CHECK(parameters[0].type == "CplxFloat32");
+  }
+  SUBCASE("double _Complex") {
+    auto func = get_one(corpus, "test_double__Complex");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "framebase+8");
+    CHECK(parameters[0].type == "CplxFloat128");
+  }
+  SUBCASE("long double _Complex") {
+    auto func = get_one(corpus, "test_long_double__Complex");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "framebase+8");
+    CHECK(parameters[0].type == "CplxFloat128");
+  }
+}
+TEST_CASE("Register Allocation - UTF Types") {
+  SUBCASE("wchar_t") {
+    auto func = get_one(corpus, "test_wchar_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer32");
+  }
+  SUBCASE("char16_t") {
+    auto func = get_one(corpus, "test_char16_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer16");
+  }
+  SUBCASE("char32_t") {
+    auto func = get_one(corpus, "test_char32_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer32");
+  }
+}
+TEST_CASE("Register Allocation - Size Types") {
+  SUBCASE("size_t") {
+    auto func = get_one(corpus, "test_size_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+  SUBCASE("intmax_t") {
+    auto func = get_one(corpus, "test_intmax_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+  SUBCASE("uintmax_t") {
+    auto func = get_one(corpus, "test_uintmax_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+  SUBCASE("intptr_t") {
+    auto func = get_one(corpus, "test_intptr_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+  SUBCASE("uintptr_t") {
+    auto func = get_one(corpus, "test_uintptr_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Integer64");
+  }
+}
+TEST_CASE("Register Allocation - Fixed-width Integral Types") {
+  SUBCASE("int8_t") {
+    auto func = get_one(corpus, "test_int8_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
     CHECK(parameters[0].location == "%rdi");
   }
-
-  SUBCASE("long") {
-    auto funcs = get_one(corpus, "test_type_single_long");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
+  SUBCASE("int16_t") {
+    auto func = get_one(corpus, "test_int16_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
   }
-
-  SUBCASE("long long") {
-    auto funcs = get_one(corpus, "test_type_long_long");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
+  SUBCASE("int32_t") {
+    auto func = get_one(corpus, "test_int32_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
   }
+  SUBCASE("int64_t") {
+    auto func = get_one(corpus, "test_int64_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_fast8_t") {
+    auto func = get_one(corpus, "test_int_fast8_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_fast16_t") {
+    auto func = get_one(corpus, "test_int_fast16_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_fast32_t") {
+    auto func = get_one(corpus, "test_int_fast32_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_fast64_t") {
+    auto func = get_one(corpus, "test_int_fast64_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_least8_t") {
+    auto func = get_one(corpus, "test_int_least8_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_least16_t") {
+    auto func = get_one(corpus, "test_int_least16_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_least32_t") {
+    auto func = get_one(corpus, "test_int_least32_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("int_least64_t") {
+    auto func = get_one(corpus, "test_int_least64_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+}
+TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
+  SUBCASE("uint8_t") {
+    auto func = get_one(corpus, "test_uint8_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint16_t") {
+    auto func = get_one(corpus, "test_uint16_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint32_t") {
+    auto func = get_one(corpus, "test_uint32_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint64_t") {
+    auto func = get_one(corpus, "test_uint64_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_fast8_t") {
+    auto func = get_one(corpus, "test_uint_fast8_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_fast16_t") {
+    auto func = get_one(corpus, "test_uint_fast16_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_fast32_t") {
+    auto func = get_one(corpus, "test_uint_fast32_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_fast64_t") {
+    auto func = get_one(corpus, "test_uint_fast64_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_least8_t") {
+    auto func = get_one(corpus, "test_uint_least8_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_least16_t") {
+    auto func = get_one(corpus, "test_uint_least16_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_least32_t") {
+    auto func = get_one(corpus, "test_uint_least32_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+  SUBCASE("uint_least64_t") {
+    auto func = get_one(corpus, "test_uint_least64_t");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 1);
+    CHECK(parameters[0].location == "%rdi");
+  }
+}
 
-  SUBCASE("size_t") {
-    auto funcs = get_one(corpus, "test_type_size_t");
-    REQUIRE(funcs.size() == 1);
-    auto const& parameters = funcs[0].parameters;
-    CHECK(parameters[0].location == "framebase+8|framebase+16");
+TEST_CASE("Register Allocation - Null Types") {
+  SUBCASE("void") {
+    auto const& func = get_one(corpus, "test_void");
+    auto const& parameters = func.parameters;
+    CHECK(parameters.size() == 0UL);
   }
 }
