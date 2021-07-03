@@ -116,7 +116,7 @@ namespace smeagle::x86_64 {
         st::Type *paramType = param->getType();
 
         // Get register class based on type
-        std::pair<RegisterClass, RegisterClass> regClasses = getRegisterClassFromType(paramType);
+        Class c = getRegisterClassFromType(paramType);
 
         // Get the directionality (export or import) given the type
         std::string direction = getDirectionalityFromType(paramType);
@@ -127,8 +127,8 @@ namespace smeagle::x86_64 {
         // Create a new typelocation to parse later
         parameter p;
         p.name = paramName;
-        p.type = paramType->getName();
-        p.location = allocator.getRegistersString(regClasses, paramType);
+        p.type = c.name;
+        p.location = allocator.getRegisterString(c.lo, c.hi, paramType);
         p.direction = direction;
         typelocs.push_back(p);
       }
