@@ -74,6 +74,25 @@ namespace smeagle::x86_64 {
     if (auto *t = base_type->getScalarType()) {
       return classify(t, ptr_cnt);
     }
+    if (auto *t = base_type->getStructType()) {
+      // page 18 of abi document
+      return classify(t);
+    }
+    if (auto *t = base_type->getUnionType()) {
+      return classify(t);
+    }
+    if (auto *t = base_type->getArrayType()) {
+      return classify(t);
+    }
+    if (auto *t = base_type->getEnumType()) {
+      return classify(t);
+    }
+    if (auto *t = base_type->getFunctionType()) {
+      // This can only be a function pointer
+      return classify(t);
+    }
+
+    throw std::runtime_error{"Unknown parameter type" + paramType->getName()};
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
