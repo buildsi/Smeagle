@@ -8,16 +8,13 @@
 
 #include "smeagle/smeagle.h"
 
-auto get_one(smeagle::Corpus const& corpus, char const* name) {
-  auto funcs = corpus.getFunctions();
+auto const& get_one(smeagle::Corpus const& corpus, char const* name) {
+  auto const& funcs = corpus.getFunctions();
 
-  // We only want the "foo" function
-  funcs.erase(std::remove_if(funcs.begin(), funcs.end(),
-                             [name](smeagle::abi_description const& d) {
-                               return d.function_name.find(name) == std::string::npos;
-                             }),
-              funcs.end());
-  return funcs;
+  return *std::find_if(funcs.begin(), funcs.end(),
+					 [name](smeagle::abi_description const& d) {
+					   return d.function_name == name;
+					 });
 }
 
 TEST_CASE("Register Allocation String and char types") {
