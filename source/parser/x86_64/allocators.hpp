@@ -5,12 +5,13 @@
 
 #pragma once
 
+#include <optional>
 #include <stack>
-#include <vector>
+#include <stdexcept>
+#include <string>
 
-#include "Symtab.h"
+#include "Type.h"
 #include "register_class.hpp"
-#include "smeagle/parameter.h"
 
 namespace smeagle::x86_64 {
 
