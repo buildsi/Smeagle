@@ -38,9 +38,11 @@ set_target_properties(SmeagleTests PROPERTIES CXX_STANDARD 17)
 # ---- Test Libraries ----
 add_library(directionality SHARED source/libs/directionality.cpp)
 target_compile_options(directionality PRIVATE "-g")
+set_source_files_properties(source/libs/directionality.cpp PROPERTIES COMPILE_OPTIONS "-O0")
 
 add_library(allocation SHARED source/libs/allocation.cpp)
 target_compile_options(allocation PRIVATE "-g")
+set_source_files_properties(source/libs/allocation.cpp PROPERTIES COMPILE_OPTIONS "-O0")
 
 # enable compiler warnings
 if(NOT TEST_INSTALLED_VERSION)
