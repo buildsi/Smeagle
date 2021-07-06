@@ -68,7 +68,7 @@ namespace smeagle::x86_64 {
   }
 
   // Get register class given the argument type
-  Class getRegisterClassFromType(st::Type *paramType) {
+  classification getRegisterClassFromType(st::Type *paramType) {
     auto [base_type, ptr_cnt] = unwrap_underlying_type(paramType);
 
     if (auto *t = base_type->getScalarType()) {
@@ -111,7 +111,7 @@ namespace smeagle::x86_64 {
         st::Type *paramType = param->getType();
 
         // Get register class based on type
-        Class c = getRegisterClassFromType(paramType);
+        classification c = getRegisterClassFromType(paramType);
 
         // Get the directionality (export or import) given the type
         std::string direction = getDirectionalityFromType(paramType);

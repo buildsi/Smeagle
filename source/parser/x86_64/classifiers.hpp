@@ -12,7 +12,7 @@
 
 namespace smeagle::x86_64 {
 
-  struct Class {
+  struct classification {
     RegisterClass lo, hi;
     int pointer_indirections;
     std::string name;
@@ -20,7 +20,7 @@ namespace smeagle::x86_64 {
 
   namespace st = Dyninst::SymtabAPI;
 
-  inline Class classify(st::typeScalar *t, int ptr_cnt) {
+  inline classification classify(st::typeScalar *t, int ptr_cnt) {
     // size in BITS
     const auto size = t->getSize() * 8;
 
@@ -96,10 +96,10 @@ namespace smeagle::x86_64 {
     throw std::runtime_error{"Unknown scalar type"};
   }
 
-  inline Class classify(st::typeStruct *) { return {}; }
-  inline Class classify(st::typeUnion *) { return {}; }
-  inline Class classify(st::typeArray *) { return {}; }
-  inline Class classify(st::typeEnum *) { return {}; }
-  inline Class classify(st::typeFunction *) { return {}; }
+  inline classification classify(st::typeStruct *) { return {}; }
+  inline classification classify(st::typeUnion *) { return {}; }
+  inline classification classify(st::typeArray *) { return {}; }
+  inline classification classify(st::typeEnum *) { return {}; }
+  inline classification classify(st::typeFunction *) { return {}; }
 
 }  // namespace smeagle::x86_64
