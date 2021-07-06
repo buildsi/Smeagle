@@ -95,13 +95,9 @@ namespace smeagle::x86_64 {
          */
       }
 
-      if (lo == RegisterClass::X87) {
-        // goes on the stack
-        return fallocator.nextFramebaseFromType(paramType);
-      }
-
-      if (lo == RegisterClass::COMPLEX_X87) {
-        // goes on the stack
+      // If the class is X87, X87UP or COMPLEX_X87, it is passed in memory
+      if (lo == RegisterClass::X87 || lo == RegisterClass::COMPLEX_X87
+          || hi == RegisterClass::X87UP) {
         return fallocator.nextFramebaseFromType(paramType);
       }
 
