@@ -11,7 +11,7 @@ env:
 
 jobs:
   build:
-    container: ghcr.io/autamus/dyninst
+    container: ghcr.io/autamus/dyninst:master
     runs-on: ubuntu-latest
     steps:
 
