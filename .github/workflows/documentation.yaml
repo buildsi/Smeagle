@@ -10,7 +10,7 @@ env:
 jobs:
   build:
     name: Build and publish documentation
-    container: ghcr.io/autamus/dyninst
+    container: ghcr.io/autamus/dyninst:master
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
