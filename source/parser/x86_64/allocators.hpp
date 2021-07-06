@@ -5,12 +5,13 @@
 
 #pragma once
 
+#include <optional>
 #include <stack>
-#include <vector>
+#include <stdexcept>
+#include <string>
 
-#include "Symtab.h"
+#include "Type.h"
 #include "register_class.hpp"
-#include "smeagle/parameter.h"
 
 namespace smeagle::x86_64 {
 
@@ -53,35 +54,55 @@ namespace smeagle::x86_64 {
     }
 
     // Given two registers, return one combined string
-    std::string getRegistersString(std::pair<RegisterClass, RegisterClass> regClasses,
-                                   st::Type *paramType) {
-      std::string locA = this->getRegisterString(regClasses.first, paramType);
-      std::string locB = this->getRegisterString(regClasses.second, paramType);
-
-      // If B is empty (NO_CLASS) then return A
-      if (locB == "") {
-        return locA;
-      }
-      return locA + "|" + locB;
-    }
-
-    // Get a string location from a register class
-    std::string getRegisterString(RegisterClass regClass, st::Type *paramType) {
-      std::optional<std::string> regString;
-
-      // If the class is memory, pass the argument on the stack
-      if (regClass == RegisterClass::NO_CLASS) regString = "";
-      if (regClass == RegisterClass::SSE) regString = this->getNextSseRegister();
-      if (regClass == RegisterClass::INTEGER) regString = this->getNextIntRegister();
-      if (regClass == RegisterClass::MEMORY) regString = std::nullopt;
-
-      // If we don't have a value, we need a framebase
-      if (!regString.has_value()) {
-        regString = fallocator.nextFramebaseFromType(paramType);
+    std::string getRegisterString(RegisterClass lo, RegisterClass hi, st::Type *paramType) {
+      if (lo == RegisterClass::NO_CLASS) {
+        throw std::runtime_error{"Can't allocate a {NO_CLASS, *}"};
       }
 
-      // If we've run out of registers we get to this point
-      return regString.value();
+      if (lo == RegisterClass::MEMORY) {
+        // goes on the stack
+        return fallocator.nextFramebaseFromType(paramType);
+      }
+
+      if (lo == RegisterClass::INTEGER) {
+        auto reg = getNextIntRegister();
+        if (!reg) {
+          // Ran out of registers, put it on the stack
+          return fallocator.nextFramebaseFromType(paramType);
+        }
+        return reg.value();
+      }
+
+      if (lo == RegisterClass::SSE) {
+        auto reg = getNextSseRegister();
+        if (!reg) {
+          // Ran out of registers, put it on the stack
+          return fallocator.nextFramebaseFromType(paramType);
+        }
+
+        if (hi == RegisterClass::SSEUP) {
+          // If the class is SSEUP, the eightbyte is passed in the next available eightbyte
+          // chunk of the last used vector register.
+        }
+        return reg.value();
+
+        /* TODO
+         *
+         *  For objects allocated in multiple registers, use the syntax '%r1 | %r2 | ...'
+         *  to denote this. This can only happen for aggregates.
+         *
+         *  Use ymm and zmm for larger vector types and check for aliasing
+         */
+      }
+
+      // If the class is X87, X87UP or COMPLEX_X87, it is passed in memory
+      if (lo == RegisterClass::X87 || lo == RegisterClass::COMPLEX_X87
+          || hi == RegisterClass::X87UP) {
+        return fallocator.nextFramebaseFromType(paramType);
+      }
+
+      // This should never be reached
+      throw std::runtime_error{"Unknown classification"};
     }
 
   private:
