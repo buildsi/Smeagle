@@ -11,14 +11,13 @@
 auto const& get_one(smeagle::Corpus const& corpus, char const* name) {
   auto const& funcs = corpus.getFunctions();
 
-  return *std::find_if(funcs.begin(), funcs.end(),
-					 [name](smeagle::abi_description const& d) {
-					   return d.function_name == name;
-					 });
+  return *std::find_if(funcs.begin(), funcs.end(), [name](smeagle::abi_description const& d) {
+    return d.function_name == name;
+  });
 }
 
 namespace {
-	auto corpus = smeagle::Smeagle("liballocation.so").parse();
+  auto corpus = smeagle::Smeagle("liballocation.so").parse();
 }
 
 TEST_CASE("Register Allocation - Integral Types") {
