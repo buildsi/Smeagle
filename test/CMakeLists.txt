@@ -37,7 +37,6 @@ add_library(allocation MODULE source/libs/allocation.cpp)
 target_compile_options(allocation PRIVATE "-g")
 set_source_files_properties(source/libs/allocation.cpp PROPERTIES COMPILE_OPTIONS "-O0")
 
-
 # ---- Create binary ----
 add_executable(
   SmeagleTests source/main.cpp source/smeagle.cpp source/directionality.cpp source/allocation.cpp

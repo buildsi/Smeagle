@@ -34,11 +34,11 @@ void Corpus::toYaml() {
   std::cout << "library: \"" << library << "\"\nlocations: " << std::endl;
 
   for (auto &f : functions) {
-    std::cout << "  - function:\n      name: " << f.function_name << "\n      parameters:";
+    std::cout << "  - function:\n      name: \"" << f.function_name << "\"\n      parameters:";
     for (auto const &p : f.parameters) {
-      std::cout << "\n        - name: " << p.name << "\n          type: " << p.type
-                << "\n          location: " << p.location
-                << "\n          direction: " << p.direction;
+      std::cout << "\n        - name: \"" << p.name << "\"\n          type: \"" << p.type
+                << "\"\n          location: \"" << p.location << "\"\n          direction: \""
+                << p.direction << "\"";
     }
     std::cout << std::endl;
   }
