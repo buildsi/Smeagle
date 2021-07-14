@@ -23,8 +23,9 @@ void Corpus::toAsp() {
   for (auto &f : functions) {
     for (auto const &p : f.parameters) {
       std::cout << "abi_typelocation("
-                << "\"" << library << "\", " << f.function_name << ", " << p.name << ", " << p.type
-                << ", \"" << p.location << "\", " << p.direction << ")" << std::endl;
+                << "\"" << library << "\", \"" << f.function_name << "\", \"" << p.name << "\", \""
+                << p.type << "\", \"" << p.location << "\", \"" << p.direction << "\")."
+                << std::endl;
     }
   }
 }
