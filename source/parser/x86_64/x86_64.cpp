@@ -23,25 +23,6 @@ namespace smeagle::x86_64 {
 
   namespace st = Dyninst::SymtabAPI;
 
-  // Get a location offset for a variable
-  // This function is not used because LocationLists are not reliable
-  std::string getParamLocationOffset(st::localVar *param) {
-    std::vector<Dyninst::VariableLocation> locs = param->getLocationLists();
-    std::stringstream result;
-
-    for (auto i = locs.begin(); i != locs.end(); ++i) {
-      Dyninst::VariableLocation current = *i;
-
-      // We only want to know where parameter is at the entrypoint
-      result << std::hex << current.lowPC << " to " << current.hiPC << " " << current.mr_reg.name()
-             << " " << std::dec << current.frameOffset;
-
-      break;
-    }
-
-    return result.str();
-  }
-
   // Get directionality from argument type
   std::string getDirectionalityFromType(st::Type *paramType) {
     // Remove any top-level typedef
@@ -115,9 +96,6 @@ namespace smeagle::x86_64 {
 
         // Get the directionality (export or import) given the type
         std::string direction = getDirectionalityFromType(paramType);
-
-        // This uses location lists, not reliable
-        // std::string locoffset = getParamLocationOffset(param);
 
         // Create a new typelocation to parse later
         parameter p;
