@@ -45,16 +45,10 @@ smeagle::Corpus Smeagle::parse() {
   // We are going to read functions and symbols
   Symtab *obj = NULL;
   std::vector<Symbol *> symbols;
-  std::vector<Function *> funcs;
 
   // Read the library into the Symtab object, cut out early if there's error
   if (not Symtab::openFile(obj, library)) {
     throw std::runtime_error{"There was a problem reading from '" + library + "'"};
-  }
-
-  // Get all functions in the library
-  if (not obj->getAllFunctions(funcs)) {
-    throw std::runtime_error{"There was a problem getting functions from '" + library + "'"};
   }
 
   // Get all functions in the library
