@@ -18,3 +18,5 @@ RUN cd /tmp && \
     pip3 install .
 WORKDIR /code
 ADD . /code
+RUN make
+ENV PATH /code/build/standalone:$PATH
