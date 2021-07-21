@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <string>
+#include <memory>
 
 namespace smeagle {
 
@@ -16,11 +16,28 @@ namespace smeagle {
    * an actual parameter at a callsite, or a return value from a function.
    *
    */
-  struct parameter {
-    std::string name;
-    std::string type;
-    std::string direction;
-    std::string location;
+  class parameter {
+  public:
+    template <typename T> explicit parameter(T x) : self_(std::make_shared<model<T>>(std::move(x))) {}
+
+    std::string facts() const { return self_->facts(); }
+    std::string interface() const { return self_->interface(); }
+
+  private:
+    struct concept_t {
+      virtual ~concept_t() = default;
+      virtual std::string facts() const = 0;
+      virtual std::string interface() const = 0;
+    };
+    template <typename T> struct model : concept_t {
+      model(T x) : data_{std::move(x)} {}
+      std::string facts() const override { return data_.facts(); }
+      std::string interface() const override { return data_.interface(); }
+
+      T data_;
+    };
+
+    std::shared_ptr<concept_t const> self_;
   };
 
 }  // namespace smeagle

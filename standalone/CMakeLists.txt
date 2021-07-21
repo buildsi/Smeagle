@@ -29,4 +29,12 @@ add_executable(SmeagleStandalone ${sources})
 
 set_target_properties(SmeagleStandalone PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "Smeagle")
 
-target_link_libraries(SmeagleStandalone Smeagle::Smeagle cxxopts)
+find_package(TBB REQUIRED)
+target_include_directories(
+  SmeagleStandalone
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}> ${Boost_INCLUDE_DIRS}
+         ${include_dirs} ${DYNINST_INCLUDE_DIR} ${TBB_INCLUDE_DIRS}
+)
+
+target_link_libraries(SmeagleStandalone Smeagle::Smeagle cxxopts TBB::tbb)

@@ -3,12 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <iostream>
-#include <optional>
-#include <regex>
-#include <stack>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "Function.h"
@@ -20,61 +15,47 @@
 #include "type_checker.hpp"
 
 namespace smeagle::x86_64 {
+  namespace detail {
+    struct parameter {
+      std::string name;
+      std::string type_name;
+      std::string location;
+    };
 
+    struct none_t final : public parameter {
+      std::string interface() const {
+        return "ABI [" + name + ", " + type_name + ", " + location + "]";
+      }
+      std::string facts() const {
+        return "FACT [" + name + ", " + type_name + ", " + location + "]";
+      }
+    };
+    struct scalar_t final : public parameter {
+      std::string facts() const {
+        return "FACT [" + name + ", " + type_name + ", " + location + "]";
+      }
+      std::string interface() const {
+        return "ABI [" + name + ", " + type_name + ", " + location + "]";
+      }
+    };
+    struct union_t final : public parameter {};
+    struct array_t final : public parameter {};
+    struct enum_t final : public parameter {};
+    struct function_t final : public parameter {};
+
+    template <typename T> struct pointer_t final : public parameter {
+      T underlying_type;
+      int num_indirections;
+
+      std::string facts() const {
+        return "FACT [" + name + ", " + type_name + ", " + location + "]";
+      }
+      std::string interface() const {
+        return "ABI [" + name + ", " + type_name + ", " + location + "]";
+      }
+    };
+  }  // namespace detail
   namespace st = Dyninst::SymtabAPI;
-
-  // Get directionality from argument type
-  std::string getDirectionalityFromType(st::Type *paramType) {
-    // Remove any top-level typedef
-    // NB: We can't call `unwrap_underlying_type` here as we need to keep
-    //     any reference type for the call to `is_indirect` work.
-    paramType = remove_typedef(paramType);
-    auto dataClass = paramType->getDataClass();
-
-    // Any type passed by value is imported
-    if (!is_indirect(dataClass)) {
-      return "import";
-    }
-
-    // Remove any remaining typedef or indirection
-    paramType = unwrap_underlying_type(paramType).first;
-
-    // A pointer/reference to a primitive is imported
-    if (is_primitive(paramType->getDataClass())) {
-      return "import";
-    }
-
-    // Passed by pointer or reference and not primitive, value is unknown
-    return "unknown";
-  }
-
-  // Get register class given the argument type
-  classification getRegisterClassFromType(st::Type *paramType) {
-    auto [base_type, ptr_cnt] = unwrap_underlying_type(paramType);
-
-    if (auto *t = base_type->getScalarType()) {
-      return classify(t, ptr_cnt);
-    }
-    if (auto *t = base_type->getStructType()) {
-      // page 18 of abi document
-      return classify(t);
-    }
-    if (auto *t = base_type->getUnionType()) {
-      return classify(t);
-    }
-    if (auto *t = base_type->getArrayType()) {
-      return classify(t);
-    }
-    if (auto *t = base_type->getEnumType()) {
-      return classify(t);
-    }
-    if (auto *t = base_type->getFunctionType()) {
-      // This can only be a function pointer
-      return classify(t);
-    }
-
-    throw std::runtime_error{"Unknown parameter type" + paramType->getName()};
-  }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
     st::Function *func = symbol->getFunction();
@@ -91,24 +72,41 @@ namespace smeagle::x86_64 {
         std::string paramName = param->getName();
         st::Type *paramType = param->getType();
 
-        // Get register class based on type
-        classification c = getRegisterClassFromType(paramType);
+        auto [base_type, ptr_cnt] = unwrap_underlying_type(paramType);
 
-        // Get the directionality (export or import) given the type
-        std::string direction = getDirectionalityFromType(paramType);
+        if (auto *t = base_type->getScalarType()) {
+          auto base_class = classify(t, 0);
+          auto base_type_name = t->getName();
 
-        // Create a new typelocation to parse later
-        parameter p;
-        p.name = paramName;
-        p.type = c.name;
-        p.location = allocator.getRegisterString(c.lo, c.hi, paramType);
-        p.direction = direction;
-        typelocs.push_back(p);
+          if (ptr_cnt > 0) {
+            auto ptr_class = classify(t, ptr_cnt);
+            auto ptr_loc = allocator.getRegisterString(ptr_class.lo, ptr_class.hi, t);
+            auto ptr_type_name = paramType->getName();
+
+            auto p = smeagle::parameter{detail::pointer_t<detail::scalar_t>{
+                paramName, ptr_type_name, ptr_loc, {paramName, base_type_name}}};
+            typelocs.push_back(std::move(p));
+          } else {
+            auto loc = allocator.getRegisterString(base_class.lo, base_class.hi, base_type);
+            auto p = smeagle::parameter{detail::scalar_t{paramName, base_type_name, loc}};
+            typelocs.push_back(std::move(p));
+          }
+        } else if (auto *t = base_type->getStructType()) {
+          // page 18 of abi document
+        } else if (auto *t = base_type->getUnionType()) {
+        } else if (auto *t = base_type->getArrayType()) {
+        } else if (auto *t = base_type->getEnumType()) {
+        } else if (auto *t = base_type->getFunctionType()) {
+          // This can only be a function pointer
+        }
       }
     }
     return typelocs;
   }
 
-  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) { return {}; }
+  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) {
+    using namespace detail;
+    return smeagle::parameter{none_t{"None", "None", "None"}};
+  }
 
 }  // namespace smeagle::x86_64

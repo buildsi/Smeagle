@@ -20,26 +20,29 @@ Corpus::Corpus(std::string _library) : library(std::move(_library)){};
 
 // dump all Type Locations to asp
 void Corpus::toAsp() {
-  for (auto &f : functions) {
-    for (auto const &p : f.parameters) {
-      std::cout << "abi_typelocation("
-                << "\"" << library << "\", \"" << f.function_name << "\", \"" << p.name << "\", \""
-                << p.type << "\", \"" << p.location << "\", \"" << p.direction << "\")."
-                << std::endl;
-    }
-  }
+//  for (auto &f : functions) {
+//    for (auto const &p : f.parameters) {
+//      std::cout << "abi_typelocation("
+//                << "\"" << library << "\", \"" << f.function_name << "\", \"" << p.name << "\", \""
+//                << p.type << "\", \"" << p.location << "\", \"" << p.direction << "\")."
+//                << std::endl;
+//    }
+//  }
 }
 
 // dump all Type Locations to yaml output
 void Corpus::toYaml() {
   std::cout << "library: \"" << library << "\"\nlocations: " << std::endl;
 
-  for (auto &f : functions) {
+  for (auto const &f : functions) {
     std::cout << "  - function:\n      name: \"" << f.function_name << "\"\n      parameters:";
     for (auto const &p : f.parameters) {
-      std::cout << "\n        - name: \"" << p.name << "\"\n          type: \"" << p.type
-                << "\"\n          location: \"" << p.location << "\"\n          direction: \""
-                << p.direction << "\"";
+    	std::cout << "ABI interface:\n" << p.interface() << "\n";
+    	std::cout << "Model facts:\n" << p.facts() << "\n";
+
+//      std::cout << "\n        - name: \"" << p.name << "\"\n          type: \"" << p.type
+//                << "\"\n          location: \"" << p.location << "\"\n          direction: \""
+//                << p.direction << "\"";
     }
     std::cout << std::endl;
   }
@@ -47,44 +50,44 @@ void Corpus::toYaml() {
 
 // dump all Type Locations to json
 void Corpus::toJson() {
-  std::cout << "{\n"
-            << " \"library\": \"" << library << "\",\n"
-            << " \"locations\":\n"
-            << " [\n";
-
-  for (auto &f : functions) {
-    std::string endcomma;
-    if (&f == &functions.back())
-      endcomma = "";
-    else {
-      endcomma = ",";
-    }
-    std::cout << "   {\n"
-              << "    \"function\": {\n"
-              << "      \"name\": \"" << f.function_name << ",\n"
-              << "      \"parameters\": [\n";
-
-    for (auto const &p : f.parameters) {
-      // Check if we are at the last entry (no comma) or not
-      std::string endcomma;
-      if (&p == &f.parameters.back())
-        endcomma = "";
-      else {
-        endcomma = ",";
-      }
-
-      std::cout << "     {"
-                << "\"name\":\"" << p.name << "\", "
-                << "\"type\":\"" << p.type << "\", "
-                << "\"location\":\"" << p.location << "\", "
-                << "\"direction\":\"" << p.direction << "\""
-                << "}" << endcomma << '\n';
-    }
-    std::cout << "    ]\n"
-              << "   }" << endcomma << "\n";
-  }
-  std::cout << " ]\n"
-            << "}" << std::endl;
+//  std::cout << "{\n"
+//            << " \"library\": \"" << library << "\",\n"
+//            << " \"locations\":\n"
+//            << " [\n";
+//
+//  for (auto &f : functions) {
+//    std::string endcomma;
+//    if (&f == &functions.back())
+//      endcomma = "";
+//    else {
+//      endcomma = ",";
+//    }
+//    std::cout << "   {\n"
+//              << "    \"function\": {\n"
+//              << "      \"name\": \"" << f.function_name << ",\n"
+//              << "      \"parameters\": [\n";
+//
+//    for (auto const &p : f.parameters) {
+//      // Check if we are at the last entry (no comma) or not
+//      std::string endcomma;
+//      if (&p == &f.parameters.back())
+//        endcomma = "";
+//      else {
+//        endcomma = ",";
+//      }
+//
+//      std::cout << "     {"
+//                << "\"name\":\"" << p.name << "\", "
+//                << "\"type\":\"" << p.type << "\", "
+//                << "\"location\":\"" << p.location << "\", "
+//                << "\"direction\":\"" << p.direction << "\""
+//                << "}" << endcomma << '\n';
+//    }
+//    std::cout << "    ]\n"
+//              << "   }" << endcomma << "\n";
+//  }
+//  std::cout << " ]\n"
+//            << "}" << std::endl;
 }
 
 // parse a function for parameters and abi location
