@@ -61,7 +61,7 @@ void Corpus::toJson() {
     }
     std::cout << "   {\n"
               << "    \"function\": {\n"
-              << "      \"name\": \"" << f.function_name << ",\n"
+              << "      \"name\": \"" << f.function_name << "\",\n"
               << "      \"parameters\": [\n";
 
     for (auto const &p : f.parameters) {
