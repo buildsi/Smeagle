@@ -19,8 +19,6 @@ jobs:
 
       - name: Build and Run Test Container
         run: |
-            mkdir -p results
-            pip install -r requirements.txt
             docker build -t ghcr.io/buildsi/smeagle .
 
       - name: Login and Deploy Test Container
