@@ -25,6 +25,7 @@ include(cmake/CPM.cmake)
 
 find_package(Dyninst REQUIRED)
 find_package(Boost REQUIRED)
+find_package(TBB REQUIRED)
 
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.6.0")
@@ -47,7 +48,7 @@ add_library(Smeagle ${sources})
 set_target_properties(Smeagle PROPERTIES CXX_STANDARD 17)
 
 # Link dependencies
-target_link_libraries(Smeagle PRIVATE fmt::fmt Boost::boost common symtabAPI)
+target_link_libraries(Smeagle PUBLIC fmt::fmt Boost::boost TBB::tbb common symtabAPI)
 
 target_include_directories(
   Smeagle
