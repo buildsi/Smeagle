@@ -81,9 +81,9 @@ void Corpus::toJson() {
                 << "}" << endcomma << '\n';
     }
     std::cout << "    ]\n"
-              << "   }" << endcomma << "\n";
+              << "   }}" << endcomma << "\n";
   }
-  std::cout << " ]\n"
+  std::cout << "]\n"
             << "}" << std::endl;
 }
 
