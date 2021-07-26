@@ -101,6 +101,7 @@ namespace smeagle::x86_64 {
         parameter p;
         p.name = paramName;
         p.type = c.name;
+        p.pointer_indirections = c.pointer_indirections;
         p.location = allocator.getRegisterString(c.lo, c.hi, paramType);
         p.direction = direction;
         typelocs.push_back(p);

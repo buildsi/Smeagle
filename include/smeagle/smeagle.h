@@ -15,9 +15,6 @@ using namespace SymtabAPI;
 
 namespace smeagle {
 
-  /**  Output Format codes to be used with the Smeagle class */
-  enum class FormatCode { Yaml, Json, Asp };
-
   /**
    * @brief A class for saying hello in multiple languages
    */

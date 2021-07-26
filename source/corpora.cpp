@@ -18,33 +18,6 @@ using namespace smeagle;
 
 Corpus::Corpus(std::string _library) : library(std::move(_library)){};
 
-// dump all Type Locations to asp
-void Corpus::toAsp() {
-  for (auto &f : functions) {
-    for (auto const &p : f.parameters) {
-      std::cout << "abi_typelocation("
-                << "\"" << library << "\", \"" << f.function_name << "\", \"" << p.name << "\", \""
-                << p.type << "\", \"" << p.location << "\", \"" << p.direction << "\")."
-                << std::endl;
-    }
-  }
-}
-
-// dump all Type Locations to yaml output
-void Corpus::toYaml() {
-  std::cout << "library: \"" << library << "\"\nlocations: " << std::endl;
-
-  for (auto &f : functions) {
-    std::cout << "  - function:\n      name: \"" << f.function_name << "\"\n      parameters:";
-    for (auto const &p : f.parameters) {
-      std::cout << "\n        - name: \"" << p.name << "\"\n          type: \"" << p.type
-                << "\"\n          location: \"" << p.location << "\"\n          direction: \""
-                << p.direction << "\"";
-    }
-    std::cout << std::endl;
-  }
-}
-
 // dump all Type Locations to json
 void Corpus::toJson() {
   std::cout << "{\n"
@@ -73,10 +46,15 @@ void Corpus::toJson() {
         endcomma = ",";
       }
 
+      // Determine if we need pointer indirection
+      std::string pointer_indirections = "";
+      if (p.pointer_indirections == "") {
+        pointer_indirections = "\"pointer_indirections\":\"" + p.pointer_indirections + "\", ";
+      }
       std::cout << "     {"
                 << "\"name\":\"" << p.name << "\", "
                 << "\"type\":\"" << p.type << "\", "
-                << "\"location\":\"" << p.location << "\", "
+                << "\"location\":\"" << p.location << "\", " << pointer_indirections
                 << "\"direction\":\"" << p.direction << "\""
                 << "}" << endcomma << '\n';
     }
