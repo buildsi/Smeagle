@@ -33,7 +33,6 @@ bool Smeagle::has_exceptions() {
 
   // Parse exceptions
   obj->getAllExceptions(exceptions);
-  std::cout << library << ": " << exceptions.size() << " exceptions." << std::endl;
   if (exceptions.size() == 0) {
     return false;
   }

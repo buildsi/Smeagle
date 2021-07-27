@@ -54,7 +54,7 @@ types = [
             {'name':'double',               'type':'Float64',      'res':'%xmm0'},
             {'name':'long double',          'type':'Float128',     'res':'framebase+8'},
             {'name':'float _Complex',       'type':'CplxFloat32',  'res':'framebase+8'},
-            {'name':'double _Complex',      'type':'CplxFloat64',  'res':'framebase+8'},
+            {'name':'double _Complex',      'type':'CplxFloat128', 'res':'framebase+8'},
             {'name':'long double _Complex', 'type':'CplxFloat128', 'res':'framebase+8'}
         ]
     },
@@ -121,42 +121,80 @@ def make_funcs(file, category, types):
     for t in types:
         name = t['name'].replace(' ', '_')
         file.write('extern "C" void test_{0}({1} x){{}}\n'.format(name, t['name']))
+        file.write('extern "C" void test_ptr_{0}({1}* x){{}}\n'.format(name, t['name']))
+        file.write('extern "C" void test_ptr_ptr_{0}({1}** x){{}}\n'.format(name, t['name']))
 
 def make_tests(file, category, types):
     file.write('TEST_CASE("Register Allocation - {}") {{'.format(category))
-    for t in types:
-        name = t['name'].replace(' ', '_')
-        file.write(
+    subcase = \
 """
   SUBCASE("{0}") {{
     auto func = get_one(corpus, "test_{1}");
     auto const& parameters = func.parameters;
-    CHECK(parameters.size() == 1);
     CHECK(parameters[0].location == "{2}");
-""".format(t['name'], name, t['res'])
-        )
+"""
+    for t in types:
+        name = t['name'].replace(' ', '_')
+        
+        # Plain type test
+        file.write(subcase.format(t['name'], name, t['res']))
         if 'type' in t:
             file.write('    CHECK(parameters[0].type == "{0}");\n'.format(t['type']))
         file.write('  }')
+        
+        # Pointer indirection test
+        for p in [['*', 'ptr_', 1], ['**','ptr_ptr_', 2]]:
+            file.write(subcase.format(t['name']+p[0], p[1]+name, '%rdi'))
+            file.write('    CHECK(parameters[0].type == "Pointer64");\n')
+            file.write('    CHECK(parameters[0].pointer_indirections == {0});\n'.format(p[2]))
+            file.write('  }')
     
     file.write("\n}\n")
 
-# ------------------------------------------ #
+def write_headers(test_file, func_file):
+    func_file.write(
+"""
+// Functions to test register allocation
+#include <complex.h>
+#include <iostream>
+""")
+    test_file.write(
+"""
+// Copyright 2013-2021 Lawrence Livermore National Security, LLC and other
+// Spack Project Developers. See the top-level COPYRIGHT file for details.
+//
+// SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-with open(options.test_filename, 'w') as test_file:
-    with open(options.func_filename, 'w') as func_file:
-        for t in types:
-            make_funcs(func_file, t['category'], t['types'])
-            make_tests(test_file, t['category'], t['types'])
-        
-        # Null type
-        func_file.write(
+#include <doctest/doctest.h>
+#include <string.h>
+
+#include "smeagle/smeagle.h"
+
+auto const& get_one(smeagle::Corpus const& corpus, char const* name) {
+  auto const& funcs = corpus.getFunctions();
+
+  return *std::find_if(funcs.begin(), funcs.end(), [name](smeagle::abi_description const& d) {
+    return d.function_name == name;
+  });
+}
+
+namespace {
+  auto corpus = smeagle::Smeagle("liballocation.so").parse();
+}
+
+"""
+    )    
+
+def write_null_tests(test_file, func_file):
+    func_file.write(
 """
 // Register Allocation - Null Type
 extern "C" void test_void(){}
+extern "C" void test_ptr_void(void* x){}
+extern "C" void test_ptr_ptr_void(void** x){}
 """)
 
-        test_file.write(
+    test_file.write(
 """
 TEST_CASE("Register Allocation - Null Types") {
   SUBCASE("void") {
@@ -164,5 +202,28 @@ TEST_CASE("Register Allocation - Null Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters.size() == 0UL);
   }
+  SUBCASE("void") {
+    auto const& func = get_one(corpus, "test_ptr_void");
+    auto const& parameters = func.parameters;
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Pointer64");
+  }
+  SUBCASE("void") {
+    auto const& func = get_one(corpus, "test_ptr_ptr_void");
+    auto const& parameters = func.parameters;
+    CHECK(parameters[0].location == "%rdi");
+    CHECK(parameters[0].type == "Pointer64");
+  }
 }
 """)
+
+# ------------------------------------------ #
+
+with open(options.test_filename, 'w') as test_file:
+    with open(options.func_filename, 'w') as func_file:
+        write_headers(test_file, func_file)
+        for t in types:
+            make_funcs(func_file, t['category'], t['types'])
+            make_tests(test_file, t['category'], t['types'])
+        write_null_tests(test_file, func_file)
+
