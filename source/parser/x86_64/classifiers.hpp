@@ -74,7 +74,6 @@ namespace smeagle::x86_64 {
         }
         // This is NOT correct.
         // TODO It should be struct{T r,i;};, but we don't handle aggregates yet
-        std::cout << "CplxFloat: " << t->getName() << " [" << t->getSize() << "]" << std::endl;
         return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, ptr_cnt,
                 "CplxFloat" + std::to_string(size / 2)};
       }
