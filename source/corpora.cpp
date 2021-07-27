@@ -48,8 +48,9 @@ void Corpus::toJson() {
 
       // Determine if we need pointer indirection
       std::string pointer_indirections = "";
-      if (p.pointer_indirections == "") {
-        pointer_indirections = "\"pointer_indirections\":\"" + p.pointer_indirections + "\", ";
+      if (p.pointer_indirections != 0) {
+        pointer_indirections
+            = "\"pointer_indirections\":\"" + std::to_string(p.pointer_indirections) + "\", ";
       }
       std::cout << "     {"
                 << "\"name\":\"" << p.name << "\", "
