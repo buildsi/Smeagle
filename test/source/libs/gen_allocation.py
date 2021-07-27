@@ -143,9 +143,10 @@ def make_tests(file, category, types):
         file.write('  }')
         
         # Pointer indirection test
-        for p in [['*', 'ptr_'], ['**','ptr_ptr_']]:
+        for p in [['*', 'ptr_', 1], ['**','ptr_ptr_', 2]]:
             file.write(subcase.format(t['name']+p[0], p[1]+name, '%rdi'))
             file.write('    CHECK(parameters[0].type == "Pointer64");\n')
+            file.write('    CHECK(parameters[0].pointer_indirections == {0});\n'.format(p[2]))
             file.write('  }')
     
     file.write("\n}\n")
