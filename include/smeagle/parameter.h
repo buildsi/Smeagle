@@ -20,6 +20,7 @@ namespace smeagle {
     std::string name;
     std::string type;
     std::string direction;
+    int pointer_indirections;
     std::string location;
   };
 

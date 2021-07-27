@@ -33,19 +33,9 @@ namespace smeagle {
     void parseFunctionABILocation(Dyninst::SymtabAPI::Symbol*, Dyninst::Architecture);
 
     /**
-     * @brief Dump a corpus to asp
-     */
-    void toAsp();
-
-    /**
      * @brief Dump a corpus to json
      */
     void toJson();
-
-    /**
-     * @brief Dump a corpus to yaml
-     */
-    void toYaml();
 
     std::vector<abi_description> const& getFunctions() const { return functions; }
   };
