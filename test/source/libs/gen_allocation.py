@@ -142,15 +142,11 @@ def make_tests(file, category, types):
             file.write('    CHECK(parameters[0].type == "{0}");\n'.format(t['type']))
         file.write('  }')
         
-        # Single pointer indirection test
-        file.write(subcase.format(t['name']+'*', 'ptr_'+name, '%rdi'))
-        file.write('    CHECK(parameters[0].type == "Pointer64");\n')
-        file.write('  }')
-        
-        # Double pointer indirection test
-        file.write(subcase.format(t['name']+'**', 'ptr_ptr_'+name, '%rdi'))
-        file.write('    CHECK(parameters[0].type == "Pointer64");\n')
-        file.write('  }')
+        # Pointer indirection test
+        for p in [['*', 'ptr_'], ['**','ptr_ptr_']]:
+            file.write(subcase.format(t['name']+p[0], p[1]+name, '%rdi'))
+            file.write('    CHECK(parameters[0].type == "Pointer64");\n')
+            file.write('  }')
     
     file.write("\n}\n")
 
