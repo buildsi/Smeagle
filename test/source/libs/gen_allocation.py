@@ -54,7 +54,7 @@ types = [
             {'name':'double',               'type':'Float64',      'res':'%xmm0'},
             {'name':'long double',          'type':'Float128',     'res':'framebase+8'},
             {'name':'float _Complex',       'type':'CplxFloat32',  'res':'framebase+8'},
-            {'name':'double _Complex',      'type':'CplxFloat64',  'res':'framebase+8'},
+            {'name':'double _Complex',      'type':'CplxFloat128', 'res':'framebase+8'},
             {'name':'long double _Complex', 'type':'CplxFloat128', 'res':'framebase+8'}
         ]
     },
