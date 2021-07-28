@@ -41,7 +41,7 @@ namespace smeagle::x86_64 {
        *
        */
       // TODO Should we integrate the directionality calculation here?
-      return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, ptr_cnt, "Pointer64"};
+      return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, ptr_cnt, "Pointer"};
     }
 
     // paramType properties have booleans to indicate types
@@ -50,45 +50,41 @@ namespace smeagle::x86_64 {
     // Integral types
     if (props.is_integral || props.is_UTF) {
       if (size > 128) {
-        return {RegisterClass::SSE, RegisterClass::SSEUP, ptr_cnt,
-                "IntegerVec" + std::to_string(size)};
+        return {RegisterClass::SSE, RegisterClass::SSEUP, ptr_cnt, "IntegerVec"};
       }
       if (size == 128) {
         // __int128 is treated as struct{long,long};
         // This is NOT correct, but we don't handle aggregates yet.
         // How do we differentiate between __int128 and __m128i?
-        return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, ptr_cnt, "Integer128"};
+        return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, ptr_cnt, "Integer"};
       }
 
       // _Decimal32, _Decimal64, and __m64 are supposed to be SSE.
       // TODO How can we differentiate them here?
-      return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, ptr_cnt,
-              "Integer" + std::to_string(size)};
+      return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, ptr_cnt, "Integer"};
     }
 
     if (props.is_floating_point) {
       if (props.is_complex_float) {
         if (size == 128) {
           // x87 `complex long double`
-          return {RegisterClass::COMPLEX_X87, RegisterClass::NO_CLASS, ptr_cnt, "CplxFloat128"};
+          return {RegisterClass::COMPLEX_X87, RegisterClass::NO_CLASS, ptr_cnt, "CplxFloat"};
         }
         // This is NOT correct.
         // TODO It should be struct{T r,i;};, but we don't handle aggregates yet
-        return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, ptr_cnt,
-                "CplxFloat" + std::to_string(size / 2)};
+        return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, ptr_cnt, "CplxFloat"};
       }
       if (size <= 64) {
         // 32- or 64-bit floats
-        return {RegisterClass::SSE, RegisterClass::SSEUP, ptr_cnt, "Float" + std::to_string(size)};
+        return {RegisterClass::SSE, RegisterClass::SSEUP, ptr_cnt, "Float"};
       }
       if (size == 128) {
         // x87 `long double` OR __m128[d]
-        // TODO: How do we differntiate the vector type here? Dyninst should help us
-        return {RegisterClass::X87, RegisterClass::X87UP, ptr_cnt, "Float128"};
+        // TODO: How do we differentiate the vector type here? Dyninst should help us
+        return {RegisterClass::X87, RegisterClass::X87UP, ptr_cnt, "Float"};
       }
       if (size > 128) {
-        return {RegisterClass::SSE, RegisterClass::SSEUP, ptr_cnt,
-                "FloatVec" + std::to_string(size)};
+        return {RegisterClass::SSE, RegisterClass::SSEUP, ptr_cnt, "FloatVec"};
       }
     }
 

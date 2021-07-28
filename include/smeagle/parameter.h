@@ -22,6 +22,7 @@ namespace smeagle {
     std::string direction;
     int pointer_indirections;
     std::string location;
+    size_t size_in_bytes;
   };
 
 }  // namespace smeagle

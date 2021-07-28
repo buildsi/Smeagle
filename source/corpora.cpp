@@ -57,6 +57,7 @@ void Corpus::toJson() {
                 << "\"type\":\"" << p.type << "\", "
                 << "\"location\":\"" << p.location << "\", " << pointer_indirections
                 << "\"direction\":\"" << p.direction << "\""
+				<< "\"size\":\"" << p.size_in_bytes << "\""
                 << "}" << endcomma << '\n';
     }
     std::cout << "    ]\n"
