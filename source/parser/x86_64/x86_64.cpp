@@ -3,12 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <iostream>
-#include <optional>
-#include <regex>
-#include <stack>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "Function.h"

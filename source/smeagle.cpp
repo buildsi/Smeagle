@@ -3,13 +3,10 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <fmt/core.h>
-#include <fmt/format.h>
 #include <smeagle/corpora.h>
 #include <smeagle/smeagle.h>
 
 #include <iostream>
-#include <regex>
 #include <stdexcept>
 
 #include "Function.h"
