@@ -18,6 +18,13 @@ jobs:
           path: "**/cpm_modules"
           key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
 
+      - name: Run Include What You Use
+        uses: EmilGedda/include-what-you-use-action@fb65cd78dc3f5cb29785f784a017817d922fb858
+        with:
+          compilation-database-path: '.'
+          output-format: 'iwyu' # Or 'clang'
+          no-error: 'false'      
+
       - name: Install dependencies
         run: |
           apt-get update
@@ -36,13 +43,6 @@ jobs:
           git clone https://github.com/cheshirekow/cmake_format
           cd cmake_format
           pip3 install .
-
-      - name: Run Include What You Use
-        uses: EmilGedda/include-what-you-use-action@fb65cd78dc3f5cb29785f784a017817d922fb858
-        with:
-          compilation-database-path: '.'
-          output-format: 'iwyu' # Or 'clang'
-          no-error: 'false'      
 
       - name: build and install library
         run: make 
