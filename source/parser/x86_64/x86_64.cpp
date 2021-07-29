@@ -13,6 +13,7 @@
 #include "classifiers.hpp"
 #include "smeagle/parameter.h"
 #include "type_checker.hpp"
+#include "types.hpp"
 
 namespace smeagle::x86_64 {
 
@@ -43,32 +44,35 @@ namespace smeagle::x86_64 {
     return "unknown";
   }
 
-  // Get register class given the argument type
-  classification getRegisterClassFromType(st::Type *paramType) {
-    auto [base_type, ptr_cnt] = unwrap_underlying_type(paramType);
+  template <typename class_t, typename base_t, typename param_t>
+  smeagle::parameter classify(std::string const &param_name, base_t *base_type, param_t *param_type,
+                              RegisterAllocator &allocator, int ptr_cnt) {
+    auto base_type_name = base_type->getName();
+    auto direction = getDirectionalityFromType(param_type);
 
-    if (auto *t = base_type->getScalarType()) {
-      return classify(t, ptr_cnt);
-    }
-    if (auto *t = base_type->getStructType()) {
-      // page 18 of abi document
-      return classify(t);
-    }
-    if (auto *t = base_type->getUnionType()) {
-      return classify(t);
-    }
-    if (auto *t = base_type->getArrayType()) {
-      return classify(t);
-    }
-    if (auto *t = base_type->getEnumType()) {
-      return classify(t);
-    }
-    if (auto *t = base_type->getFunctionType()) {
-      // This can only be a function pointer
-      return classify(t);
-    }
+    auto base_class = classify(base_type);
 
-    throw std::runtime_error{"Unknown parameter type" + paramType->getName()};
+    if (ptr_cnt > 0) {
+      // On x86, all pointers are the same ABI class
+      auto ptr_class = classify_pointer(ptr_cnt);
+
+      // Allocate space for the pointer (NOT the underlying type)
+      auto ptr_loc = allocator.getRegisterString(ptr_class.lo, ptr_class.hi, param_type);
+      auto ptr_type_name = param_type->getName();
+
+      return smeagle::parameter{types::pointer_t<class_t>{
+          param_name,
+          ptr_type_name,
+          ptr_class.name,
+          direction,
+          ptr_loc,
+          ptr_cnt,
+          param_type->getSize(),
+          {"", base_type_name, base_class.name, "", "", 0, base_type->getSize()}}};
+    }
+    auto loc = allocator.getRegisterString(base_class.lo, base_class.hi, base_type);
+    return smeagle::parameter{class_t{param_name, base_type_name, base_class.name, direction, loc,
+                                      0, base_type->getSize()}};
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
@@ -79,33 +83,42 @@ namespace smeagle::x86_64 {
 
     // Get parameters with types and names
     if (func->getParams(params)) {
-      // Create a RegisterAllocator lookup class
       RegisterAllocator allocator;
 
       for (auto &param : params) {
-        std::string paramName = param->getName();
-        st::Type *paramType = param->getType();
-
-        // Get register class based on type
-        classification c = getRegisterClassFromType(paramType);
+        auto param_name = param->getName();
+        st::Type *param_type = param->getType();
+        auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
 
         // Get the directionality (export or import) given the type
-        std::string direction = getDirectionalityFromType(paramType);
+        std::string direction = getDirectionalityFromType(param_type);
 
-        // Create a new typelocation to parse later
-        parameter p;
-        p.name = paramName;
-        p.type = c.name;
-        p.pointer_indirections = c.pointer_indirections;
-        p.location = allocator.getRegisterString(c.lo, c.hi, paramType);
-        p.direction = direction;
-        p.size_in_bytes = paramType->getSize();
-        typelocs.push_back(p);
+        if (auto *t = underlying_type->getScalarType()) {
+          typelocs.push_back(
+              classify<types::scalar_t>(param_name, t, param_type, allocator, ptr_cnt));
+        } else if (auto *t = underlying_type->getStructType()) {
+          typelocs.push_back(
+              classify<types::struct_t>(param_name, t, param_type, allocator, ptr_cnt));
+        } else if (auto *t = underlying_type->getUnionType()) {
+          typelocs.push_back(
+              classify<types::union_t>(param_name, t, param_type, allocator, ptr_cnt));
+        } else if (auto *t = underlying_type->getArrayType()) {
+          typelocs.push_back(
+              classify<types::array_t>(param_name, t, param_type, allocator, ptr_cnt));
+        } else if (auto *t = underlying_type->getEnumType()) {
+          typelocs.push_back(
+              classify<types::enum_t>(param_name, t, param_type, allocator, ptr_cnt));
+        } else if (auto *t = underlying_type->getFunctionType()) {
+          typelocs.push_back(
+              classify<types::function_t>(param_name, t, param_type, allocator, ptr_cnt));
+        }
       }
     }
     return typelocs;
   }
 
-  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) { return {}; }
+  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) {
+    return smeagle::parameter{types::none_t{"None", "None", "None"}};
+  }
 
 }  // namespace smeagle::x86_64
