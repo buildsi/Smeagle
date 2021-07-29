@@ -1164,16 +1164,4 @@ TEST_CASE("Register Allocation - Null Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters.size() == 0UL);
   }
-  SUBCASE("void") {
-    auto const& func = get_one(corpus, "test_ptr_void");
-    auto const& parameters = func.parameters;
-    CHECK(parameters[0].location == "%rdi");
-    CHECK(parameters[0].type == "Pointer");
-  }
-  SUBCASE("void") {
-    auto const& func = get_one(corpus, "test_ptr_ptr_void");
-    auto const& parameters = func.parameters;
-    CHECK(parameters[0].location == "%rdi");
-    CHECK(parameters[0].type == "Pointer");
-  }
 }

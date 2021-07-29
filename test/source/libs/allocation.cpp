@@ -189,5 +189,3 @@ extern "C" void test_ptr_ptr_uint_least64_t(uint_least64_t** x){}
 
 // Register Allocation - Null Type
 extern "C" void test_void(){}
-extern "C" void test_ptr_void(void* x){}
-extern "C" void test_ptr_ptr_void(void** x){}

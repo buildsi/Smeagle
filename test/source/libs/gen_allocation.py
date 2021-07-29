@@ -187,8 +187,6 @@ def write_null_tests(test_file, func_file):
 """
 // Register Allocation - Null Type
 extern "C" void test_void(){}
-extern "C" void test_ptr_void(void* x){}
-extern "C" void test_ptr_ptr_void(void** x){}
 """)
 
     test_file.write(
@@ -198,18 +196,6 @@ TEST_CASE("Register Allocation - Null Types") {
     auto const& func = get_one(corpus, "test_void");
     auto const& parameters = func.parameters;
     CHECK(parameters.size() == 0UL);
-  }
-  SUBCASE("void") {
-    auto const& func = get_one(corpus, "test_ptr_void");
-    auto const& parameters = func.parameters;
-    CHECK(parameters[0].location == "%rdi");
-    CHECK(parameters[0].type == "Pointer");
-  }
-  SUBCASE("void") {
-    auto const& func = get_one(corpus, "test_ptr_ptr_void");
-    auto const& parameters = func.parameters;
-    CHECK(parameters[0].location == "%rdi");
-    CHECK(parameters[0].type == "Pointer");
   }
 }
 """)
