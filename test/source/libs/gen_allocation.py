@@ -129,21 +129,21 @@ def make_tests(file, category, types):
   SUBCASE("{0}") {{
     auto func = get_one(corpus, "test_{1}");
     auto const& parameters = func.parameters;
-    CHECK(parameters[0].location == "{2}");
+    CHECK(parameters[0].location() == "{2}");
 """
     for t in types:
         name = t['name'].replace(' ', '_')
         
         # Plain type test
         file.write(subcase.format(t['name'], name, t['res']))
-        file.write('    CHECK(parameters[0].type == "{0}");\n'.format(t['type']))
+        file.write('    CHECK(parameters[0].class_name() == "{0}");\n'.format(t['type']))
         file.write('  }')
         
         # Pointer indirection test
         for p in [['*', 'ptr_', 1], ['**','ptr_ptr_', 2]]:
             file.write(subcase.format(t['name']+p[0], p[1]+name, '%rdi'))
-            file.write('    CHECK(parameters[0].type == "Pointer");\n')
-            file.write('    CHECK(parameters[0].pointer_indirections == {0});\n'.format(p[2]))
+            file.write('    CHECK(parameters[0].class_name() == "Pointer");\n')
+            file.write('    CHECK(parameters[0].pointer_indirections() == {0});\n'.format(p[2]))
             file.write('  }')
     
     file.write("\n}\n")

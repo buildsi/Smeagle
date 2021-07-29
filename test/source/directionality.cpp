@@ -23,5 +23,5 @@ TEST_CASE("Parameter Directionality") {
 
   auto const& parameters = funcs[0].parameters;
 
-  SUBCASE("A simple int") { CHECK(parameters[0].direction == "import"); }
+  SUBCASE("A simple int") { CHECK(parameters[0].direction() == "import"); }
 }
