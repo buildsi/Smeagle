@@ -29,54 +29,79 @@ namespace smeagle::x86_64::types {
       int pointer_indirections() const { return pointer_indirections_; }
       size_t size_in_bytes() const { return size_in_bytes_; }
     };
+
+    void toJson(param const &p, std::ostream &out, int indent) {
+      auto buf = std::string(indent, ' ');
+      out << buf << "\"name\":\"" << p.name() << "\",\n"
+          << buf << "\"type\":\"" << p.type_name() << "\",\n"
+          << buf << "\"class\":\"" << p.class_name() << "\",\n"
+          << buf << "\"location\":\"" << p.location() << "\",\n"
+          << buf << "\"pointer_indirections\":\"" << p.pointer_indirections() << "\",\n"
+          << buf << "\"direction\":\"" << p.direction() << "\",\n"
+          << buf << "\"size\":\"" << p.size_in_bytes() << "\"";
+    }
   }  // namespace detail
 
   struct none_t final : detail::param {
-    void write(std::ostream &out) const { out << "none"; }
+    void toJson(std::ostream &out, int indent) const { out << "none"; }
   };
   struct scalar_t final : detail::param {
-    void write(std::ostream &out) const {
-      out << "     {\n"
-          << "       \"name\":\"" << name() << "\",\n"
-          << "       \"type\":\"" << type_name() << "\",\n"
-          << "       \"class\":\"" << class_name() << "\",\n"
-          << "       \"location\":\"" << location() << "\",\n"
-          << "       \"pointer_indirections\":\"" << pointer_indirections() << "\",\n"
-          << "       \"direction\":\"" << direction() << "\",\n"
-          << "       \"size\":\"" << size_in_bytes() << "\"\n"
-          << "     }";
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
     }
   };
   struct union_t final : detail::param {
-    void write(std::ostream &out) const { out << "union"; }
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
+    }
   };
   struct struct_t final : detail::param {
-    void write(std::ostream &out) const { out << "struct"; }
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
+    }
   };
   struct array_t final : detail::param {
-    void write(std::ostream &out) const { out << "array"; }
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
+    }
   };
   struct enum_t final : detail::param {
-    void write(std::ostream &out) const { out << "enum"; }
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
+    }
   };
   struct function_t final : detail::param {
-    void write(std::ostream &out) const { out << "function"; }
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
+    }
   };
-
   template <typename T> struct pointer_t final : detail::param {
     T underlying_type;
-    void write(std::ostream &out) const {
-      out << "     {\n"
-          << "       \"name\":\"" << name() << "\",\n"
-          << "       \"type\":\"" << type_name() << "\",\n"
-          << "       \"class\":\"" << class_name() << "\",\n"
-          << "       \"location\":\"" << location() << "\",\n"
-          << "       \"pointer_indirections\":\"" << pointer_indirections() << "\",\n"
-          << "       \"direction\":\"" << direction() << "\",\n"
-          << "       \"size\":\"" << size_in_bytes() << "\"\n"
-          << "       \"underlying_type\":\n";
-      underlying_type.write(out);
-      out << "     }";
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << ",\n" << buf << "  \"underlying_type\":\n";
+      underlying_type.toJson(out, indent + 4);
+      out << "\n" << buf << "}";
     }
   };
 }  // namespace smeagle::x86_64::types

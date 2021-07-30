@@ -27,11 +27,7 @@ namespace smeagle {
     std::string location() const { return self->location(); }
     int pointer_indirections() const { return self->pointer_indirections(); }
     size_t size_in_bytes() const { return self->size_in_bytes(); }
-
-    friend std::ostream& operator<<(std::ostream &out, parameter const& p) {
-    	p.self->write(out);
-    	return out;
-    }
+    void toJson(std::ostream &out, int indent) const { self->toJson(out, indent); }
 
 
   private:
@@ -44,7 +40,7 @@ namespace smeagle {
       virtual std::string location() const = 0;
       virtual int pointer_indirections() const = 0;
       virtual size_t size_in_bytes() const = 0;
-      virtual void write(std::ostream &) const = 0;
+      virtual void toJson(std::ostream &, int) const = 0;
     };
     template <typename T> struct model : concept_t {
       model(T x) : data{std::move(x)} {}
@@ -55,7 +51,7 @@ namespace smeagle {
       std::string location() const override { return data.location(); }
       int pointer_indirections() const override { return data.pointer_indirections(); }
       size_t size_in_bytes() const override { return data.size_in_bytes(); }
-      void write(std::ostream &out) const { data.write(out); }
+      void toJson(std::ostream &out, int indent) const { data.toJson(out, indent); }
 
       T data;
     };
