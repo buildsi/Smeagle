@@ -33,14 +33,12 @@ TEST_CASE("Register Allocation - Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("bool**") {
     auto func = get_one(corpus, "test_ptr_ptr_bool");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("char") {
     auto func = get_one(corpus, "test_char");
@@ -53,14 +51,12 @@ TEST_CASE("Register Allocation - Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("char**") {
     auto func = get_one(corpus, "test_ptr_ptr_char");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("short") {
     auto func = get_one(corpus, "test_short");
@@ -73,14 +69,12 @@ TEST_CASE("Register Allocation - Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("short**") {
     auto func = get_one(corpus, "test_ptr_ptr_short");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int") {
     auto func = get_one(corpus, "test_int");
@@ -93,14 +87,12 @@ TEST_CASE("Register Allocation - Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int**") {
     auto func = get_one(corpus, "test_ptr_ptr_int");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("long") {
     auto func = get_one(corpus, "test_long");
@@ -113,14 +105,12 @@ TEST_CASE("Register Allocation - Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("long**") {
     auto func = get_one(corpus, "test_ptr_ptr_long");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("long long") {
     auto func = get_one(corpus, "test_long_long");
@@ -133,14 +123,12 @@ TEST_CASE("Register Allocation - Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("long long**") {
     auto func = get_one(corpus, "test_ptr_ptr_long_long");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 TEST_CASE("Register Allocation - Signed Integral Types") {
@@ -155,14 +143,12 @@ TEST_CASE("Register Allocation - Signed Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("signed**") {
     auto func = get_one(corpus, "test_ptr_ptr_signed");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("signed char") {
     auto func = get_one(corpus, "test_signed_char");
@@ -175,14 +161,12 @@ TEST_CASE("Register Allocation - Signed Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("signed char**") {
     auto func = get_one(corpus, "test_ptr_ptr_signed_char");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("signed short") {
     auto func = get_one(corpus, "test_signed_short");
@@ -195,14 +179,12 @@ TEST_CASE("Register Allocation - Signed Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("signed short**") {
     auto func = get_one(corpus, "test_ptr_ptr_signed_short");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("signed int") {
     auto func = get_one(corpus, "test_signed_int");
@@ -215,14 +197,12 @@ TEST_CASE("Register Allocation - Signed Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("signed int**") {
     auto func = get_one(corpus, "test_ptr_ptr_signed_int");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("signed long") {
     auto func = get_one(corpus, "test_signed_long");
@@ -235,14 +215,12 @@ TEST_CASE("Register Allocation - Signed Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("signed long**") {
     auto func = get_one(corpus, "test_ptr_ptr_signed_long");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("signed long long") {
     auto func = get_one(corpus, "test_signed_long_long");
@@ -255,14 +233,12 @@ TEST_CASE("Register Allocation - Signed Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("signed long long**") {
     auto func = get_one(corpus, "test_ptr_ptr_signed_long_long");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 TEST_CASE("Register Allocation - Unsigned Integral Types") {
@@ -277,14 +253,12 @@ TEST_CASE("Register Allocation - Unsigned Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("unsigned**") {
     auto func = get_one(corpus, "test_ptr_ptr_unsigned");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("unsigned char") {
     auto func = get_one(corpus, "test_unsigned_char");
@@ -297,14 +271,12 @@ TEST_CASE("Register Allocation - Unsigned Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("unsigned char**") {
     auto func = get_one(corpus, "test_ptr_ptr_unsigned_char");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("unsigned short") {
     auto func = get_one(corpus, "test_unsigned_short");
@@ -317,14 +289,12 @@ TEST_CASE("Register Allocation - Unsigned Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("unsigned short**") {
     auto func = get_one(corpus, "test_ptr_ptr_unsigned_short");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("unsigned int") {
     auto func = get_one(corpus, "test_unsigned_int");
@@ -337,14 +307,12 @@ TEST_CASE("Register Allocation - Unsigned Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("unsigned int**") {
     auto func = get_one(corpus, "test_ptr_ptr_unsigned_int");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("unsigned long") {
     auto func = get_one(corpus, "test_unsigned_long");
@@ -357,14 +325,12 @@ TEST_CASE("Register Allocation - Unsigned Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("unsigned long**") {
     auto func = get_one(corpus, "test_ptr_ptr_unsigned_long");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("unsigned long long") {
     auto func = get_one(corpus, "test_unsigned_long_long");
@@ -377,14 +343,12 @@ TEST_CASE("Register Allocation - Unsigned Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("unsigned long long**") {
     auto func = get_one(corpus, "test_ptr_ptr_unsigned_long_long");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 TEST_CASE("Register Allocation - Floating Point Types") {
@@ -399,14 +363,12 @@ TEST_CASE("Register Allocation - Floating Point Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("float**") {
     auto func = get_one(corpus, "test_ptr_ptr_float");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("double") {
     auto func = get_one(corpus, "test_double");
@@ -419,14 +381,12 @@ TEST_CASE("Register Allocation - Floating Point Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("double**") {
     auto func = get_one(corpus, "test_ptr_ptr_double");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("long double") {
     auto func = get_one(corpus, "test_long_double");
@@ -439,14 +399,12 @@ TEST_CASE("Register Allocation - Floating Point Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("long double**") {
     auto func = get_one(corpus, "test_ptr_ptr_long_double");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("float _Complex") {
     auto func = get_one(corpus, "test_float__Complex");
@@ -459,14 +417,12 @@ TEST_CASE("Register Allocation - Floating Point Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("float _Complex**") {
     auto func = get_one(corpus, "test_ptr_ptr_float__Complex");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("double _Complex") {
     auto func = get_one(corpus, "test_double__Complex");
@@ -479,14 +435,12 @@ TEST_CASE("Register Allocation - Floating Point Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("double _Complex**") {
     auto func = get_one(corpus, "test_ptr_ptr_double__Complex");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("long double _Complex") {
     auto func = get_one(corpus, "test_long_double__Complex");
@@ -499,14 +453,12 @@ TEST_CASE("Register Allocation - Floating Point Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("long double _Complex**") {
     auto func = get_one(corpus, "test_ptr_ptr_long_double__Complex");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 TEST_CASE("Register Allocation - UTF Types") {
@@ -521,14 +473,12 @@ TEST_CASE("Register Allocation - UTF Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("wchar_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_wchar_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("char16_t") {
     auto func = get_one(corpus, "test_char16_t");
@@ -541,14 +491,12 @@ TEST_CASE("Register Allocation - UTF Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("char16_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_char16_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("char32_t") {
     auto func = get_one(corpus, "test_char32_t");
@@ -561,14 +509,12 @@ TEST_CASE("Register Allocation - UTF Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("char32_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_char32_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 TEST_CASE("Register Allocation - Size Types") {
@@ -583,14 +529,12 @@ TEST_CASE("Register Allocation - Size Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("size_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_size_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("intmax_t") {
     auto func = get_one(corpus, "test_intmax_t");
@@ -603,14 +547,12 @@ TEST_CASE("Register Allocation - Size Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("intmax_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_intmax_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uintmax_t") {
     auto func = get_one(corpus, "test_uintmax_t");
@@ -623,14 +565,12 @@ TEST_CASE("Register Allocation - Size Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uintmax_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uintmax_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("intptr_t") {
     auto func = get_one(corpus, "test_intptr_t");
@@ -643,14 +583,12 @@ TEST_CASE("Register Allocation - Size Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("intptr_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_intptr_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uintptr_t") {
     auto func = get_one(corpus, "test_uintptr_t");
@@ -663,14 +601,12 @@ TEST_CASE("Register Allocation - Size Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uintptr_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uintptr_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 TEST_CASE("Register Allocation - Fixed-width Integral Types") {
@@ -685,14 +621,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int8_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int8_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int16_t") {
     auto func = get_one(corpus, "test_int16_t");
@@ -705,14 +639,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int16_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int16_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int32_t") {
     auto func = get_one(corpus, "test_int32_t");
@@ -725,14 +657,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int32_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int32_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int64_t") {
     auto func = get_one(corpus, "test_int64_t");
@@ -745,14 +675,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int64_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int64_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_fast8_t") {
     auto func = get_one(corpus, "test_int_fast8_t");
@@ -765,14 +693,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_fast8_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_fast8_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_fast16_t") {
     auto func = get_one(corpus, "test_int_fast16_t");
@@ -785,14 +711,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_fast16_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_fast16_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_fast32_t") {
     auto func = get_one(corpus, "test_int_fast32_t");
@@ -805,14 +729,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_fast32_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_fast32_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_fast64_t") {
     auto func = get_one(corpus, "test_int_fast64_t");
@@ -825,14 +747,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_fast64_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_fast64_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_least8_t") {
     auto func = get_one(corpus, "test_int_least8_t");
@@ -845,14 +765,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_least8_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_least8_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_least16_t") {
     auto func = get_one(corpus, "test_int_least16_t");
@@ -865,14 +783,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_least16_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_least16_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_least32_t") {
     auto func = get_one(corpus, "test_int_least32_t");
@@ -885,14 +801,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_least32_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_least32_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("int_least64_t") {
     auto func = get_one(corpus, "test_int_least64_t");
@@ -905,14 +819,12 @@ TEST_CASE("Register Allocation - Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("int_least64_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_int_least64_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
@@ -927,14 +839,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint8_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint8_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint16_t") {
     auto func = get_one(corpus, "test_uint16_t");
@@ -947,14 +857,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint16_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint16_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint32_t") {
     auto func = get_one(corpus, "test_uint32_t");
@@ -967,14 +875,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint32_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint32_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint64_t") {
     auto func = get_one(corpus, "test_uint64_t");
@@ -987,14 +893,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint64_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint64_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_fast8_t") {
     auto func = get_one(corpus, "test_uint_fast8_t");
@@ -1007,14 +911,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_fast8_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_fast8_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_fast16_t") {
     auto func = get_one(corpus, "test_uint_fast16_t");
@@ -1027,14 +929,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_fast16_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_fast16_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_fast32_t") {
     auto func = get_one(corpus, "test_uint_fast32_t");
@@ -1047,14 +947,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_fast32_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_fast32_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_fast64_t") {
     auto func = get_one(corpus, "test_uint_fast64_t");
@@ -1067,14 +965,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_fast64_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_fast64_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_least8_t") {
     auto func = get_one(corpus, "test_uint_least8_t");
@@ -1087,14 +983,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_least8_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_least8_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_least16_t") {
     auto func = get_one(corpus, "test_uint_least16_t");
@@ -1107,14 +1001,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_least16_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_least16_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_least32_t") {
     auto func = get_one(corpus, "test_uint_least32_t");
@@ -1127,14 +1019,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_least32_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_least32_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
   SUBCASE("uint_least64_t") {
     auto func = get_one(corpus, "test_uint_least64_t");
@@ -1147,14 +1037,12 @@ TEST_CASE("Register Allocation - Unsigned Fixed-width Integral Types") {
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 1);
   }
   SUBCASE("uint_least64_t**") {
     auto func = get_one(corpus, "test_ptr_ptr_uint_least64_t");
     auto const& parameters = func.parameters;
     CHECK(parameters[0].location() == "%rdi");
     CHECK(parameters[0].class_name() == "Pointer");
-    CHECK(parameters[0].pointer_indirections() == 2);
   }
 }
 

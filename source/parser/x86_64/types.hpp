@@ -18,7 +18,6 @@ namespace smeagle::x86_64::types {
       std::string class_name_;
       std::string direction_;
       std::string location_;
-      int pointer_indirections_;
       size_t size_in_bytes_;
 
       std::string name() const { return name_; }
@@ -26,7 +25,6 @@ namespace smeagle::x86_64::types {
       std::string class_name() const { return class_name_; }
       std::string direction() const { return direction_; }
       std::string location() const { return location_; }
-      int pointer_indirections() const { return pointer_indirections_; }
       size_t size_in_bytes() const { return size_in_bytes_; }
     };
 
@@ -36,7 +34,6 @@ namespace smeagle::x86_64::types {
           << buf << "\"type\":\"" << p.type_name() << "\",\n"
           << buf << "\"class\":\"" << p.class_name() << "\",\n"
           << buf << "\"location\":\"" << p.location() << "\",\n"
-          << buf << "\"pointer_indirections\":\"" << p.pointer_indirections() << "\",\n"
           << buf << "\"direction\":\"" << p.direction() << "\",\n"
           << buf << "\"size\":\"" << p.size_in_bytes() << "\"";
     }
@@ -95,10 +92,14 @@ namespace smeagle::x86_64::types {
   };
   template <typename T> struct pointer_t final : detail::param {
     T underlying_type;
+    int pointer_indirections_;
+    int pointer_indirections() const { return pointer_indirections_; }
+
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
+      out << ",\n" << buf << "  \"indirections\":\"" << pointer_indirections_ << "\"";
       out << ",\n" << buf << "  \"underlying_type\":\n";
       underlying_type.toJson(out, indent + 4);
       out << "\n" << buf << "}";
