@@ -91,15 +91,14 @@ namespace smeagle::x86_64::types {
     }
   };
   template <typename T> struct pointer_t final : detail::param {
+    int pointer_indirections;
     T underlying_type;
-    int pointer_indirections_;
-    int pointer_indirections() const { return pointer_indirections_; }
 
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      out << ",\n" << buf << "  \"indirections\":\"" << pointer_indirections_ << "\"";
+      out << ",\n" << buf << "  \"indirections\":\"" << pointer_indirections << "\"";
       out << ",\n" << buf << "  \"underlying_type\":\n";
       underlying_type.toJson(out, indent + 4);
       out << "\n" << buf << "}";

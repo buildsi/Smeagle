@@ -67,6 +67,7 @@ namespace smeagle::x86_64 {
           direction,
           ptr_loc,
           param_type->getSize(),
+          ptr_cnt,
           {"", base_type_name, base_class.name, "", "", base_type->getSize()}}};
     }
     auto loc = allocator.getRegisterString(base_class.lo, base_class.hi, base_type);
