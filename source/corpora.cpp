@@ -39,26 +39,9 @@ void Corpus::toJson() {
 
     for (auto const &p : f.parameters) {
       // Check if we are at the last entry (no comma) or not
-      std::string endcomma;
-      if (&p == &f.parameters.back())
-        endcomma = "";
-      else {
-        endcomma = ",";
-      }
-
-      // Determine if we need pointer indirection
-      std::string pointer_indirections = "";
-      if (p.pointer_indirections != 0) {
-        pointer_indirections
-            = "\"pointer_indirections\":\"" + std::to_string(p.pointer_indirections) + "\", ";
-      }
-      std::cout << "     {"
-                << "\"name\":\"" << p.name << "\", "
-                << "\"type\":\"" << p.type << "\", "
-                << "\"location\":\"" << p.location << "\", " << pointer_indirections
-                << "\"direction\":\"" << p.direction << "\""
-				<< "\"size\":\"" << p.size_in_bytes << "\""
-                << "}" << endcomma << '\n';
+      auto endcomma = (&p == &f.parameters.back()) ? "":  ",";
+      p.toJson(std::cout, 8);
+      std::cout << endcomma << '\n';
     }
     std::cout << "    ]\n"
               << "   }}" << endcomma << "\n";
