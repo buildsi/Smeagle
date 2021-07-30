@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <utility>
 #include <string>
+#include <utility>
 
 #include "Type.h"
 #include "register_class.hpp"
@@ -22,7 +22,7 @@ namespace smeagle::x86_64 {
   namespace st = Dyninst::SymtabAPI;
 
   inline classification classify_pointer(int ptr_cnt) {
-	  return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Pointer", ptr_cnt};
+    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Pointer", ptr_cnt};
   }
 
   inline classification classify(st::typeScalar *t) {
