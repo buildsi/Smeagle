@@ -41,7 +41,7 @@ namespace smeagle::x86_64::types {
           << "       \"type\":\"" << type_name() << "\",\n"
           << "       \"class\":\"" << class_name() << "\",\n"
           << "       \"location\":\"" << location() << "\",\n"
-          << "       \"indirections\":\"" << pointer_indirections() << "\",\n"
+          << "       \"pointer_indirections\":\"" << pointer_indirections() << "\",\n"
           << "       \"direction\":\"" << direction() << "\",\n"
           << "       \"size\":\"" << size_in_bytes() << "\"\n"
           << "     }";
@@ -71,7 +71,7 @@ namespace smeagle::x86_64::types {
           << "       \"type\":\"" << type_name() << "\",\n"
           << "       \"class\":\"" << class_name() << "\",\n"
           << "       \"location\":\"" << location() << "\",\n"
-          << "       \"indirections\":\"" << pointer_indirections() << "\",\n"
+          << "       \"pointer_indirections\":\"" << pointer_indirections() << "\",\n"
           << "       \"direction\":\"" << direction() << "\",\n"
           << "       \"size\":\"" << size_in_bytes() << "\"\n"
           << "       \"underlying_type\":\n";
