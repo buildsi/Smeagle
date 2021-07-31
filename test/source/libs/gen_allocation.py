@@ -143,7 +143,6 @@ def make_tests(file, category, types):
         for p in [['*', 'ptr_', 1], ['**','ptr_ptr_', 2]]:
             file.write(subcase.format(t['name']+p[0], p[1]+name, '%rdi'))
             file.write('    CHECK(parameters[0].class_name() == "Pointer");\n')
-            file.write('    CHECK(parameters[0].pointer_indirections() == {0});\n'.format(p[2]))
             file.write('  }')
     
     file.write("\n}\n")

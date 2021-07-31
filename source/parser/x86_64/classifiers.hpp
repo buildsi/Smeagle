@@ -73,7 +73,9 @@ namespace smeagle::x86_64 {
       }
     }
 
-    throw std::runtime_error{"Unknown scalar type"};
+    // TODO we will eventually want to throw this
+    // throw std::runtime_error{"Unknown scalar type"};
+    return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
   }
 
   inline classification classify(st::typeStruct *) { return {}; }
