@@ -5,6 +5,8 @@
 
 #include <iosfwd>
 #include <string>
+#include <vector>
+#include <utility>
 
 namespace smeagle::x86_64::types {
   namespace detail {
@@ -77,14 +79,23 @@ namespace smeagle::x86_64::types {
       out << "\n" << buf << "}";
     }
   };
+
+  template <typename T>
   struct enum_t final : detail::param {
+	T *dyninst_obj;
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
+      out << buf << "\n\"constants\": {\n";
+      for(auto const& c : dyninst_obj->getConstants()) {
+    	  out << buf << "\"" << c.first << "\" : \"" << c.second << "\",\n";
+      }
+      out << buf << "}\n";
       out << "\n" << buf << "}";
     }
   };
+
   struct function_t final : detail::param {
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
