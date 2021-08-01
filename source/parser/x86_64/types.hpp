@@ -5,8 +5,8 @@
 
 #include <iosfwd>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace smeagle::x86_64::types {
   namespace detail {
@@ -77,19 +77,20 @@ namespace smeagle::x86_64::types {
     }
   };
 
-  template <typename T>
-  struct enum_t final : detail::param {
-	T *dyninst_obj;
+  template <typename T> struct enum_t final : detail::param {
+    T *dyninst_obj;
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      out << buf << "\n\"constants\": {\n";
-      for(auto const& c : dyninst_obj->getConstants()) {
-    	  out << buf << "\"" << c.first << "\" : \"" << c.second << "\",\n";
+      out << "\n" << buf << "},\n" << buf << "\"constants\": {\n";
+
+      // TODO: Dyninst does not provide information about underlying type
+      // which we would need here
+      for (auto const &c : dyninst_obj->getConstants()) {
+        out << buf << "  \"" << c.first << "\" : \"" << c.second << "\",\n";
       }
-      out << buf << "}\n";
-      out << "\n" << buf << "}";
+      out << buf << "}";
     }
   };
 

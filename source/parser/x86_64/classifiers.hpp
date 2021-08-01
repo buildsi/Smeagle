@@ -81,7 +81,9 @@ namespace smeagle::x86_64 {
   inline classification classify(st::typeStruct *) { return {}; }
   inline classification classify(st::typeUnion *) { return {}; }
   inline classification classify(st::typeArray *) { return {}; }
-  inline classification classify(st::typeEnum *) { return {}; }
+  inline classification classify(st::typeEnum *) {
+    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Integer"};
+  }
   inline classification classify(st::typeFunction *) { return {}; }
 
 }  // namespace smeagle::x86_64

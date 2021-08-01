@@ -60,19 +60,20 @@ namespace smeagle::x86_64 {
       auto ptr_loc = allocator.getRegisterString(ptr_class.lo, ptr_class.hi, param_type);
       auto ptr_type_name = param_type->getName();
 
-      return smeagle::parameter{types::pointer_t<class_t>{
-          param_name,
-          ptr_type_name,
-          ptr_class.name,
-          direction,
-          ptr_loc,
-          param_type->getSize(),
-          ptr_cnt,
-          {"", base_type_name, base_class.name, "", "", base_type->getSize(), std::forward<Args>(args)...}}};
+      return smeagle::parameter{
+          types::pointer_t<class_t>{param_name,
+                                    ptr_type_name,
+                                    ptr_class.name,
+                                    direction,
+                                    ptr_loc,
+                                    param_type->getSize(),
+                                    ptr_cnt,
+                                    {"", base_type_name, base_class.name, "", "",
+                                     base_type->getSize(), std::forward<Args>(args)...}}};
     }
     auto loc = allocator.getRegisterString(base_class.lo, base_class.hi, base_type);
-    return smeagle::parameter{
-        class_t{param_name, base_type_name, base_class.name, direction, loc, base_type->getSize(), std::forward<Args>(args)...}};
+    return smeagle::parameter{class_t{param_name, base_type_name, base_class.name, direction, loc,
+                                      base_type->getSize(), std::forward<Args>(args)...}};
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
@@ -107,7 +108,8 @@ namespace smeagle::x86_64 {
               classify<types::array_t>(param_name, t, param_type, allocator, ptr_cnt));
         } else if (auto *t = underlying_type->getEnumType()) {
           using dyn_t = std::decay_t<decltype(*t)>;
-          typelocs.push_back(classify<types::enum_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
+          typelocs.push_back(
+              classify<types::enum_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
         } else if (auto *t = underlying_type->getFunctionType()) {
           typelocs.push_back(
               classify<types::function_t>(param_name, t, param_type, allocator, ptr_cnt));
