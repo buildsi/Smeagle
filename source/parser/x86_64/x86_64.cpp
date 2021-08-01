@@ -66,14 +66,13 @@ namespace smeagle::x86_64 {
           ptr_class.name,
           direction,
           ptr_loc,
-          ptr_cnt,
           param_type->getSize(),
-          {"", base_type_name, base_class.name, "", "", 0, base_type->getSize(), std::forward<Args>(args)...}}
-      };
+          ptr_cnt,
+          {"", base_type_name, base_class.name, "", "", base_type->getSize(), std::forward<Args>(args)...}}};
     }
     auto loc = allocator.getRegisterString(base_class.lo, base_class.hi, base_type);
-    return smeagle::parameter{class_t{param_name, base_type_name, base_class.name, direction, loc,
-                                      0, base_type->getSize(), std::forward<Args>(args)...}};
+    return smeagle::parameter{
+        class_t{param_name, base_type_name, base_class.name, direction, loc, base_type->getSize(), std::forward<Args>(args)...}};
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {

@@ -39,7 +39,7 @@ void Corpus::toJson() {
 
     for (auto const &p : f.parameters) {
       // Check if we are at the last entry (no comma) or not
-      auto endcomma = (&p == &f.parameters.back()) ? "":  ",";
+      auto endcomma = (&p == &f.parameters.back()) ? "" : ",";
       p.toJson(std::cout, 8);
       std::cout << endcomma << '\n';
     }
