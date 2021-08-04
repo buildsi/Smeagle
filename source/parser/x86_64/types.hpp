@@ -70,7 +70,8 @@ namespace smeagle::x86_64::types {
 
       // Only print if we have fields
       if (fields.size() > 0) {
-        out << "\n" << buf << "},\n" << buf << "\"fields\": [\n";
+    	auto buf = std::string(indent+2, ' ');
+        out << ",\n" << buf << "\"fields\": [\n";
         for (auto *field : fields) {
           // If we are at the last entry, no comma
           auto endcomma = (field == fields.back()) ? "" : ",";
@@ -81,6 +82,7 @@ namespace smeagle::x86_64::types {
         }
         out << buf << "]\n";
       }
+      out << buf << "}";
     }
   };
 
