@@ -60,15 +60,35 @@ namespace smeagle::x86_64::types {
       out << "\n" << buf << "}";
     }
   };
-  struct struct_t final : detail::param {
+  template <typename T> struct struct_t final : detail::param {
+    T *dyninst_obj;
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      out << "\n" << buf << "}";
+      auto fields = *dyninst_obj->getFields();
+
+      // Only print if we have fields
+      if (fields.size() > 0) {
+        auto buf = std::string(indent + 2, ' ');
+        out << ",\n" << buf << "\"fields\": [\n";
+        for (auto *field : fields) {
+          // If we are at the last entry, no comma
+          auto endcomma = (field == fields.back()) ? "" : ",";
+          out << buf << "  {\"size\" : \"" << field->getSize() << "\",\n";
+          out << buf << "   \"name\" : \"" << field->getName() << "\",\n";
+          out << buf << "   \"type\" : \"" << field->getType()->getName() << "\"}" << endcomma
+              << "\n";
+        }
+        out << buf << "]\n";
+      }
+      out << buf << "}";
     }
   };
-  struct array_t final : detail::param {
+
+  // NOTE: we need to be able to parse call sites to do arrays
+  template <typename T> struct array_t final : detail::param {
+    T *dyninst_obj;
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
@@ -83,14 +103,16 @@ namespace smeagle::x86_64::types {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      out << "\n" << buf << "},\n" << buf << "\"constants\": {\n";
+      out << ",\n" << buf << "  \"constants\": {\n";
 
       // TODO: Dyninst does not provide information about underlying type
       // which we would need here
-      for (auto const &c : dyninst_obj->getConstants()) {
-        out << buf << "  \"" << c.first << "\" : \"" << c.second << "\",\n";
+      auto constants = dyninst_obj->getConstants();
+      for (auto const &c : constants) {
+        auto endcomma = (c == constants.back()) ? "" : ",";
+        out << buf << "    \"" << c.first << "\" : \"" << c.second << "\"" << endcomma << "\n";
       }
-      out << buf << "}";
+      out << buf << "}}";
     }
   };
 
@@ -111,9 +133,9 @@ namespace smeagle::x86_64::types {
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
       out << ",\n" << buf << "  \"indirections\":\"" << pointer_indirections << "\"";
-      out << ",\n" << buf << "  \"underlying_type\":\n";
+      out << ",\n" << buf << "  \"underlying_type\": ";
       underlying_type.toJson(out, indent + 4);
-      out << "\n" << buf << "}";
+      out << "}";
     }
   };
 }  // namespace smeagle::x86_64::types
