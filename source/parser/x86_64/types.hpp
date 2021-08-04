@@ -70,7 +70,7 @@ namespace smeagle::x86_64::types {
 
       // Only print if we have fields
       if (fields.size() > 0) {
-    	auto buf = std::string(indent+2, ' ');
+        auto buf = std::string(indent + 2, ' ');
         out << ",\n" << buf << "\"fields\": [\n";
         for (auto *field : fields) {
           // If we are at the last entry, no comma
@@ -103,16 +103,16 @@ namespace smeagle::x86_64::types {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      out << "\n" << buf << "},\n" << buf << "\"constants\": {\n";
+      out << ",\n" << buf << "  \"constants\": {\n";
 
       // TODO: Dyninst does not provide information about underlying type
       // which we would need here
       auto constants = dyninst_obj->getConstants();
       for (auto const &c : constants) {
         auto endcomma = (c == constants.back()) ? "" : ",";
-        out << buf << "  \"" << c.first << "\" : \"" << c.second << "\"" << endcomma << "\n";
+        out << buf << "    \"" << c.first << "\" : \"" << c.second << "\"" << endcomma << "\n";
       }
-      out << buf << "}";
+      out << buf << "}}";
     }
   };
 
