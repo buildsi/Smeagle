@@ -44,7 +44,8 @@ namespace smeagle::x86_64::types {
   struct none_t final : detail::param {
     void toJson(std::ostream &out, int indent) const { out << "none"; }
   };
-  struct scalar_t final : detail::param {
+
+  template <typename T> struct scalar_t final : detail::param {
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
