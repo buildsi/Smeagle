@@ -78,18 +78,22 @@ namespace smeagle::x86_64 {
   }
 
   // Parse a parameter into a Smeagle parameter
-  parameter parse_parameter(st::Type *param_type, std::string param_name) {
-    RegisterAllocator allocator;
+  parameter parse_parameter(st::localVar *param) {
+    auto param_type = param->getType();
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
     std::string direction = getDirectionalityFromType(param_type);
-    std::string location = "";
-    size_t size_in_bytes = 0;
 
     if (auto *t = underlying_type->getScalarType()) {
       return smeagle::parameter{
-          types::scalar_t{param_name, param_name, param_name, direction, location, size_in_bytes}};
+          types::scalar_t{param->getName(), param_type->getName(), "Scalar", direction, "", param_type->getSize()}};
     } else if (auto *t = underlying_type->getStructType()) {
+      return smeagle::parameter{
+          types::struct_t{param->getName(), param_type->getName(), "Struct", direction, "", param_type->getSize(), t}};
+
     } else if (auto *t = underlying_type->getUnionType()) {
+      return smeagle::parameter{
+          types::union_t{param->getName(), param_type->getName(), "Struct", direction, "", param_type->getSize()}};
+
     } else if (auto *t = underlying_type->getArrayType()) {
     } else if (auto *t = underlying_type->getEnumType()) {
     } else if (auto *t = underlying_type->getFunctionType()) {
