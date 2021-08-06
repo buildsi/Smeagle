@@ -79,26 +79,22 @@ namespace smeagle::x86_64 {
 
   // Parse a parameter into a Smeagle parameter
   parameter parse_parameter(st::Type *param_type, std::string param_name) {
+    RegisterAllocator allocator;
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
+    std::string direction = getDirectionalityFromType(param_type);
+    std::string location = "";
+    size_t size_in_bytes = 0;
 
-        RegisterAllocator allocator;
-        auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
-        std::string direction = getDirectionalityFromType(param_type);
-        std::string location = "";
-        size_t size_in_bytes = 0;
-
-        if (auto *t = underlying_type->getScalarType()) {
-			return smeagle::parameter{types::scalar_t{param_name, param_name, param_name, direction, location, size_in_bytes}};
-		} else if (auto *t = underlying_type->getStructType()) {
-
-        } else if (auto *t = underlying_type->getUnionType()) {
-
-        } else if (auto *t = underlying_type->getArrayType()) {
-
-        } else if (auto *t = underlying_type->getEnumType()) {
-
-        } else if (auto *t = underlying_type->getFunctionType()) {
-        }  
-		throw std::runtime_error{"Unknown type" + param_type->getName()};
+    if (auto *t = underlying_type->getScalarType()) {
+      return smeagle::parameter{
+          types::scalar_t{param_name, param_name, param_name, direction, location, size_in_bytes}};
+    } else if (auto *t = underlying_type->getStructType()) {
+    } else if (auto *t = underlying_type->getUnionType()) {
+    } else if (auto *t = underlying_type->getArrayType()) {
+    } else if (auto *t = underlying_type->getEnumType()) {
+    } else if (auto *t = underlying_type->getFunctionType()) {
+    }
+    throw std::runtime_error{"Unknown type" + param_type->getName()};
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
