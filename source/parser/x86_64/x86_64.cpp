@@ -87,7 +87,7 @@ namespace smeagle::x86_64 {
 
         if (auto *t = underlying_type->getScalarType()) {
           return types::scalar_t{param_name, param_name, param_name, direction, location, size_in_bytes};
-
+    }
          if (auto *t = underlying_type->getStructType()) {
           return types::struct_t(param_name, t, param_type, allocator);
 
