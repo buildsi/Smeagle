@@ -89,19 +89,14 @@ namespace smeagle::x86_64 {
         if (auto *t = underlying_type->getScalarType()) {
 			return smeagle::parameter{types::scalar_t{param_name, param_name, param_name, direction, location, size_in_bytes}};
 		} else if (auto *t = underlying_type->getStructType()) {
-          return types::struct_t(param_name, t, param_type, allocator);
 
         } else if (auto *t = underlying_type->getUnionType()) {
-          return types::union_t(param_name, t, param_type, allocator);
 
         } else if (auto *t = underlying_type->getArrayType()) {
-          return types::array_t(param_name, t, param_type, allocator);
 
         } else if (auto *t = underlying_type->getEnumType()) {
-          return types::enum_t(param_name, t, param_type, allocator);
 
         } else if (auto *t = underlying_type->getFunctionType()) {
-          return types::function_t(param_name, t, param_type, allocator);
         }  
 		throw std::runtime_error{"Unknown type" + param_type->getName()};
   }
