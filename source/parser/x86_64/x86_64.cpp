@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -102,6 +103,7 @@ namespace smeagle::x86_64 {
         } else if (auto *t = underlying_type->getFunctionType()) {
           return types::function_t(param_name, t, param_type, allocator);
         }  
+		throw std::runtime_error{"Unknown type" + param_type->getName()};
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
