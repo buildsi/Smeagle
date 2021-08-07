@@ -83,20 +83,40 @@ namespace smeagle::x86_64 {
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
     std::string direction = getDirectionalityFromType(param_type);
 
+    // Scalar Type
     if (auto *t = underlying_type->getScalarType()) {
-      return smeagle::parameter{
-          types::scalar_t{param->getName(), param_type->getName(), "Scalar", direction, "", param_type->getSize()}};
+      return smeagle::parameter{types::scalar_t{param->getName(), param_type->getName(), "Scalar",
+                                                direction, "", param_type->getSize()}};
+
+      // Structure Type
     } else if (auto *t = underlying_type->getStructType()) {
-      return smeagle::parameter{
-          types::struct_t{param->getName(), param_type->getName(), "Struct", direction, "", param_type->getSize(), t}};
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return smeagle::parameter{types::struct_t<dyn_t>{param->getName(), param_type->getName(),
+                                                       "Struct", direction, "",
+                                                       param_type->getSize(), t}};
 
+      // Union Type
     } else if (auto *t = underlying_type->getUnionType()) {
-      return smeagle::parameter{
-          types::union_t{param->getName(), param_type->getName(), "Struct", direction, "", param_type->getSize()}};
+      return smeagle::parameter{types::union_t{param->getName(), param_type->getName(), "Union",
+                                               direction, "", param_type->getSize()}};
 
+      // Array Type
     } else if (auto *t = underlying_type->getArrayType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return smeagle::parameter{types::array_t<dyn_t>{
+          param->getName(), param_type->getName(), "Union", direction, "", param_type->getSize()}};
+
+      // Enum Type
     } else if (auto *t = underlying_type->getEnumType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return smeagle::parameter{types::array_t<dyn_t>{param->getName(), param_type->getName(),
+                                                      "Union", direction, "", param_type->getSize(),
+                                                      t}};
+
+      // Function Type
     } else if (auto *t = underlying_type->getFunctionType()) {
+      return smeagle::parameter{types::function_t{param->getName(), param_type->getName(), "Union",
+                                                  direction, "", param_type->getSize()}};
     }
     throw std::runtime_error{"Unknown type" + param_type->getName()};
   }
