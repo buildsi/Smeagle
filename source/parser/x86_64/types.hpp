@@ -76,10 +76,13 @@ namespace smeagle::x86_64::types {
         for (auto *field : fields) {
           // If we are at the last entry, no comma
           auto endcomma = (field == fields.back()) ? "" : ",";
-          out << buf << "  {\"size\" : \"" << field->getSize() << "\",\n";
-          out << buf << "   \"name\" : \"" << field->getName() << "\",\n";
-          out << buf << "   \"type\" : \"" << field->getType()->getName() << "\"}" << endcomma
-              << "\n";
+          auto param = smeagle::x86_64::parse_parameter(field);
+          param.toJson(out, indent + 3);
+          out << endcomma << "\n";
+//          out << buf << "  {\"size\" : \"" << field->getSize() << "\",\n";
+//          out << buf << "   \"name\" : \"" << field->getName() << "\",\n";
+//          out << buf << "   \"type\" : \"" << field->getType()->getName() << "\"}" << endcomma
+//              << "\n";
         }
         out << buf << "]\n";
       }
