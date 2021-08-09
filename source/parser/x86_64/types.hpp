@@ -44,7 +44,7 @@ namespace smeagle::x86_64::types {
 
   // Parse a parameter into a Smeagle parameter
   // Note that this function cannot be named toJson as overload resolution won't work
-  void makeJson(st::Type* param_type, std::string param_name, std::ostream &out, int indent);
+  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent);
 
   struct none_t final : detail::param {
     void toJson(std::ostream &out, int indent) const { out << "none"; }
@@ -144,29 +144,27 @@ namespace smeagle::x86_64::types {
   };
 
   // Parse a parameter into a Smeagle parameter
-  void makeJson(st::Type* param_type, std::string param_name, std::ostream &out, int indent) {
-
+  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent) {
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
     std::string direction = "";
 
     // Scalar Type
     if (auto *t = underlying_type->getScalarType()) {
       auto param = smeagle::parameter{types::scalar_t{param_name, param_type->getName(), "Scalar",
-                                                direction, "", param_type->getSize()}};
+                                                      direction, "", param_type->getSize()}};
       param.toJson(out, indent);
 
       // Structure Type
     } else if (auto *t = underlying_type->getStructType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
-      auto param = smeagle::parameter{types::struct_t<dyn_t>{param_name, param_type->getName(),
-                                                       "Struct", direction, "",
-                                                       param_type->getSize(), t}};
+      auto param = smeagle::parameter{types::struct_t<dyn_t>{
+          param_name, param_type->getName(), "Struct", direction, "", param_type->getSize(), t}};
       param.toJson(out, indent);
 
       // Union Type
     } else if (auto *t = underlying_type->getUnionType()) {
       auto param = smeagle::parameter{types::union_t{param_name, param_type->getName(), "Union",
-                                               direction, "", param_type->getSize()}};
+                                                     direction, "", param_type->getSize()}};
       param.toJson(out, indent);
 
       // Array Type
@@ -179,19 +177,18 @@ namespace smeagle::x86_64::types {
       // Enum Type
     } else if (auto *t = underlying_type->getEnumType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
-      auto param = smeagle::parameter{types::array_t<dyn_t>{param_name, param_type->getName(),
-                                                      "Union", direction, "", param_type->getSize(),
-                                                      t}};
+      auto param = smeagle::parameter{types::array_t<dyn_t>{
+          param_name, param_type->getName(), "Union", direction, "", param_type->getSize(), t}};
       param.toJson(out, indent);
 
       // Function Type
     } else if (auto *t = underlying_type->getFunctionType()) {
       auto param = smeagle::parameter{types::function_t{param_name, param_type->getName(), "Union",
-                                                  direction, "", param_type->getSize()}};
+                                                        direction, "", param_type->getSize()}};
       param.toJson(out, indent);
 
     } else {
-      throw std::runtime_error{"Unknown type " + param_type->getName()};  
+      throw std::runtime_error{"Unknown type " + param_type->getName()};
     }
   }
 
