@@ -9,6 +9,7 @@
 #include <vector>
 
 namespace smeagle::x86_64::types {
+
   namespace detail {
     /*
      *  This class has an intentially weird layout. We leave the members public to make it an
@@ -40,6 +41,9 @@ namespace smeagle::x86_64::types {
           << buf << "\"size\":\"" << p.size_in_bytes() << "\"";
     }
   }  // namespace detail
+
+  // Parse a parameter into a Smeagle parameter
+  void toJson(st::Type* param_type, std::string param_name, std::ostream &out, int indent);
 
   struct none_t final : detail::param {
     void toJson(std::ostream &out, int indent) const { out << "none"; }
@@ -76,8 +80,7 @@ namespace smeagle::x86_64::types {
         for (auto *field : fields) {
           // If we are at the last entry, no comma
           auto endcomma = (field == fields.back()) ? "" : ",";
-          auto param = smeagle::x86_64::parse_parameter(field);
-          param.toJson(out, indent + 3);
+          toJson(field->getType(), field->getName(), out, indent + 3);
           out << endcomma << "\n";
 //          out << buf << "  {\"size\" : \"" << field->getSize() << "\",\n";
 //          out << buf << "   \"name\" : \"" << field->getName() << "\",\n";
@@ -142,4 +145,49 @@ namespace smeagle::x86_64::types {
       out << "}";
     }
   };
+
+  // Parse a parameter into a Smeagle parameter
+  void toJson(st::Type* param_type, std::string param_name, std::ostream &out, int indent) {
+
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
+    std::string direction = "";
+
+    // Scalar Type
+    if (auto *t = underlying_type->getScalarType()) {
+      auto param = smeagle::parameter{types::scalar_t{param_name, param_type->getName(), "Scalar",
+                                                direction, "", param_type->getSize()}};
+
+      // Structure Type
+    } else if (auto *t = underlying_type->getStructType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      auto param = smeagle::parameter{types::struct_t<dyn_t>{param_name, param_type->getName(),
+                                                       "Struct", direction, "",
+                                                       param_type->getSize(), t}};
+
+      // Union Type
+    } else if (auto *t = underlying_type->getUnionType()) {
+      auto param = smeagle::parameter{types::union_t{param_name, param_type->getName(), "Union",
+                                               direction, "", param_type->getSize()}};
+
+      // Array Type
+    } else if (auto *t = underlying_type->getArrayType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      auto param = smeagle::parameter{types::array_t<dyn_t>{
+          param_name, param_type->getName(), "Union", direction, "", param_type->getSize()}};
+
+      // Enum Type
+    } else if (auto *t = underlying_type->getEnumType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      auto param = smeagle::parameter{types::array_t<dyn_t>{param_name, param_type->getName(),
+                                                      "Union", direction, "", param_type->getSize(),
+                                                      t}};
+
+      // Function Type
+    } else if (auto *t = underlying_type->getFunctionType()) {
+      auto param = smeagle::parameter{types::function_t{param_name, param_type->getName(), "Union",
+                                                  direction, "", param_type->getSize()}};
+    }
+    throw std::runtime_error{"Unknown type" + param_type->getName()};
+  }
+
 }  // namespace smeagle::x86_64::types
