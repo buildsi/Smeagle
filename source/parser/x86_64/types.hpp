@@ -148,15 +148,16 @@ namespace smeagle::x86_64::types {
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
     std::string direction = "";
 
+    // Have we seen it before?
     // Keep track of all of the identifiers we've seen.
     // This is function local static so it's like a global variable within a function
     std::unordered_set<std::string> seen;
-    std::unordered_set<std::string>::const_iterator found = seen.find(param_name);
+    std::unordered_set<std::string>::const_iterator found = seen.find(param_type->getName());
 
     // If we don't find the name, continue
     if (found == seen.end()) {
       // Add to seen
-      seen.insert(param_name);
+      seen.insert(param_type->getName());
 
       // Scalar Type
       if (auto *t = underlying_type->getScalarType()) {
