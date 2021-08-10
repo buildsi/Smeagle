@@ -184,20 +184,20 @@ namespace smeagle::x86_64::types {
       } else if (auto *t = underlying_type->getArrayType()) {
         using dyn_t = std::decay_t<decltype(*t)>;
         auto param = smeagle::parameter{types::array_t<dyn_t>{
-            param_name, param_type->getName(), "Union", direction, "", param_type->getSize()}};
+            param_name, param_type->getName(), "Array", direction, "", param_type->getSize()}};
         param.toJson(out, indent);
 
         // Enum Type
       } else if (auto *t = underlying_type->getEnumType()) {
         using dyn_t = std::decay_t<decltype(*t)>;
-        auto param = smeagle::parameter{types::array_t<dyn_t>{
-            param_name, param_type->getName(), "Union", direction, "", param_type->getSize(), t}};
+        auto param = smeagle::parameter{types::enum_t<dyn_t>{
+            param_name, param_type->getName(), "Enum", direction, "", param_type->getSize(), t}};
         param.toJson(out, indent);
 
         // Function Type
       } else if (auto *t = underlying_type->getFunctionType()) {
         auto param = smeagle::parameter{types::function_t{
-            param_name, param_type->getName(), "Union", direction, "", param_type->getSize()}};
+            param_name, param_type->getName(), "Function", direction, "", param_type->getSize()}};
         param.toJson(out, indent);
 
       } else {
