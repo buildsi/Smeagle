@@ -158,9 +158,6 @@ namespace smeagle::x86_64::types {
 
     // If we don't find the name, continue
     if (found == seen.end()) {
-      // Add to seen
-      seen.insert(underlying_type->getName());
-
       // Scalar Type
       if (auto *t = underlying_type->getScalarType()) {
         auto param = smeagle::parameter{types::scalar_t{param_name, param_type->getName(), "Scalar",
@@ -169,6 +166,8 @@ namespace smeagle::x86_64::types {
 
         // Structure Type
       } else if (auto *t = underlying_type->getStructType()) {
+        // Add to seen
+        seen.insert(underlying_type->getName());
         using dyn_t = std::decay_t<decltype(*t)>;
         auto param = smeagle::parameter{types::struct_t<dyn_t>{
             param_name, param_type->getName(), "Struct", direction, "", param_type->getSize(), t}};
@@ -176,6 +175,8 @@ namespace smeagle::x86_64::types {
 
         // Union Type
       } else if (auto *t = underlying_type->getUnionType()) {
+        // Add to seen
+        seen.insert(underlying_type->getName());
         auto param = smeagle::parameter{types::union_t{param_name, param_type->getName(), "Union",
                                                        direction, "", param_type->getSize()}};
         param.toJson(out, indent);
