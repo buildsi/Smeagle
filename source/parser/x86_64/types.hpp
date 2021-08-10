@@ -44,7 +44,7 @@ namespace smeagle::x86_64::types {
 
   // Parse a parameter into a Smeagle parameter
   // Note that this function cannot be named toJson as overload resolution won't work
-  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent);
+  bool makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent);
 
   struct none_t final : detail::param {
     void toJson(std::ostream &out, int indent) const { out << "none"; }
@@ -78,11 +78,13 @@ namespace smeagle::x86_64::types {
       if (fields.size() > 0) {
         auto buf = std::string(indent + 2, ' ');
         out << ",\n" << buf << "\"fields\": [\n";
+
         for (auto *field : fields) {
-          // If we are at the last entry, no comma
           auto endcomma = (field == fields.back()) ? "" : ",";
-          makeJson(field->getType(), field->getName(), out, indent + 3);
-          out << endcomma << "\n";
+          bool created = makeJson(field->getType(), field->getName(), out, indent + 3);
+          if (created) {
+            out << endcomma << "\n";
+          }
         }
         out << buf << "]\n";
       }
@@ -144,15 +146,15 @@ namespace smeagle::x86_64::types {
   };
 
   // Parse a parameter into a Smeagle parameter
-  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent) {
+  bool makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent) {
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
     std::string direction = "";
 
     // Have we seen it before?
     // Keep track of all of the identifiers we've seen.
     // This is function local static so it's like a global variable within a function
-    std::unordered_set<std::string> seen;
-    std::unordered_set<std::string>::const_iterator found = seen.find(param_type->getName());
+    static std::unordered_set<std::string> seen;
+    auto found = seen.find(param_type->getName());
 
     // If we don't find the name, continue
     if (found == seen.end()) {
@@ -201,6 +203,10 @@ namespace smeagle::x86_64::types {
       } else {
         throw std::runtime_error{"Unknown type " + param_type->getName()};
       }
+
+      return true;
+    } else {
+      return false;
     }
   }
 }  // namespace smeagle::x86_64::types
