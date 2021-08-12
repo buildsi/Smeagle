@@ -83,10 +83,13 @@ namespace smeagle::x86_64::types {
           auto endcomma = (field == fields.back()) ? "" : ",";
           bool created = makeJson(field->getType(), field->getName(), out, indent + 3);
           if (created) {
-            out << endcomma << "\n";
+            out << endcomma;
           }
         }
-        out << buf << "]\n";
+
+        // Move backwards, write a space, move backwards again
+        out << '\b' << " " << '\b';
+        out << "]\n";
       }
       out << buf << "}";
     }
