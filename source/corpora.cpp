@@ -5,6 +5,7 @@
 
 #include "smeagle/corpora.h"
 
+#include <cstdio>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -20,6 +21,8 @@ Corpus::Corpus(std::string _library) : library(std::move(_library)){};
 
 // dump all Type Locations to json
 void Corpus::toJson() {
+  // ensure that we can replace already written characters (buffered output)
+  std::ios::sync_with_stdio(false);
   std::cout << "{\n"
             << " \"library\": \"" << library << "\",\n"
             << " \"locations\":\n"
