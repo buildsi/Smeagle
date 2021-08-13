@@ -72,7 +72,7 @@ namespace smeagle::x86_64::types {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      auto fields = *dyninst_obj->getFields();
+      auto const& fields = *dyninst_obj->getFields();
 
       // Only print if we have fields
       if (fields.size() > 0) {
