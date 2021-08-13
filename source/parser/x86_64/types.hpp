@@ -9,6 +9,7 @@
 #include <vector>
 
 namespace smeagle::x86_64::types {
+
   namespace detail {
     /*
      *  This class has an intentially weird layout. We leave the members public to make it an
@@ -41,9 +42,14 @@ namespace smeagle::x86_64::types {
     }
   }  // namespace detail
 
+  // Parse a parameter into a Smeagle parameter
+  // Note that this function cannot be named toJson as overload resolution won't work
+  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent);
+
   struct none_t final : detail::param {
     void toJson(std::ostream &out, int indent) const { out << "none"; }
   };
+
   struct scalar_t final : detail::param {
     void toJson(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
@@ -62,25 +68,52 @@ namespace smeagle::x86_64::types {
   };
   template <typename T> struct struct_t final : detail::param {
     T *dyninst_obj;
+    // Keep track of all of the typenames we've seen.
+    inline static std::unordered_set<std::string> seen;
+
+    struct recursive_t final {};
+
+    void toJson(std::ostream &out, int indent, recursive_t) { parse(out, indent); }
+
     void toJson(std::ostream &out, int indent) const {
+      seen.clear();
+      parse(out, indent);
+    }
+
+  private:
+    void parse(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      auto fields = *dyninst_obj->getFields();
+
+      {
+        // Do not re-parse the fields of struct types we've seen before
+        // This prevents endless recursion
+        auto [underlying_type, ptr_cnt] = unwrap_underlying_type(dyninst_obj);
+        auto found = seen.find(underlying_type->getName()) != seen.end();
+        if (found) {
+          // terminate the base entry for this struct's type
+          out << "\n" << buf << "}";
+          return;
+        }
+        seen.insert(underlying_type->getName());
+      }
+
+      auto const &fields = *dyninst_obj->getFields();
 
       // Only print if we have fields
       if (fields.size() > 0) {
         auto buf = std::string(indent + 2, ' ');
         out << ",\n" << buf << "\"fields\": [\n";
-        for (auto *field : fields) {
-          // If we are at the last entry, no comma
-          auto endcomma = (field == fields.back()) ? "" : ",";
-          out << buf << "  {\"size\" : \"" << field->getSize() << "\",\n";
-          out << buf << "   \"name\" : \"" << field->getName() << "\",\n";
-          out << buf << "   \"type\" : \"" << field->getType()->getName() << "\"}" << endcomma
-              << "\n";
+
+        for (auto cur = fields.begin(); cur != fields.end(); ++cur) {
+          if (cur != fields.begin()) {
+            out << ",";
+          }
+          auto *field = *cur;
+          makeJson(field->getType(), field->getName(), out, indent + 3);
         }
-        out << buf << "]\n";
+        out << "]\n";
       }
       out << buf << "}";
     }
@@ -105,12 +138,19 @@ namespace smeagle::x86_64::types {
       detail::toJson(*this, out, indent + 2);
       out << ",\n" << buf << "  \"constants\": {\n";
 
+      // There seems to be a bug with Dyninst duplicating information?
+      std::unordered_set<std::string> seen;
+
       // TODO: Dyninst does not provide information about underlying type
       // which we would need here
       auto constants = dyninst_obj->getConstants();
       for (auto const &c : constants) {
         auto endcomma = (c == constants.back()) ? "" : ",";
-        out << buf << "    \"" << c.first << "\" : \"" << c.second << "\"" << endcomma << "\n";
+        auto found = seen.find(c.first) != seen.end();
+        if (!found) {
+          out << buf << "    \"" << c.first << "\" : \"" << c.second << "\"" << endcomma << "\n";
+          seen.insert(c.first);
+        }
       }
       out << buf << "}}";
     }
@@ -138,4 +178,53 @@ namespace smeagle::x86_64::types {
       out << "}";
     }
   };
+
+  // Parse a parameter into a Smeagle parameter
+  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent) {
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
+    std::string direction = "";
+
+    // Scalar Type
+    if (auto *t = underlying_type->getScalarType()) {
+      auto param = types::scalar_t{param_name, param_type->getName(), "Scalar", direction,
+                                   "",         param_type->getSize()};
+      param.toJson(out, indent);
+
+      // Structure Type
+    } else if (auto *t = underlying_type->getStructType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      auto param = types::struct_t<dyn_t>{param_name, param_type->getName(), "Struct", direction,
+                                          "",         param_type->getSize(), t};
+      param.toJson(out, indent, types::struct_t<dyn_t>::recursive_t{});
+
+      // Union Type
+    } else if (auto *t = underlying_type->getUnionType()) {
+      auto param = types::union_t{param_name, param_type->getName(), "Union", direction,
+                                  "",         param_type->getSize()};
+      param.toJson(out, indent);
+
+      // Array Type
+    } else if (auto *t = underlying_type->getArrayType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      auto param = types::array_t<dyn_t>{param_name, param_type->getName(), "Array", direction,
+                                         "",         param_type->getSize()};
+      param.toJson(out, indent);
+
+      // Enum Type
+    } else if (auto *t = underlying_type->getEnumType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      auto param = types::enum_t<dyn_t>{param_name, param_type->getName(), "Enum", direction,
+                                        "",         param_type->getSize(), t};
+      param.toJson(out, indent);
+
+      // Function Type
+    } else if (auto *t = underlying_type->getFunctionType()) {
+      auto param = types::function_t{param_name, param_type->getName(), "Function", direction,
+                                     "",         param_type->getSize()};
+      param.toJson(out, indent);
+
+    } else {
+      throw std::runtime_error{"Unknown type " + param_type->getName()};
+    }
+  }
 }  // namespace smeagle::x86_64::types
