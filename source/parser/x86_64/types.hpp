@@ -99,7 +99,7 @@ namespace smeagle::x86_64::types {
         seen.insert(underlying_type->getName());
       }
 
-      auto const& fields = *dyninst_obj->getFields();
+      auto const &fields = *dyninst_obj->getFields();
 
       // Only print if we have fields
       if (fields.size() > 0) {
@@ -107,8 +107,8 @@ namespace smeagle::x86_64::types {
         out << ",\n" << buf << "\"fields\": [\n";
 
         for (auto cur = fields.begin(); cur != fields.end(); ++cur) {
-          if(cur != fields.begin()) {
-        	  out << ",";
+          if (cur != fields.begin()) {
+            out << ",";
           }
           auto *field = *cur;
           makeJson(field->getType(), field->getName(), out, indent + 3);
@@ -138,12 +138,19 @@ namespace smeagle::x86_64::types {
       detail::toJson(*this, out, indent + 2);
       out << ",\n" << buf << "  \"constants\": {\n";
 
+      // There seems to be a bug with Dyninst duplicating information?
+      std::unordered_set<std::string> seen;
+
       // TODO: Dyninst does not provide information about underlying type
       // which we would need here
       auto constants = dyninst_obj->getConstants();
       for (auto const &c : constants) {
         auto endcomma = (c == constants.back()) ? "" : ",";
-        out << buf << "    \"" << c.first << "\" : \"" << c.second << "\"" << endcomma << "\n";
+        auto found = seen.find(c.first) != seen.end();
+        if (!found) {
+          out << buf << "    \"" << c.first << "\" : \"" << c.second << "\"" << endcomma << "\n";
+          seen.insert(c.first);
+        }
       }
       out << buf << "}}";
     }
@@ -185,7 +192,6 @@ namespace smeagle::x86_64::types {
 
       // Structure Type
     } else if (auto *t = underlying_type->getStructType()) {
-      // Add to seen
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::struct_t<dyn_t>{param_name, param_type->getName(), "Struct", direction,
                                           "",         param_type->getSize(), t};
@@ -193,7 +199,6 @@ namespace smeagle::x86_64::types {
 
       // Union Type
     } else if (auto *t = underlying_type->getUnionType()) {
-      // Add to seen
       auto param = types::union_t{param_name, param_type->getName(), "Union", direction,
                                   "",         param_type->getSize()};
       param.toJson(out, indent);
