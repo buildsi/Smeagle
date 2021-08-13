@@ -79,11 +79,9 @@ namespace smeagle::x86_64::types {
         auto buf = std::string(indent + 2, ' ');
         out << ",\n" << buf << "\"fields\": [\n";
 
-        for (auto *field : fields) {
-          auto endcomma = (field == fields.back()) ? "" : ",";
-          bool created = makeJson(field->getType(), field->getName(), out, indent + 3);
-          if (created) {
-            out << endcomma;
+        for (auto cur = fields.begin(); cur != fields.end(); ++cur) {
+          if(cur != fields.begin()) {
+        	  out << ",";
           }
         }
 
