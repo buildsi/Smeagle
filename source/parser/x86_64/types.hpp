@@ -33,12 +33,12 @@ namespace smeagle::x86_64::types {
 
     void toJson(param const &p, std::ostream &out, int indent) {
       auto buf = std::string(indent, ' ');
-      out << buf << "\"name\":\"" << p.name() << "\",\n"
-          << buf << "\"type\":\"" << p.type_name() << "\",\n"
-          << buf << "\"class\":\"" << p.class_name() << "\",\n"
-          << buf << "\"location\":\"" << p.location() << "\",\n"
-          << buf << "\"direction\":\"" << p.direction() << "\",\n"
-          << buf << "\"size\":\"" << p.size_in_bytes() << "\"";
+      if (!p.name().empty()) out << buf << "\"name\":\"" << p.name() << "\",\n";
+      if (!p.type_name().empty()) out << buf << "\"type\":\"" << p.type_name() << "\",\n";
+      if (!p.class_name().empty()) out << buf << "\"class\":\"" << p.class_name() << "\",\n";
+      if (!p.location().empty()) out << buf << "\"location\":\"" << p.location() << "\",\n";
+      if (!p.direction().empty()) out << buf << "\"direction\":\"" << p.direction() << "\",\n";
+      out << buf << "\"size\":\"" << p.size_in_bytes() << "\"";
     }
   }  // namespace detail
 
