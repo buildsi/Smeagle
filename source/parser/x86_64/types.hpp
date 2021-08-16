@@ -58,12 +58,57 @@ namespace smeagle::x86_64::types {
       out << "\n" << buf << "}";
     }
   };
-  struct union_t final : detail::param {
+
+  template <typename T> struct union_t final : detail::param {
+    T *dyninst_obj;
+
+    // Keep track of all of the typenames we've seen.
+    inline static std::unordered_set<std::string> seen;
+
+    struct recursive_t final {};
+
+    void toJson(std::ostream &out, int indent, recursive_t) { parse(out, indent); }
     void toJson(std::ostream &out, int indent) const {
+      seen.clear();
+      parse(out, indent);
+    }
+
+  private:
+    void parse(std::ostream &out, int indent) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
-      out << "\n" << buf << "}";
+
+      {
+        // Do not re-parse the fields of struct types we've seen before
+        // This prevents endless recursion
+        auto [underlying_type, ptr_cnt] = unwrap_underlying_type(dyninst_obj);
+        auto found = seen.find(underlying_type->getName()) != seen.end();
+        if (found) {
+          // terminate the base entry for this struct's type
+          out << "\n" << buf << "}";
+          return;
+        }
+        seen.insert(underlying_type->getName());
+      }
+
+      auto const &fields = *dyninst_obj->getComponents();
+
+      // Only print if we have fields
+      if (fields.size() > 0) {
+        auto buf = std::string(indent + 2, ' ');
+        out << ",\n" << buf << "\"fields\": [\n";
+
+        for (auto cur = fields.begin(); cur != fields.end(); ++cur) {
+          if (cur != fields.begin()) {
+            out << ",";
+          }
+          auto *field = *cur;
+          makeJson(field->getType(), field->getName(), out, indent + 3);
+        }
+        out << "]\n";
+      }
+      out << buf << "}";
     }
   };
   template <typename T> struct struct_t final : detail::param {
@@ -199,8 +244,9 @@ namespace smeagle::x86_64::types {
 
       // Union Type
     } else if (auto *t = underlying_type->getUnionType()) {
-      auto param = types::union_t{param_name, param_type->getName(), "Union", direction,
-                                  "",         param_type->getSize()};
+      using dyn_t = std::decay_t<decltype(*t)>;
+      auto param = types::union_t<dyn_t>{param_name, param_type->getName(), "Union", direction,
+                                         "",         param_type->getSize(), t};
       param.toJson(out, indent);
 
       // Array Type

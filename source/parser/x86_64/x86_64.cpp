@@ -103,8 +103,9 @@ namespace smeagle::x86_64 {
           typelocs.push_back(
               classify<types::struct_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
         } else if (auto *t = underlying_type->getUnionType()) {
+          using dyn_t = std::decay_t<decltype(*t)>;
           typelocs.push_back(
-              classify<types::union_t>(param_name, t, param_type, allocator, ptr_cnt));
+              classify<types::union_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt));
         } else if (auto *t = underlying_type->getArrayType()) {
           using dyn_t = std::decay_t<decltype(*t)>;
           typelocs.push_back(
