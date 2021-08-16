@@ -246,7 +246,7 @@ namespace smeagle::x86_64::types {
     } else if (auto *t = underlying_type->getUnionType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::union_t<dyn_t>{param_name, param_type->getName(), "Union", direction,
-                                         "",         param_type->getSize()};
+                                         "",         param_type->getSize(), t};
       param.toJson(out, indent);
 
       // Array Type
