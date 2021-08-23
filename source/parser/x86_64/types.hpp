@@ -8,16 +8,8 @@
 #include <utility>
 #include <vector>
 
-#include "classifiers.hpp"
-
-// TODO need to add pointer logic to makeJson
-// That looks good to me. Let's merge! I would say the next item to work on is handling pointers in
-// makeJson. For example, if you have a struct with a member that is a pointer to another
-// struct/union, we don't capture the pointer indirection in the underlying_type in the JSON.
-
 namespace smeagle::x86_64::types {
 
-  namespace st = Dyninst::SymtabAPI;
   namespace detail {
     /*
      *  This class has an intentially weird layout. We leave the members public to make it an
@@ -233,36 +225,28 @@ namespace smeagle::x86_64::types {
   };
 
   // Parse a parameter into a Smeagle parameter
-  template <typename class_t, typename base_t, typename param_t, typename... Args>
-  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent,
-                Args &&... args) {
+  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent) {
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
     std::string direction = "";
 
-    // If we have a pointer, we need to capture the pointer and underlying type
-    if (ptr_cnt > 0) {
-      // On x86, all pointers are the same ABI class
-      auto ptr_class = classify_pointer(ptr_cnt);
-      auto base_class = classify(underlying_type);
+    // Scalar Type
+    if (auto *t = underlying_type->getScalarType()) {
+      auto param = types::scalar_t{param_name, param_type->getName(), "Scalar", direction,
+                                   "",         param_type->getSize()};
 
-      // Allocate space for the pointer (NOT the underlying type)
-      auto ptr_type_name = underlying_type->getName();
-      auto param = smeagle::parameter{
-          types::pointer_t<class_t>{param_name,
-                                    ptr_type_name,
-                                    ptr_class.name,
+      if (ptr_cnt > 0) {
+        auto ptr = types::pointer_t{param_name,
+                                    underlying_type->getName(),
+                                    "",
                                     "",
                                     "",
                                     param_type->getSize(),
                                     ptr_cnt,
-                                    {"", underlying_type->getName(), base_class.name, "", "",
-                                     underlying_type->getSize(), std::forward<Args>(args)...}}};
-
-      // Scalar Type
-    } else if (auto *t = underlying_type->getScalarType()) {
-      auto param = types::scalar_t{param_name, param_type->getName(), "Scalar", direction,
-                                   "",         param_type->getSize()};
-      param.toJson(out, indent);
+                                    std::move(param)};
+        ptr.toJson(out, indent);
+      } else {
+        param.toJson(out, indent);   
+      }
 
       // Structure Type
     } else if (auto *t = underlying_type->getStructType()) {
