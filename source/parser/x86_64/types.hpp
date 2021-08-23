@@ -118,7 +118,7 @@ namespace smeagle::x86_64::types {
 
     struct recursive_t final {};
 
-    void toJson(std::ostream &out, int indent, recursive_t) { parse(out, indent); }
+    void toJson(std::ostream &out, int indent, recursive_t) const { parse(out, indent); }
 
     void toJson(std::ostream &out, int indent) const {
       seen.clear();
