@@ -213,13 +213,14 @@ namespace smeagle::x86_64::types {
     int pointer_indirections;
     T underlying_type;
 
-    void toJson(std::ostream &out, int indent) const {
+    template<typename... Args>
+    void toJson(std::ostream &out, int indent, Args &&... args) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
       out << ",\n" << buf << "  \"indirections\":\"" << pointer_indirections << "\"";
       out << ",\n" << buf << "  \"underlying_type\": ";
-      underlying_type.toJson(out, indent + 4);
+      underlying_type.toJson(out, indent + 4, std::forward<Args>(args)...);
       out << "}";
     }
   };
