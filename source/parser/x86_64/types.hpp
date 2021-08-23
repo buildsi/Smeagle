@@ -255,7 +255,7 @@ namespace smeagle::x86_64::types {
             param_name, underlying_type->getName(), "Pointer", "",
             "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
 
-        ptr.toJson(out, indent);
+        ptr.toJson(out, indent, types::struct_t<dyn_t>::recursive_t{});
       } else {
         param.toJson(out, indent, types::struct_t<dyn_t>::recursive_t{});
       }
