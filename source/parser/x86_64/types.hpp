@@ -67,7 +67,7 @@ namespace smeagle::x86_64::types {
 
     struct recursive_t final {};
 
-    void toJson(std::ostream &out, int indent, recursive_t) { parse(out, indent); }
+    void toJson(std::ostream &out, int indent, recursive_t) const { parse(out, indent); }
     void toJson(std::ostream &out, int indent) const {
       seen.clear();
       parse(out, indent);
@@ -118,7 +118,7 @@ namespace smeagle::x86_64::types {
 
     struct recursive_t final {};
 
-    void toJson(std::ostream &out, int indent, recursive_t) { parse(out, indent); }
+    void toJson(std::ostream &out, int indent, recursive_t) const { parse(out, indent); }
 
     void toJson(std::ostream &out, int indent) const {
       seen.clear();
@@ -213,13 +213,13 @@ namespace smeagle::x86_64::types {
     int pointer_indirections;
     T underlying_type;
 
-    void toJson(std::ostream &out, int indent) const {
+    template <typename... Args> void toJson(std::ostream &out, int indent, Args &&... args) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
       out << ",\n" << buf << "  \"indirections\":\"" << pointer_indirections << "\"";
       out << ",\n" << buf << "  \"underlying_type\": ";
-      underlying_type.toJson(out, indent + 4);
+      underlying_type.toJson(out, indent + 4, std::forward<Args>(args)...);
       out << "}";
     }
   };
@@ -233,41 +233,92 @@ namespace smeagle::x86_64::types {
     if (auto *t = underlying_type->getScalarType()) {
       auto param = types::scalar_t{param_name, param_type->getName(), "Scalar", direction,
                                    "",         param_type->getSize()};
-      param.toJson(out, indent);
+
+      if (ptr_cnt > 0) {
+        auto ptr = types::pointer_t<decltype(param)>{
+            param_name, underlying_type->getName(), "Pointer", "",
+            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+        ptr.toJson(out, indent);
+      } else {
+        param.toJson(out, indent);
+      }
 
       // Structure Type
     } else if (auto *t = underlying_type->getStructType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::struct_t<dyn_t>{param_name, param_type->getName(), "Struct", direction,
                                           "",         param_type->getSize(), t};
-      param.toJson(out, indent, types::struct_t<dyn_t>::recursive_t{});
+
+      if (ptr_cnt > 0) {
+        auto ptr = types::pointer_t<decltype(param)>{
+            param_name, underlying_type->getName(), "Pointer", "",
+            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+
+        ptr.toJson(out, indent, types::struct_t<dyn_t>::recursive_t{});
+      } else {
+        param.toJson(out, indent, types::struct_t<dyn_t>::recursive_t{});
+      }
 
       // Union Type
     } else if (auto *t = underlying_type->getUnionType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::union_t<dyn_t>{param_name, param_type->getName(), "Union", direction,
                                          "",         param_type->getSize(), t};
-      param.toJson(out, indent);
+      if (ptr_cnt > 0) {
+        auto ptr = types::pointer_t<decltype(param)>{
+            param_name, underlying_type->getName(), "Pointer", "",
+            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+
+        ptr.toJson(out, indent, types::union_t<dyn_t>::recursive_t{});
+      } else {
+        param.toJson(out, indent, types::union_t<dyn_t>::recursive_t{});
+      }
 
       // Array Type
     } else if (auto *t = underlying_type->getArrayType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::array_t<dyn_t>{param_name, param_type->getName(), "Array", direction,
                                          "",         param_type->getSize()};
-      param.toJson(out, indent);
+
+      if (ptr_cnt > 0) {
+        auto ptr = types::pointer_t<decltype(param)>{
+            param_name, underlying_type->getName(), "Pointer", "",
+            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+
+        ptr.toJson(out, indent);
+      } else {
+        param.toJson(out, indent);
+      }
 
       // Enum Type
     } else if (auto *t = underlying_type->getEnumType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::enum_t<dyn_t>{param_name, param_type->getName(), "Enum", direction,
                                         "",         param_type->getSize(), t};
-      param.toJson(out, indent);
+
+      if (ptr_cnt > 0) {
+        auto ptr = types::pointer_t<decltype(param)>{
+            param_name, underlying_type->getName(), "Pointer", "",
+            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+
+        ptr.toJson(out, indent);
+      } else {
+        param.toJson(out, indent);
+      }
 
       // Function Type
     } else if (auto *t = underlying_type->getFunctionType()) {
       auto param = types::function_t{param_name, param_type->getName(), "Function", direction,
                                      "",         param_type->getSize()};
-      param.toJson(out, indent);
+      if (ptr_cnt > 0) {
+        auto ptr = types::pointer_t<decltype(param)>{
+            param_name, underlying_type->getName(), "Pointer", "",
+            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+
+        ptr.toJson(out, indent);
+      } else {
+        param.toJson(out, indent);
+      }
 
     } else {
       throw std::runtime_error{"Unknown type " + param_type->getName()};
