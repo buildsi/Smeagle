@@ -270,9 +270,9 @@ namespace smeagle::x86_64::types {
             param_name, underlying_type->getName(), "Pointer", "",
             "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
 
-        ptr.toJson(out, indent);
+        ptr.toJson(out, indent, types::union_t<decltype(param)>::recursive_t{});
       } else {
-        param.toJson(out, indent);
+        param.toJson(out, indent, types::union_t<decltype(param)>::recursive_t{});
       }
 
       // Array Type
