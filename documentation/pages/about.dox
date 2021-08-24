@@ -1,5 +1,4 @@
 /** @page about About
-  @section doc ModernCppStarter Documentation 
-  This is the auto-generated documentation for the initial project of the ModernCppStater.
-  It shows how we can use Doxygen to automatically build a browsable documentation for your projects.
+  @section doc Smeagle Documentation 
+  This is the Smeagle documentation base. You can see the code at https://github.com/buildsi/Smeagle
 */
