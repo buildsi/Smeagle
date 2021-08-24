@@ -1,0 +1,3 @@
+FROM ghcr.io/buildsi/smeagle:latest
+# Note this is built in CI, so "latest" will always correspond to the version in the repository
+RUN pip3 install pytest

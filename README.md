@@ -31,7 +31,7 @@ The [Dockerfile](Dockerfile) will easily create an environment with all the depe
 need. If you need to have a base of Dyninst from master, then build that first:
 
 ```bash
-$ docker build -f Dockerfile.dyninst -t ghcr.io/autamus/dyninst:master .
+$ docker build -f docker/Dockerfile.dyninst -t ghcr.io/autamus/dyninst:master .
 ```
 
 And ensure that this is the base container of [Dockerfile](Dockerfile). Otherwise
