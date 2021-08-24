@@ -39,10 +39,12 @@ jobs:
           pip3 install .
 
       - name: Build
-        run: make docs
+        run: |
+            make docs
+            touch ./build/doc/doxygen/html/.nojekyll
           
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/doxygen/html
+          publish_dir: ./build/doc/doxygen/html
