@@ -30,4 +30,6 @@ jobs:
         run: |
             docker images
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-            docker push --all-tags ghcr.io/buildsi/smeagle
+            version=$(cat VERSION)
+            docker push ghcr.io/buildsi/smeagle:latest
+            docker push ghcr.io/buildsi/smeagle:${version}
