@@ -17,12 +17,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2        
 
-      - name: Build and Run Test Container
+      - name: Build Base Smeagle Container
         run: |
             docker build -t ghcr.io/buildsi/smeagle .
             version=$(cat VERSION)
             printf "Found version ${version}"
             docker tag ghcr.io/buildsi/smeagle:latest ghcr.io/buildsi/smeagle:${version}
+            docker images | grep smeagle
+
+      - name: Build Smeagle Pytest
+        run: |
+            docker build -f docker/Dockerfile.pytest -t ghcr.io/buildsi/smeagle-pytest .
+            version=$(cat VERSION)
+            docker tag ghcr.io/buildsi/smeagle-pytest:latest ghcr.io/buildsi/smeagle-pytest:${version}
             docker images | grep smeagle
 
       - name: Login and Deploy Test Container
@@ -33,3 +40,5 @@ jobs:
             version=$(cat VERSION)
             docker push ghcr.io/buildsi/smeagle:latest
             docker push ghcr.io/buildsi/smeagle:${version}
+            docker push ghcr.io/buildsi/smeagle-pytest:latest
+            docker push ghcr.io/buildsi/smeagle-pytest:${version}
