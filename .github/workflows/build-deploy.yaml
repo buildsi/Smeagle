@@ -20,10 +20,14 @@ jobs:
       - name: Build and Run Test Container
         run: |
             docker build -t ghcr.io/buildsi/smeagle .
+            version=$(cat VERSION)
+            printf "Found version ${version}"
+            docker tag ghcr.io/buildsi/smeagle:latest ghcr.io/buildsi/smeagle:${version}
+            docker images | grep smeagle
 
       - name: Login and Deploy Test Container
         if: (github.event_name != 'pull_request')
         run: |
             docker images
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-            docker push ghcr.io/buildsi/smeagle
+            docker push --all-tags ghcr.io/buildsi/smeagle

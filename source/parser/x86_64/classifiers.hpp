@@ -78,11 +78,17 @@ namespace smeagle::x86_64 {
     return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
   }
 
-  inline classification classify(st::typeStruct *) { return {}; }
-  inline classification classify(st::typeUnion *) { return {}; }
-  inline classification classify(st::typeArray *) { return {}; }
+  inline classification classify(st::typeStruct *) {
+    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Struct"};
+  }
+  inline classification classify(st::typeUnion *) {
+    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Union"};
+  }
+  inline classification classify(st::typeArray *) {
+    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Array"};
+  }
   inline classification classify(st::typeEnum *) {
-    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Integer"};
+    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Enum"};
   }
   inline classification classify(st::typeFunction *) { return {}; }
 

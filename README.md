@@ -16,9 +16,14 @@ because these features are considered "the precious" - the subcorpora
 of a binary that is enough to determine ABI compatibility. The name is subject
 to change. :)
 
-
 To cleanly separate the library and subproject code, the outer `CMakeList.txt` only defines the library itself while the tests and other subprojects are self-contained in their own directories. 
 During development it is usually convenient to [build all subprojects at once](#build-everything-at-once).
+
+## Versions
+
+Currently, the [VERSION](VERSION) file is only parsed into the automated container
+build, and this container is used for the [build-abi-containers](https://github.com/buildsi/build-abi-containers)
+repository. It is not parsed into Smeagle proper.
 
 ## Develop using a container
 
