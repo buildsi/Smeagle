@@ -19,6 +19,7 @@ namespace smeagle {
   class Corpus {
     std::string library;
     std::vector<abi_description> functions;
+    std::vector<abi_description> variables;
 
   public:
     /**
@@ -33,11 +34,18 @@ namespace smeagle {
     void parseFunctionABILocation(Dyninst::SymtabAPI::Symbol*, Dyninst::Architecture);
 
     /**
+     * @brief Parse a global variable symbol into parameters, types, locations
+     * @param symbol the symbol that is determined to be a global variable
+     */
+    void parseVariableABILocation(Dyninst::SymtabAPI::Symbol*, Dyninst::Architecture);
+
+    /**
      * @brief Dump a corpus to json
      */
     void toJson();
 
     std::vector<abi_description> const& getFunctions() const { return functions; }
+    std::vector<abi_description> const& getVariables() const { return variables; }
   };
 
 }  // namespace smeagle
