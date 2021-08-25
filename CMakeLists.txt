@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
 # This is the project's name and version
 project(
   Smeagle
-  VERSION 1.0
+  VERSION 0.0.12
   LANGUAGES CXX
 )
 

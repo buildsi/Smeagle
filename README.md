@@ -23,7 +23,9 @@ During development it is usually convenient to [build all subprojects at once](#
 
 Currently, the [VERSION](VERSION) file is only parsed into the automated container
 build, and this container is used for the [build-abi-containers](https://github.com/buildsi/build-abi-containers)
-repository. It is not parsed into Smeagle proper.
+repository. It is not parsed into Smeagle proper. The Smeagle version (produced by the
+client) is defined in the [CMakeLists.txt](CMakeLists.txt). So yes, you currently
+need to update it in both places. We will fix this in the future so it's better.
 
 ## Develop using a container
 
