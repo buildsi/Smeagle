@@ -18,7 +18,7 @@ TEST_CASE("Smeagle") {
   // CHECK(smeagle.parse(FormatCode::Json) == "Hallo 1!");
 }
 
-TEST_CASE("Smeagle version") {
-  static_assert(std::string_view(SMEAGLE_VERSION) == std::string_view("1.0"));
-  CHECK(std::string(SMEAGLE_VERSION) == std::string("1.0"));
-}
+// TEST_CASE("Smeagle version") {
+//  static_assert(std::string_view(SMEAGLE_VERSION) == std::string_view("1.0"));
+//  CHECK(std::string(SMEAGLE_VERSION) == std::string("1.0"));
+// }

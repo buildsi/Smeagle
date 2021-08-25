@@ -35,19 +35,29 @@ void Corpus::toJson() {
     else {
       endcomma = ",";
     }
-    std::cout << "   {\n"
-              << "    \"function\": {\n"
-              << "      \"name\": \"" << f.function_name << "\",\n"
-              << "      \"parameters\": [\n";
 
-    for (auto const &p : f.parameters) {
-      // Check if we are at the last entry (no comma) or not
-      auto endcomma = (&p == &f.parameters.back()) ? "" : ",";
-      p.toJson(std::cout, 8);
-      std::cout << endcomma << '\n';
+    // We have parameters
+    if (f.parameters.size() > 0) {
+      std::cout << "   {\n"
+                << "    \"function\": {\n"
+                << "      \"name\": \"" << f.function_name << "\",\n"
+                << "      \"parameters\": [\n";
+
+      for (auto const &p : f.parameters) {
+        // Check if we are at the last entry (no comma) or not
+        auto endcomma = (&p == &f.parameters.back()) ? "" : ",";
+        p.toJson(std::cout, 8);
+        std::cout << endcomma << '\n';
+      }
+      std::cout << "    ]\n";
+
+      // If we don't have parameters, don't add anything
+    } else {
+      std::cout << "   {\n"
+                << "    \"function\": {\n"
+                << "      \"name\": \"" << f.function_name << "\"";
     }
-    std::cout << "    ]\n"
-              << "   }}" << endcomma << "\n";
+    std::cout << "   }}" << endcomma << "\n";
   }
   std::cout << "]\n"
             << "}" << std::endl;
