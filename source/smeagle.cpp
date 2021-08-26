@@ -64,9 +64,18 @@ smeagle::Corpus Smeagle::parse() {
       if (symbol->isFunction()) {
         corpus.parseFunctionABILocation(symbol, obj->getArchitecture());
 
-        // The symbol is something else (we likely want a subset of these?)
-      }  // else {
-         // std::cout << "symbol_notparsed(" <<  sname << ")" << "\n";
+        // If it's a variable and not a function
+      } else if (symbol->isVariable()) {
+        // Do we have a global variable?
+        if (symbol->getLinkage() == Symbol::SL_GLOBAL) {
+          corpus.parseVariableABILocation(symbol, obj->getArchitecture());
+        }
+      }
+
+      // The symbol is something else (we likely want a subset of these?)
+
+      // else {
+      // std::cout << "symbol_notparsed(" <<  sname << ")" << "\n";
       //}
     }
   }

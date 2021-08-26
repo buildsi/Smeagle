@@ -28,6 +28,25 @@ void Corpus::toJson() {
             << " \"locations\":\n"
             << " [\n";
 
+  // Parsing of variables first
+  for (auto &v : variables) {
+    std::string endcomma;
+
+    // If we are at the last variable AND there are no functions
+    if (&v == &variables.back() && functions.size() == 0)
+      endcomma = "";
+    else {
+      endcomma = ",";
+    }
+
+    // Add a new variable type here
+    std::cout << "   {\"variable\": {\n"
+              << "      \"name\": \"" << v.variable_name << "\",\n"
+              << "      \"type\": \"" << v.variable_type << "\",\n"
+              << "      \"size\": \"" << v.variable_size << "\"}}" << endcomma << "\n";
+  }
+
+  // Parsing of functions next
   for (auto &f : functions) {
     std::string endcomma;
     if (&f == &functions.back())
@@ -70,6 +89,23 @@ void Corpus::parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *symbol,
     case Dyninst::Architecture::Arch_x86_64:
       functions.emplace_back(x86_64::parse_parameters(symbol), x86_64::parse_return_value(symbol),
                              symbol->getMangledName());
+      break;
+    case Dyninst::Architecture::Arch_aarch64:
+      break;
+    case Dyninst::Architecture::Arch_ppc64:
+      break;
+    default:
+      throw std::runtime_error{"Unsupported architecture: " + std::to_string(arch)};
+      break;
+  }
+}
+
+// parse a variable (global) for parameters and abi location
+void Corpus::parseVariableABILocation(Dyninst::SymtabAPI::Symbol *symbol,
+                                      Dyninst::Architecture arch) {
+  switch (arch) {
+    case Dyninst::Architecture::Arch_x86_64:
+      variables.emplace_back(x86_64::parse_variable(symbol));
       break;
     case Dyninst::Architecture::Arch_aarch64:
       break;
