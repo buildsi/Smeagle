@@ -12,6 +12,7 @@
 #include "Type.h"
 #include "allocators.hpp"
 #include "classifiers.hpp"
+#include "smeagle/abi_description.h"
 #include "smeagle/parameter.h"
 #include "type_checker.hpp"
 #include "types.hpp"
@@ -75,6 +76,15 @@ namespace smeagle::x86_64 {
     auto loc = allocator.getRegisterString(base_class.lo, base_class.hi, base_type);
     return smeagle::parameter{class_t{param_name, base_type_name, base_class.name, direction, loc,
                                       base_type->getSize(), std::forward<Args>(args)...}};
+  }
+
+  smeagle::abi_variable_description parse_variable(st::Symbol *symbol) {
+    smeagle::abi_variable_description description;
+    auto variable = symbol->getVariable();
+    description.variable_name = symbol->getMangledName();
+    description.variable_type = variable->getType()->getName();
+    description.variable_size = variable->getSize();
+    return description;
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {

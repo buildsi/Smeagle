@@ -18,8 +18,8 @@ namespace smeagle {
    */
   class Corpus {
     std::string library;
-    std::vector<abi_description> functions;
-    std::vector<abi_description> variables;
+    std::vector<abi_function_description> functions;
+    std::vector<abi_variable_description> variables;
 
   public:
     /**
@@ -44,8 +44,8 @@ namespace smeagle {
      */
     void toJson();
 
-    std::vector<abi_description> const& getFunctions() const { return functions; }
-    std::vector<abi_description> const& getVariables() const { return variables; }
+    std::vector<abi_function_description> const& getFunctions() const { return functions; }
+    std::vector<abi_variable_description> const& getVariables() const { return variables; }
   };
 
 }  // namespace smeagle

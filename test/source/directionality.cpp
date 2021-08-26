@@ -14,7 +14,7 @@ TEST_CASE("Parameter Directionality") {
 
   // We only want the "foo" function
   funcs.erase(std::remove_if(funcs.begin(), funcs.end(),
-                             [](smeagle::abi_description const& d) {
+                             [](smeagle::abi_function_description const& d) {
                                return d.function_name.find("foo") == std::string::npos;
                              }),
               funcs.end());

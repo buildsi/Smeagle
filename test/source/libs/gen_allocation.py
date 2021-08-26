@@ -1,4 +1,8 @@
 from optparse import OptionParser
+
+# Usage: from one level (directory) up:
+# python3 libs/gen_allocation.py -t allocation.cpp -f libs/allocation.cpp
+
 parser = OptionParser()
 parser.add_option('-t', '--tests', dest='test_filename', help='Write test cases to FILE', metavar='FILE')
 parser.add_option('-f', '--funcs', dest='func_filename', help='Write test functions to FILE', metavar='FILE')
@@ -169,7 +173,7 @@ def write_headers(test_file, func_file):
 auto const& get_one(smeagle::Corpus const& corpus, char const* name) {
   auto const& funcs = corpus.getFunctions();
 
-  return *std::find_if(funcs.begin(), funcs.end(), [name](smeagle::abi_description const& d) {
+  return *std::find_if(funcs.begin(), funcs.end(), [name](smeagle::abi_function_description const& d) {
     return d.function_name == name;
   });
 }

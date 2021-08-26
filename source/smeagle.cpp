@@ -58,27 +58,24 @@ smeagle::Corpus Smeagle::parse() {
 
   // Loop through the vector and look at symbols
   for (auto &symbol : symbols) {
-
     // We are interested in symbols in the dynamic symbol table
     if (symbol->isInDynSymtab()) {
-
       // If It's a function, parse the parameters
       if (symbol->isFunction()) {
-        //corpus.parseFunctionABILocation(symbol, obj->getArchitecture());
+        corpus.parseFunctionABILocation(symbol, obj->getArchitecture());
 
-      // If it's a variable and not a function
-      } else if (symbol->isVariable()){
-         
-         // Do we have a global variable?
-         if (symbol->getLinkage() == Symbol::SL_GLOBAL) {
-             corpus.parseVariableABILocation(symbol, obj->getArchitecture());
-         }
+        // If it's a variable and not a function
+      } else if (symbol->isVariable()) {
+        // Do we have a global variable?
+        if (symbol->getLinkage() == Symbol::SL_GLOBAL) {
+          corpus.parseVariableABILocation(symbol, obj->getArchitecture());
+        }
       }
-      
-        // The symbol is something else (we likely want a subset of these?)
 
-       // else {
-         // std::cout << "symbol_notparsed(" <<  sname << ")" << "\n";
+      // The symbol is something else (we likely want a subset of these?)
+
+      // else {
+      // std::cout << "symbol_notparsed(" <<  sname << ")" << "\n";
       //}
     }
   }
