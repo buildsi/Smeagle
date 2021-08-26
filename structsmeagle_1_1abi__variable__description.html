@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>smeagle::Corpus class | Smeagle</title>
+  <title>smeagle::abi_variable_description struct | Smeagle</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600" />
   <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
   <link rel="icon" href="favicon-dark.png" type="image/png" />
@@ -49,54 +49,34 @@
     <div class="m-row">
       <div class="m-col-l-10 m-push-l-1">
         <h1>
-          <span class="m-breadcrumb"><a href="namespacesmeagle.html">smeagle</a>::<wbr/></span>Corpus <span class="m-thin">class</span>
-          <div class="m-doc-include m-code m-inverted m-text-right"><span class="cp">#include</span> <a class="cpf" href="corpora_8h.html">&lt;smeagle/corpora.h&gt;</a></div>
+          <span class="m-breadcrumb"><a href="namespacesmeagle.html">smeagle</a>::<wbr/></span>abi_variable_description <span class="m-thin">struct</span>
+          <div class="m-doc-include m-code m-inverted m-text-right"><span class="cp">#include</span> <a class="cpf" href="abi__description_8h.html">&lt;smeagle/abi_description.h&gt;</a></div>
         </h1>
-        <p>A class for holding corpus metadata.</p>
+        <p><span></span></p>
         <div class="m-block m-default">
           <h3>Contents</h3>
           <ul>
             <li>
               Reference
               <ul>
-                <li><a href="#typeless-methods">Constructors, destructors, conversion operators</a></li>
-                <li><a href="#pub-methods">Public functions</a></li>
+                <li><a href="#pub-attribs">Public variables</a></li>
               </ul>
             </li>
           </ul>
         </div>
-        <section id="typeless-methods">
-          <h2><a href="#typeless-methods">Constructors, destructors, conversion operators</a></h2>
+        <section id="pub-attribs">
+          <h2><a href="#pub-attribs">Public variables</a></h2>
           <dl class="m-doc">
-            <dt id="a4a8624f597e76f970690996aa24fd060">
-              <span class="m-doc-wrap-bumper"><a href="#a4a8624f597e76f970690996aa24fd060" class="m-doc-self">Corpus</a>(</span><span class="m-doc-wrap">std::string library)</span>
-            </dt>
-            <dd>Creates a new corpus.</dd>
-          </dl>
-        </section>
-        <section id="pub-methods">
-          <h2><a href="#pub-methods">Public functions</a></h2>
-          <dl class="m-doc">
-            <dt id="ab2ee0cac66bac3c08da779f406fe91cf">
-              <span class="m-doc-wrap-bumper">void <a href="#ab2ee0cac66bac3c08da779f406fe91cf" class="m-doc-self">parseFunctionABILocation</a>(</span><span class="m-doc-wrap">Dyninst::SymtabAPI::Symbol*,
-              Dyninst::Architecture)</span>
-            </dt>
-            <dd>Parse a function symbol into parameters, types, locations.</dd>
-            <dt id="aec3407fb6dfea8fa6c89ec9cd8b8b802">
-              <span class="m-doc-wrap-bumper">void <a href="#aec3407fb6dfea8fa6c89ec9cd8b8b802" class="m-doc-self">parseVariableABILocation</a>(</span><span class="m-doc-wrap">Dyninst::SymtabAPI::Symbol*,
-              Dyninst::Architecture)</span>
-            </dt>
-            <dd>Parse a global variable symbol into parameters, types, locations.</dd>
-            <dt id="a1dc2cd1f9a0fa24128674d0297f5452b">
-              <span class="m-doc-wrap-bumper">void <a href="#a1dc2cd1f9a0fa24128674d0297f5452b" class="m-doc-self">toJson</a>(</span><span class="m-doc-wrap">)</span>
-            </dt>
-            <dd>Dump a corpus to json.</dd>
-            <dt id="a1036afcf25f392c307377c833946710e">
-              <span class="m-doc-wrap-bumper">auto <a href="#a1036afcf25f392c307377c833946710e" class="m-doc-self">getFunctions</a>(</span><span class="m-doc-wrap">) const -&gt; std::vector&lt;<a href="structsmeagle_1_1abi__function__description.html" class="m-doc">abi_<wbr />function_<wbr />description</a>&gt; const &amp;</span>
+            <dt id="af24348c8d04f5b4f7ddfef77c32442a3">
+              std::string <a href="#af24348c8d04f5b4f7ddfef77c32442a3" class="m-doc-self">variable_type</a>
             </dt>
             <dd><span></span></dd>
-            <dt id="ab225607891918009c34ed0716b9d2c90">
-              <span class="m-doc-wrap-bumper">auto <a href="#ab225607891918009c34ed0716b9d2c90" class="m-doc-self">getVariables</a>(</span><span class="m-doc-wrap">) const -&gt; std::vector&lt;<a href="structsmeagle_1_1abi__variable__description.html" class="m-doc">abi_<wbr />variable_<wbr />description</a>&gt; const &amp;</span>
+            <dt id="a07f6843145c976cbd880fc3c6acef27b">
+              std::string <a href="#a07f6843145c976cbd880fc3c6acef27b" class="m-doc-self">variable_name</a>
+            </dt>
+            <dd><span></span></dd>
+            <dt id="acb8462c04ac95f73fdb31dbe8787098c">
+              int <a href="#acb8462c04ac95f73fdb31dbe8787098c" class="m-doc-self">variable_size</a>
             </dt>
             <dd><span></span></dd>
           </dl>
