@@ -79,25 +79,25 @@ namespace smeagle::x86_64 {
   }
 
   inline classification classify(st::typeStruct *t) {
-    const auto size = t->getSize() * 8;
+    const auto size = t->getSize();
 
-    // If an object is larger than eight eightbyes (i.e., 512 bits) class MEMORY.
-    if (size > 512) {
+    // If an object is larger than eight eightbyes (i.e., 64) class MEMORY.
+    if (size > 64) {
       return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Struct"};
     }
 
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Struct"};
   }
   inline classification classify(st::typeUnion *t) {
-    const auto size = t->getSize() * 8;
-    if (size > 512) {
+    const auto size = t->getSize();
+    if (size > 64) {
       return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Union"};
     }
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Union"};
   }
   inline classification classify(st::typeArray *t) {
-    const auto size = t->getSize() * 8;
-    if (size > 512) {
+    const auto size = t->getSize();
+    if (size > 64) {
       return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Array"};
     }
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Array"};
