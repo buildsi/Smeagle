@@ -78,16 +78,44 @@ namespace smeagle::x86_64 {
     return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
   }
 
-  inline classification classify(st::typeStruct *t) {
-    const auto size = t->getSize();
+  // Classify a single field
+  classification classify(st::Field *f) {
+        auto fieldType = *f->getType();
 
-    // If an object is larger than eight eightbyes (i.e., 64) class MEMORY.
-    if (size > 64) {
-      return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Struct"};
-    }
-
-    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Struct"};
+        // TODO STOPPED HERE - we need to pickup and figure out how to get this metadata
+        // // auto [underlying_type, ptr_cnt] = unwrap_underlying_type(fieldType);
+        std::cout << underlying_type.getName() << std::endl;
+	return  {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Struct"};
   }
+
+  // Classify the whole struct
+  inline classification classify(st::typeStruct *t) {
+	const auto size = t->getSize();
+
+	// If an object is larger than eight eightbyes (i.e., 64) class MEMORY.
+	if (size > 64) {
+		return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Struct"};
+	}
+
+	RegisterClass hi = RegisterClass::NO_CLASS;
+	RegisterClass lo = RegisterClass::NO_CLASS;
+	for (auto *f : *t->getFields()) {
+	  auto c = classify(f);
+//	  hi = merge(hi, c.hi);
+//	  lo = merge(lo, c.lo);
+	}
+	return {hi, lo, "Struct"};
+  }
+
+  // Classify the fields
+  std::vector<classification> classify_fields(st::typeStruct *t) {
+    std::vector<classification> classes;
+    for (auto *f : *t->getFields()) {
+      classes.push_back(classify(f)); // not done yet
+    }
+    return classes;
+  }
+
   inline classification classify(st::typeUnion *t) {
     const auto size = t->getSize();
     if (size > 64) {

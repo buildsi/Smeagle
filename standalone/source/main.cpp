@@ -52,7 +52,7 @@ auto main(int argc, char** argv) -> int {
     return 0;
   }
   smeagle::Corpus corpus = smeagle.parse();
-  corpus.toJson();
+  //corpus.toJson();
 
   return 0;
 }
