@@ -81,6 +81,52 @@ namespace smeagle::x86_64 {
     return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
   }
 
+  // Page 21 (bottom) AMD64 ABI - method to come up with final classification based on two
+  RegisterClass merge(RegisterClass originalReg, RegisterClass newReg) {
+    // a. If both classes are equal, this is the resulting class.
+    if (originalReg == newReg) {
+      return originalReg;
+    }
+
+    // b. If one of the classes is NO_CLASS, the resulting class is the other
+    if (originalReg == RegisterClass::NO_CLASS) {
+      return newReg;
+    }
+    if (newReg == RegisterClass::NO_CLASS) {
+      return originalReg;
+    }
+
+    // (c) If one of the classes is MEMORY, the result is the MEMORY class.
+    if (newReg == RegisterClass::MEMORY || originalReg == RegisterClass::MEMORY) {
+      return RegisterClass::MEMORY;
+    }
+
+    // (d) If one of the classes is INTEGER, the result is the INTEGER.
+    if (newReg == RegisterClass::INTEGER || originalReg == RegisterClass::INTEGER) {
+      return RegisterClass::INTEGER;
+    }
+
+    // (e) If one of the classes is X87, X87UP, COMPLEX_X87 class, MEMORY is used as class.
+    if (newReg == RegisterClass::X87 || newReg == RegisterClass::X87UP
+        || newReg == RegisterClass::COMPLEX_X87) {
+      return RegisterClass::MEMORY;
+    }
+    if (originalReg == RegisterClass::X87 || originalReg == RegisterClass::X87UP
+        || originalReg == RegisterClass::COMPLEX_X87) {
+      return RegisterClass::MEMORY;
+    }
+
+    // (f) Otherwise class SSE is used.
+    return RegisterClass::SSE;
+
+    // 5. Then a post merger cleanup is done:
+    // (a) If one of the classes is MEMORY, the whole argument is passed in memory.
+    // (b) If X87UP is not preceded by X87, the whole argument is passed in memory.
+    // (c) If the size of the aggregate exceeds two eightbytes and the first eight- byte isn’t SSE
+    // or any other eightbyte isn’t SSEUP, the whole argument is passed in memory. (d) If SSEUP is
+    // not preceded by SSE or SSEUP, it is converted to SSE.
+  }
+
   // Classify the whole struct
   inline classification classify(st::typeStruct *t) {
     const auto size = t->getSize();
@@ -94,8 +140,8 @@ namespace smeagle::x86_64 {
     RegisterClass lo = RegisterClass::NO_CLASS;
     for (auto *f : *t->getFields()) {
       auto c = classify(f);
-      //	  hi = merge(hi, c.hi);
-      //	  lo = merge(lo, c.lo);
+      hi = merge(hi, c.hi);
+      lo = merge(lo, c.lo);
     }
     return {lo, hi, "Struct"};
   }
@@ -104,7 +150,7 @@ namespace smeagle::x86_64 {
   std::vector<classification> classify_fields(st::typeStruct *t) {
     std::vector<classification> classes;
     for (auto *f : *t->getFields()) {
-      classes.push_back(classify(f));  // not done yet
+      classes.push_back(classify(f));
     }
     return classes;
   }
