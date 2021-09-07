@@ -97,7 +97,7 @@ namespace smeagle::x86_64 {
       //	  hi = merge(hi, c.hi);
       //	  lo = merge(lo, c.lo);
     }
-    return {hi, lo, "Struct"};
+    return {lo, hi, "Struct"};
   }
 
   // Classify the fields
