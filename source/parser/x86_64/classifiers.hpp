@@ -136,6 +136,10 @@ namespace smeagle::x86_64 {
     auto *fieldType = f->getType();
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(fieldType);
 
+    if (ptr_cnt > 0) {
+      return classify_pointer(ptr_cnt);
+    }
+
     if (auto *t = underlying_type->getScalarType()) {
       return classify(t);
     } else if (auto *t = underlying_type->getStructType()) {
