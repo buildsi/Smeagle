@@ -10,6 +10,7 @@
 
 #include "Type.h"
 #include "register_class.hpp"
+#include "type_checker.hpp"
 
 namespace smeagle::x86_64 {
 
@@ -20,6 +21,13 @@ namespace smeagle::x86_64 {
   };
 
   namespace st = Dyninst::SymtabAPI;
+
+  inline classification classify(st::Field *f);
+//  std::vector<classification> classify_fields(st::typeStruct *t) {
+  inline classification classify(st::typeUnion *t);
+  inline classification classify(st::typeArray *t);
+  inline classification classify(st::typeEnum *t);
+  inline classification classify(st::typeFunction *t);
 
   inline classification classify_pointer(int ptr_cnt) {
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Pointer", ptr_cnt};
@@ -79,13 +87,28 @@ namespace smeagle::x86_64 {
   }
 
   // Classify a single field
-  classification classify(st::Field *f) {
+  classification classify_field(st::Field *f) {
         auto fieldType = *f->getType();
+        auto fieldName = "name";
 
-        // TODO STOPPED HERE - we need to pickup and figure out how to get this metadata
-        // // auto [underlying_type, ptr_cnt] = unwrap_underlying_type(fieldType);
-        std::cout << underlying_type.getName() << std::endl;
-	return  {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Struct"};
+        RegisterAllocator allocator;
+
+        auto [underlying_type, ptr_cnt] = unwrap_underlying_type(&fieldType);
+
+        if (auto *t = underlying_type->getScalarType()) {
+          return classify(t);
+        } else if (auto *t = underlying_type->getStructType()) {
+          return classify(t);
+        } else if (auto *t = underlying_type->getUnionType()) {
+          return classify(t);
+        } else if (auto *t = underlying_type->getArrayType()) {
+          return classify(t);
+        } else if (auto *t = underlying_type->getEnumType()) {
+          return classify(t);
+        } else if (auto *t = underlying_type->getFunctionType()) {
+          return classify(t);
+        }
+	return  {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
   }
 
   // Classify the whole struct
@@ -100,7 +123,7 @@ namespace smeagle::x86_64 {
 	RegisterClass hi = RegisterClass::NO_CLASS;
 	RegisterClass lo = RegisterClass::NO_CLASS;
 	for (auto *f : *t->getFields()) {
-	  auto c = classify(f);
+	  auto c = classify_field(f);
 //	  hi = merge(hi, c.hi);
 //	  lo = merge(lo, c.lo);
 	}
@@ -111,7 +134,7 @@ namespace smeagle::x86_64 {
   std::vector<classification> classify_fields(st::typeStruct *t) {
     std::vector<classification> classes;
     for (auto *f : *t->getFields()) {
-      classes.push_back(classify(f)); // not done yet
+      classes.push_back(classify_field(f)); // not done yet
     }
     return classes;
   }
@@ -123,6 +146,7 @@ namespace smeagle::x86_64 {
     }
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Union"};
   }
+
   inline classification classify(st::typeArray *t) {
     const auto size = t->getSize();
     if (size > 64) {
@@ -130,9 +154,10 @@ namespace smeagle::x86_64 {
     }
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Array"};
   }
-  inline classification classify(st::typeEnum *) {
+
+  inline classification classify(st::typeEnum *t) {
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Enum"};
   }
-  inline classification classify(st::typeFunction *) { return {}; }
+  inline classification classify(st::typeFunction *t) { return {}; }
 
 }  // namespace smeagle::x86_64
