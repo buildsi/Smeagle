@@ -102,9 +102,6 @@ namespace smeagle::x86_64 {
         st::Type *param_type = param->getType();
         auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
 
-        // Get the directionality (export or import) given the type
-        std::string direction = getDirectionalityFromType(param_type);
-
         if (auto *t = underlying_type->getScalarType()) {
           typelocs.push_back(
               classify<types::scalar_t>(param_name, t, param_type, allocator, ptr_cnt));

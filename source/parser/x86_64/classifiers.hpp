@@ -10,6 +10,7 @@
 
 #include "Type.h"
 #include "register_class.hpp"
+#include "type_checker.hpp"
 
 namespace smeagle::x86_64 {
 
@@ -20,6 +21,8 @@ namespace smeagle::x86_64 {
   };
 
   namespace st = Dyninst::SymtabAPI;
+
+  inline classification classify(st::Field *f);
 
   inline classification classify_pointer(int ptr_cnt) {
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Pointer", ptr_cnt};
@@ -78,6 +81,72 @@ namespace smeagle::x86_64 {
     return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
   }
 
+  // Page 21 (bottom) AMD64 ABI - method to come up with final classification based on two
+  RegisterClass merge(RegisterClass originalReg, RegisterClass newReg) {
+    // a. If both classes are equal, this is the resulting class.
+    if (originalReg == newReg) {
+      return originalReg;
+    }
+
+    // b. If one of the classes is NO_CLASS, the resulting class is the other
+    if (originalReg == RegisterClass::NO_CLASS) {
+      return newReg;
+    }
+    if (newReg == RegisterClass::NO_CLASS) {
+      return originalReg;
+    }
+
+    // (c) If one of the classes is MEMORY, the result is the MEMORY class.
+    if (newReg == RegisterClass::MEMORY || originalReg == RegisterClass::MEMORY) {
+      return RegisterClass::MEMORY;
+    }
+
+    // (d) If one of the classes is INTEGER, the result is the INTEGER.
+    if (newReg == RegisterClass::INTEGER || originalReg == RegisterClass::INTEGER) {
+      return RegisterClass::INTEGER;
+    }
+
+    // (e) If one of the classes is X87, X87UP, COMPLEX_X87 class, MEMORY is used as class.
+    if (newReg == RegisterClass::X87 || newReg == RegisterClass::X87UP
+        || newReg == RegisterClass::COMPLEX_X87) {
+      return RegisterClass::MEMORY;
+    }
+    if (originalReg == RegisterClass::X87 || originalReg == RegisterClass::X87UP
+        || originalReg == RegisterClass::COMPLEX_X87) {
+      return RegisterClass::MEMORY;
+    }
+
+    // (f) Otherwise class SSE is used.
+    return RegisterClass::SSE;
+  }
+
+  // Page 22 AMD64 ABI point 5 - this is the most merger "cleanup"
+  void post_merge(RegisterClass &lo, RegisterClass &hi, size_t size) {
+    // (a) If one of the classes is MEMORY, the whole argument is passed in memory.
+    if (lo == RegisterClass::MEMORY || hi == RegisterClass::MEMORY) {
+      lo = RegisterClass::MEMORY;
+      hi = RegisterClass::MEMORY;
+    }
+
+    // (b) If X87UP is not preceded by X87, the whole argument is passed in memory.
+    if (hi == RegisterClass::X87UP && lo != RegisterClass::X87) {
+      lo = RegisterClass::MEMORY;
+      hi = RegisterClass::MEMORY;
+    }
+
+    // (c) If the size of the aggregate exceeds two eightbytes and the first eight- byte isn’t SSE
+    // or any other eightbyte isn’t SSEUP, the whole argument is passed in memory.
+    if (size > 128 && (lo != RegisterClass::SSE || hi != RegisterClass::SSEUP)) {
+      lo = RegisterClass::MEMORY;
+      hi = RegisterClass::MEMORY;
+    }
+    // (d) If SSEUP is // not preceded by SSE or SSEUP, it is converted to SSE.
+    if (hi == RegisterClass::SSEUP && (lo != RegisterClass::SSE && lo != RegisterClass::SSEUP)) {
+      hi = RegisterClass::SSE;
+    }
+  }
+
+  // Classify the whole struct
   inline classification classify(st::typeStruct *t) {
     const auto size = t->getSize();
 
@@ -86,8 +155,28 @@ namespace smeagle::x86_64 {
       return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Struct"};
     }
 
-    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Struct"};
+    RegisterClass hi = RegisterClass::NO_CLASS;
+    RegisterClass lo = RegisterClass::NO_CLASS;
+    for (auto *f : *t->getFields()) {
+      auto c = classify(f);
+      hi = merge(hi, c.hi);
+      lo = merge(lo, c.lo);
+    }
+
+    // Pass a reference so they are updated here, and we also need size
+    post_merge(lo, hi, size);
+    return {lo, hi, "Struct"};
   }
+
+  // Classify the fields
+  std::vector<classification> classify_fields(st::typeStruct *t) {
+    std::vector<classification> classes;
+    for (auto *f : *t->getFields()) {
+      classes.push_back(classify(f));
+    }
+    return classes;
+  }
+
   inline classification classify(st::typeUnion *t) {
     const auto size = t->getSize();
     if (size > 64) {
@@ -95,6 +184,7 @@ namespace smeagle::x86_64 {
     }
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Union"};
   }
+
   inline classification classify(st::typeArray *t) {
     const auto size = t->getSize();
     if (size > 64) {
@@ -102,9 +192,36 @@ namespace smeagle::x86_64 {
     }
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Array"};
   }
-  inline classification classify(st::typeEnum *) {
+
+  inline classification classify(st::typeEnum *t) {
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Enum"};
   }
-  inline classification classify(st::typeFunction *) { return {}; }
+
+  inline classification classify(st::typeFunction *t) { return {}; }
+
+  // Classify a single field
+  classification classify(st::Field *f) {
+    auto *fieldType = f->getType();
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(fieldType);
+
+    if (ptr_cnt > 0) {
+      return classify_pointer(ptr_cnt);
+    }
+
+    if (auto *t = underlying_type->getScalarType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getStructType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getUnionType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getArrayType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getEnumType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getFunctionType()) {
+      return classify(t);
+    }
+    return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
+  }
 
 }  // namespace smeagle::x86_64
