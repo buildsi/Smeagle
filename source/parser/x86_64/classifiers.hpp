@@ -118,13 +118,32 @@ namespace smeagle::x86_64 {
 
     // (f) Otherwise class SSE is used.
     return RegisterClass::SSE;
+  }
 
-    // 5. Then a post merger cleanup is done:
+  // Page 22 AMD64 ABI point 5 - this is the most merger "cleanup"
+  RegisterClass post_merge(RegisterClass &lo, RegisterClass &hi, int size) {
     // (a) If one of the classes is MEMORY, the whole argument is passed in memory.
+    if (lo == RegisterClass::MEMORY || hi == RegisterClass::MEMORY) {
+      lo = RegisterClass::MEMORY;
+      hi = RegisterClass::MEMORY;
+    }
+
     // (b) If X87UP is not preceded by X87, the whole argument is passed in memory.
+    if (hi == RegisterClass::X87UP && lo != RegisterClass::X87) {
+      lo = RegisterClass::MEMORY;
+      hi = RegisterClass::MEMORY;
+    }
+
     // (c) If the size of the aggregate exceeds two eightbytes and the first eight- byte isn’t SSE
-    // or any other eightbyte isn’t SSEUP, the whole argument is passed in memory. (d) If SSEUP is
-    // not preceded by SSE or SSEUP, it is converted to SSE.
+    // or any other eightbyte isn’t SSEUP, the whole argument is passed in memory.
+    if (size > 128 && (lo != RegisterClass::SSE || hi != RegisterClass::SSEUP)) {
+      lo = RegisterClass::MEMORY;
+      hi = RegisterClass::MEMORY;
+    }
+    // (d) If SSEUP is // not preceded by SSE or SSEUP, it is converted to SSE.
+    if (hi == RegisterClass::SSEUP && (lo != RegisterClass::SSE && lo != RegisterClass::SSEUP)) {
+      hi = RegisterClass::SSE;
+    }
   }
 
   // Classify the whole struct
@@ -143,6 +162,9 @@ namespace smeagle::x86_64 {
       hi = merge(hi, c.hi);
       lo = merge(lo, c.lo);
     }
+
+    // Pass a reference so they are updated here, and we also need size
+    post_merge(lo, hi, size);
     return {lo, hi, "Struct"};
   }
 
