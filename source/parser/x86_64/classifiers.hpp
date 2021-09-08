@@ -121,7 +121,7 @@ namespace smeagle::x86_64 {
   }
 
   // Page 22 AMD64 ABI point 5 - this is the most merger "cleanup"
-  RegisterClass post_merge(RegisterClass &lo, RegisterClass &hi, int size) {
+  void post_merge(RegisterClass &lo, RegisterClass &hi, size_t size) {
     // (a) If one of the classes is MEMORY, the whole argument is passed in memory.
     if (lo == RegisterClass::MEMORY || hi == RegisterClass::MEMORY) {
       lo = RegisterClass::MEMORY;
