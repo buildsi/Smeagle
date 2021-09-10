@@ -23,9 +23,39 @@ namespace smeagle::x86_64 {
   namespace st = Dyninst::SymtabAPI;
 
   inline classification classify(st::Field *f);
+  inline classification classify(st::typeFunction *t);
+  inline classification classify(st::typeEnum *t);
+  inline classification classify(st::typeScalar *t);
+  inline classification classify(st::typeStruct *t);
+  inline classification classify(st::typeUnion *t);
+  inline classification classify(st::typeArray *t);
 
   inline classification classify_pointer(int ptr_cnt) {
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Pointer", ptr_cnt};
+  }
+
+  // classify a base underlying type
+  inline classification classify_type(st::Type *fieldType) {
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(fieldType);
+
+    if (ptr_cnt > 0) {
+      return classify_pointer(ptr_cnt);
+    }
+
+    if (auto *t = underlying_type->getScalarType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getStructType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getUnionType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getArrayType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getEnumType()) {
+      return classify(t);
+    } else if (auto *t = underlying_type->getFunctionType()) {
+      return classify(t);
+    }
+    return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
   }
 
   inline classification classify(st::typeScalar *t) {
@@ -187,10 +217,13 @@ namespace smeagle::x86_64 {
 
   inline classification classify(st::typeArray *t) {
     const auto size = t->getSize();
+
     if (size > 64) {
       return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Array"};
     }
-    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Array"};
+
+    // Just classify the base type
+    return classify_type(t->getBaseType());
   }
 
   inline classification classify(st::typeEnum *t) {
@@ -201,27 +234,8 @@ namespace smeagle::x86_64 {
 
   // Classify a single field
   classification classify(st::Field *f) {
-    auto *fieldType = f->getType();
-    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(fieldType);
-
-    if (ptr_cnt > 0) {
-      return classify_pointer(ptr_cnt);
-    }
-
-    if (auto *t = underlying_type->getScalarType()) {
-      return classify(t);
-    } else if (auto *t = underlying_type->getStructType()) {
-      return classify(t);
-    } else if (auto *t = underlying_type->getUnionType()) {
-      return classify(t);
-    } else if (auto *t = underlying_type->getArrayType()) {
-      return classify(t);
-    } else if (auto *t = underlying_type->getEnumType()) {
-      return classify(t);
-    } else if (auto *t = underlying_type->getFunctionType()) {
-      return classify(t);
-    }
-    return {RegisterClass::NO_CLASS, RegisterClass::NO_CLASS, "Unknown"};
+    // Just classify the type of the field
+    return classify_type(f->getType());
   }
 
 }  // namespace smeagle::x86_64
