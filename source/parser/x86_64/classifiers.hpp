@@ -35,8 +35,8 @@ namespace smeagle::x86_64 {
   }
 
   // classify a base underlying type
-  inline classification classify_type(st::Type fieldType) {
-    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(&fieldType);
+  inline classification classify_type(st::Type *fieldType) {
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(fieldType);
 
     if (ptr_cnt > 0) {
       return classify_pointer(ptr_cnt);
@@ -224,7 +224,7 @@ namespace smeagle::x86_64 {
 
     // Just classify the base type
     const auto baseType = t->getBaseType();
-    return classify_type(*baseType);
+    return classify_type(baseType);
   }
 
   inline classification classify(st::typeEnum *t) {
@@ -236,7 +236,7 @@ namespace smeagle::x86_64 {
   // Classify a single field
   classification classify(st::Field *f) {
     auto *fieldType = f->getType();
-    return classify_type(*fieldType);
+    return classify_type(fieldType);
   }
 
 }  // namespace smeagle::x86_64
