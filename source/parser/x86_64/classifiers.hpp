@@ -223,8 +223,7 @@ namespace smeagle::x86_64 {
     }
 
     // Just classify the base type
-    const auto baseType = t->getBaseType();
-    return classify_type(baseType);
+    return classify_type(t->getBaseType());
   }
 
   inline classification classify(st::typeEnum *t) {
@@ -235,8 +234,7 @@ namespace smeagle::x86_64 {
 
   // Classify a single field
   classification classify(st::Field *f) {
-    auto *fieldType = f->getType();
-    return classify_type(fieldType);
+    return classify_type(f->getType());
   }
 
 }  // namespace smeagle::x86_64
