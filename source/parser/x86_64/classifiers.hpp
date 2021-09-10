@@ -234,6 +234,7 @@ namespace smeagle::x86_64 {
 
   // Classify a single field
   classification classify(st::Field *f) {
+    // Just classify the type of the field
     return classify_type(f->getType());
   }
 
