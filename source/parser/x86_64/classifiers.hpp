@@ -238,7 +238,6 @@ namespace smeagle::x86_64 {
   }
 
   inline classification classify(st::typeEnum *t) {
-    // if (enumType t->getEnumType());
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Enum"};
   }
 
