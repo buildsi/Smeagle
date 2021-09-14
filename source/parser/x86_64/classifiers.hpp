@@ -212,7 +212,18 @@ namespace smeagle::x86_64 {
     if (size > 64) {
       return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Union"};
     }
-    return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Union"};
+
+    RegisterClass hi = RegisterClass::NO_CLASS;
+    RegisterClass lo = RegisterClass::NO_CLASS;
+    for (auto *f : *t->getComponents()) {
+      auto c = classify(f);
+      hi = merge(hi, c.hi);
+      lo = merge(lo, c.lo);
+    }
+
+    // Pass a reference so they are updated here, and we also need size
+    post_merge(lo, hi, size);
+    return {lo, hi, "Union"};
   }
 
   inline classification classify(st::typeArray *t) {
