@@ -241,7 +241,13 @@ namespace smeagle::x86_64 {
     return {RegisterClass::INTEGER, RegisterClass::NO_CLASS, "Enum"};
   }
 
-  inline classification classify(st::typeFunction *t) { return {}; }
+  inline classification classify(st::typeFunction *t) {
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(t);
+    if (ptr_cnt > 0) {
+      return classify_pointer(ptr_cnt);
+    }
+    return {};
+  }
 
   // Classify a single field
   classification classify(st::Field *f) {
