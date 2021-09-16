@@ -11,6 +11,7 @@
 #include <string>
 
 #include "Type.h"
+#include "classifiers.hpp"
 #include "register_class.hpp"
 
 namespace smeagle::x86_64 {
@@ -59,6 +60,74 @@ namespace smeagle::x86_64 {
         throw std::runtime_error{"Can't allocate a {NO_CLASS, *}"};
       }
 
+      // If we have a struct, union, or array, we do custom parsing
+      if (auto *t = paramType->getStructType()) {
+        auto classes = classify_fields(t);
+
+        // Keep a count of ints and floats
+        int integer_count{}, float_count{};
+        for (auto &cls : classes) {
+          if (lo == RegisterClass::INTEGER) {
+            integer_count++;
+            // I'm pretty sure this is wrong
+          } else if (lo == RegisterClass::SSE || hi == RegisterClass::SSEUP
+                     || lo == RegisterClass::COMPLEX_X87) {
+            float_count++;
+          }
+        }
+
+        // Everything goes on the stack
+        if (lo == RegisterClass::MEMORY
+            || (integer_count + float_count > intRegisters.size() + sseRegisters.size())) {
+          return "everything goes on the stack";
+        }
+
+        // all of the INTEGER fields go on the stack
+        if (integer_count > intRegisters.size()) {
+          return "all of the INTEGER fields go on the stack";
+        }
+
+        // all of the SSE fields go on the stack
+        if (float_count > sseRegisters.size()) {
+          return "all of the SSE fields go on the stack";
+        }
+      }
+
+      if (paramType->getUnionType()) {
+        std::cout << "We have a union!" << std::endl;
+      }
+      if (paramType->getArrayType()) {
+        std::cout << "We have an array!" << std::endl;
+      }
+      return getNextRegister(lo, hi, paramType);
+    }
+
+  private:
+    FramebaseAllocator fallocator;
+    std::stack<std::string> intRegisters{{"%r9", "%r8", "%rcx", "%rdx", "%rsi", "%rdi"}};
+    std::stack<std::string> sseRegisters;
+    int framebase = 8;
+
+    // Get the next available integer register
+    std::optional<std::string> getNextIntRegister() {
+      // If we are empty, return stack
+      if (intRegisters.empty()) return {};
+      std::string regString = intRegisters.top();
+      intRegisters.pop();
+      return regString;
+    }
+
+    // Get the next available integer register
+    std::optional<std::string> getNextSseRegister() {
+      // If we are empty, return stack
+      if (sseRegisters.empty()) return {};
+      std::string regString = sseRegisters.top();
+      sseRegisters.pop();
+      return regString;
+    }
+
+    // General function to get next register based on lo and hi
+    std::string getNextRegister(RegisterClass lo, RegisterClass hi, st::Type *paramType) {
       if (lo == RegisterClass::MEMORY) {
         // goes on the stack
         return fallocator.nextFramebaseFromType(paramType);
@@ -103,30 +172,6 @@ namespace smeagle::x86_64 {
 
       // This should never be reached
       throw std::runtime_error{"Unknown classification"};
-    }
-
-  private:
-    FramebaseAllocator fallocator;
-    std::stack<std::string> intRegisters{{"%r9", "%r8", "%rcx", "%rdx", "%rsi", "%rdi"}};
-    std::stack<std::string> sseRegisters;
-    int framebase = 8;
-
-    // Get the next available integer register
-    std::optional<std::string> getNextIntRegister() {
-      // If we are empty, return stack
-      if (intRegisters.empty()) return {};
-      std::string regString = intRegisters.top();
-      intRegisters.pop();
-      return regString;
-    }
-
-    // Get the next available integer register
-    std::optional<std::string> getNextSseRegister() {
-      // If we are empty, return stack
-      if (sseRegisters.empty()) return {};
-      std::string regString = sseRegisters.top();
-      sseRegisters.pop();
-      return regString;
     }
   };
 
