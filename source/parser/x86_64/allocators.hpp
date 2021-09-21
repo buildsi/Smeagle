@@ -55,6 +55,12 @@ namespace smeagle::x86_64 {
 
     // Given two registers, return one combined string
     std::string getRegisterString(RegisterClass lo, RegisterClass hi, st::Type *paramType) {
+      // Empty structs and unions don't have a location
+      if ((lo == RegisterClass::NO_CLASS)
+          && (paramType->getUnionType() || paramType->getStructType())) {
+        return "none";
+      }
+
       if (lo == RegisterClass::NO_CLASS) {
         throw std::runtime_error{"Can't allocate a {NO_CLASS, *}"};
       }
