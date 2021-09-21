@@ -246,6 +246,11 @@ namespace smeagle::x86_64::types {
       // Structure Type
     } else if (auto *t = underlying_type->getStructType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
+
+      // If it's anonymous, use the type
+      if (param_name.find("anonymous") != std::string::npos) {
+        param_name = param_type->getName();
+      }
       auto param = types::struct_t<dyn_t>{param_name, param_type->getName(), "Struct", direction,
                                           "",         param_type->getSize(), t};
 
@@ -262,6 +267,12 @@ namespace smeagle::x86_64::types {
       // Union Type
     } else if (auto *t = underlying_type->getUnionType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
+
+      // If it's anonymous, use the type
+      if (param_name.find("anonymous") != std::string::npos) {
+        param_name = param_type->getName();
+      }
+
       auto param = types::union_t<dyn_t>{param_name, param_type->getName(), "Union", direction,
                                          "",         param_type->getSize(), t};
       if (ptr_cnt > 0) {
