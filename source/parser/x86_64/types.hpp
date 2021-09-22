@@ -248,7 +248,7 @@ namespace smeagle::x86_64::types {
       using dyn_t = std::decay_t<decltype(*t)>;
 
       // If it's anonymous, use the type
-      if (param_name.find("anonymous") != std::string::npos) {
+      if (param_name.find("anonymous struct") != std::string::npos) {
         param_name = param_type->getName();
       }
       auto param = types::struct_t<dyn_t>{param_name, param_type->getName(), "Struct", direction,
@@ -269,7 +269,7 @@ namespace smeagle::x86_64::types {
       using dyn_t = std::decay_t<decltype(*t)>;
 
       // If it's anonymous, use the type
-      if (param_name.find("anonymous") != std::string::npos) {
+      if (param_name.find("anonymous union") != std::string::npos) {
         param_name = param_type->getName();
       }
 
