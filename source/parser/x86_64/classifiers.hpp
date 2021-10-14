@@ -198,11 +198,50 @@ namespace smeagle::x86_64 {
     return {lo, hi, "Struct"};
   }
 
-  // Classify the fields
+  // Classify the fields, returns tuple of classification, field type, offset, size
   std::vector<classification> classify_fields(st::typeStruct *t) {
     std::vector<classification> classes;
     for (auto *f : *t->getFields()) {
-      classes.push_back(classify(f));
+      auto tuple = std::make_tuple (classify(f), f->getType(), f->getOffset(), f->getSize());
+      classes.push_back(tuple);
+    }
+
+    // We will have a final vector of vectors of classifications
+    std::vector classifications<std::vector <st::Type*>>;
+
+    // This is the current "open" vector, up to one eightbyte
+    std::vector current<st::Type*>;
+
+    // The remaining bytes in the eightbyte
+    int remainder = 8;
+    
+    // First, we classify each field, and put into eightbytes.
+    for (auto *f : *t->getFields()) {
+      size = f->getSize();
+      fieldType = f->getType();
+
+      // If it's the same class and we have space on the eightbyte
+      if (size <= remainder) {
+          current.push(fieldType);
+
+      // If it's not the same class, we need to start a new eightbyte
+      } else {
+          remainder = 8;
+          classifications.push(current);      
+      }
+      remainder = remainder - size;
+    }    
+
+    // classify eightbytes
+    for (auto types : classifications) {
+      RegisterClass hi = RegisterClass::NO_CLASS;
+      RegisterClass lo = RegisterClass::NO_CLASS;
+      for (auto *t : *types) {
+        auto c = classify(t);
+        hi = merge(hi, c.hi);
+        lo = merge(lo, c.lo);
+      }  
+      classes.push_back({lo, hi, "WhatGoesHere?"});
     }
     return classes;
   }

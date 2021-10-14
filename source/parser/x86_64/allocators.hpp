@@ -68,11 +68,39 @@ namespace smeagle::x86_64 {
 
       // If we have a struct, union, or array, we do custom parsing
       if (auto *t = paramType->getStructType()) {
-        auto classes = classify_fields(t);
+        auto fields = classify_fields(t);
+
+        // Assembly listing of registers used by fields?
+        //std::string fieldsRegisters = "";
+
+        // Keep a record of bytes remaining in the current eighbyte, and last parameter seen
+        //int remaining = 0;
+        //RegisterClass lastLo;   
+        //RegisterClass lastHi;   
+        //for (auto const& field : fields) {
+        //    auto [classification, fieldType, offset, size] = field;
+        //    // If we have the same classification AND the size fits in the same eightbyte, put on same register
+        //    if (classification.lo == lastLo && classification.hi == lastHi && size < remaining) {
+        //      // do nothing           
+        //    // Otherwise get the next register
+        //    } else {
+        //        fieldsRegisters = fieldsRegisters + "|" + getNextRegister(classification.lo, classification.hi, fieldType);           
+        //    }
+        //    if (remaining + size > 8) {
+        //      remaining = 8;
+        //    } else {
+        //      remaining = remaining - size;
+        //    }
+        //    
+        //    lastLo = classification.lo;
+        //    lastHi = classification.hi;
+        //}
+
+        //std::cout << fieldsRegisters << std::endl;
 
         // Keep a count of ints and floats
         int integer_count{}, float_count{};
-        for (auto &cls : classes) {
+        for (auto &field : fields) {
           if (lo == RegisterClass::INTEGER) {
             integer_count++;
             // I'm pretty sure this is wrong
