@@ -42,7 +42,12 @@ how to build the container:
 
 ```bash
 docker build -t smeagle .
-docker run --rm -it -v $PWD:/code smeagle bash
+```
+
+And to enter, change the entrypoint to bash (by default it will just be the Smeagle executable):
+
+```bash
+$ docker run --rm -it --entrypoint bash -v $PWD:/code smeagle
 ```
 
 You should then be in the mounted `/code` directory, and you can compile

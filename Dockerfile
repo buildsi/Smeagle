@@ -20,3 +20,4 @@ WORKDIR /code
 ADD . /code
 RUN make
 ENV PATH /code/build/standalone:$PATH
+ENTRYPOINT ["/code/build/standalone/Smeagle"]
