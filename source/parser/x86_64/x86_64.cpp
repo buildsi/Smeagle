@@ -46,12 +46,19 @@ namespace smeagle::x86_64 {
     return "unknown";
   }
 
+  // Determine if a type is anonymous
+  bool is_anonymous(st::Type *t) {
+    return t->getName().find("anonymous struct") != std::string::npos
+           || t->getName().find("anonymous class") != std::string::npos
+           || t->getName().find("anonymous union") != std::string::npos;
+  }
+
   template <typename class_t, typename base_t, typename param_t, typename... Args>
   smeagle::parameter classify(std::string const &param_name, base_t *base_type, param_t *param_type,
                               RegisterAllocator &allocator, int ptr_cnt, Args &&... args) {
-    auto base_type_name = base_type->getName();
+    // If it's anonymous, we use the base type name
+    auto base_type_name = is_anonymous(base_type) ? param_type->getName() : base_type->getName();
     auto direction = getDirectionalityFromType(param_type);
-
     auto base_class = classify(base_type);
 
     if (ptr_cnt > 0) {
