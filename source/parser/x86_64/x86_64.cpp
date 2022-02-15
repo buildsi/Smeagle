@@ -146,14 +146,14 @@ namespace smeagle::x86_64 {
 
         // TODO parse return value correctly
         // called->GetReturnType()
-        typelocs.push_back(smeagle::parameter{types::none_t{"None", "None", "None"}});
         return typelocs;
       }
     }
   }
 
   // Parse an inline function (or a regular function from a symbol)
-  std::vector<parameter> parse_inline(Dyninst::SymtabAPI::Function *func) {
+  // TODO this would be easy to consolidate if it didn't require a function base
+  std::vector<parameter> parse_inline(Dyninst::SymtabAPI::FunctionBase *func) {
     std::vector<st::localVar *> params;
     std::vector<parameter> typelocs;
 
@@ -196,7 +196,44 @@ namespace smeagle::x86_64 {
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
     st::Function *func = symbol->getFunction();
-    return parse_inline(func);
+    std::vector<st::localVar *> params;
+    std::vector<parameter> typelocs;
+
+    // Get parameters with types and names
+    if (func->getParams(params)) {
+      RegisterAllocator allocator;
+
+      for (auto &param : params) {
+        auto param_name = param->getName();
+        st::Type *param_type = param->getType();
+        auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
+
+        if (auto *t = underlying_type->getScalarType()) {
+          typelocs.push_back(
+              classify<types::scalar_t>(param_name, t, param_type, allocator, ptr_cnt));
+        } else if (auto *t = underlying_type->getStructType()) {
+          using dyn_t = std::decay_t<decltype(*t)>;
+          typelocs.push_back(
+              classify<types::struct_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
+        } else if (auto *t = underlying_type->getUnionType()) {
+          using dyn_t = std::decay_t<decltype(*t)>;
+          typelocs.push_back(
+              classify<types::union_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
+        } else if (auto *t = underlying_type->getArrayType()) {
+          using dyn_t = std::decay_t<decltype(*t)>;
+          typelocs.push_back(
+              classify<types::array_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
+        } else if (auto *t = underlying_type->getEnumType()) {
+          using dyn_t = std::decay_t<decltype(*t)>;
+          typelocs.push_back(
+              classify<types::enum_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
+        } else if (auto *t = underlying_type->getFunctionType()) {
+          typelocs.push_back(
+              classify<types::function_t>(param_name, t, param_type, allocator, ptr_cnt));
+        }
+      }
+    }
+    return typelocs;
   }
 
   parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) {

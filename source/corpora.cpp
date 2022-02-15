@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "Function.h"
 #include "Symtab.h"
 #include "parser/aarch64/aarch64.hpp"
 #include "parser/ppc64le/ppc64le.hpp"
@@ -110,19 +111,21 @@ void Corpus::toJson() {
 void Corpus::parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *symbol,
                                       Dyninst::Architecture arch) {
   switch (arch) {
-    case Dyninst::Architecture::Arch_x86_64:
+    case Dyninst::Architecture::Arch_x86_64: {
       functions.emplace_back(x86_64::parse_parameters(symbol), x86_64::parse_return_value(symbol),
                              symbol->getMangledName());
       // callsites
       callsites.emplace_back(x86_64::parse_callsites(symbol), x86_64::parse_return_value(symbol),
                              symbol->getMangledName());
 
-      // inlines TODO this is giving me ane error
-      // st::Function *func = symbol->getFunction();
-      // for (auto i: func->getInlines())  {
-      //    inlines.emplace_back(x86_64::parse_inline(i), "TODO-return-value", i->getName());
-      //}
+      // inlines (TODO need to handle return value here)
+      st::Function *func = symbol->getFunction();
+      for (auto i : func->getInlines()) {
+        inlines.emplace_back(x86_64::parse_inline(i), x86_64::parse_return_value(symbol),
+                             i->getName());
+      }
       break;
+    }
     case Dyninst::Architecture::Arch_aarch64:
       break;
     case Dyninst::Architecture::Arch_ppc64:
