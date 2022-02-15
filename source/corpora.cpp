@@ -21,46 +21,23 @@ Corpus::Corpus(std::string _library) : library(std::move(_library)){};
 
 namespace st = Dyninst::SymtabAPI;
 
-// dump all Type Locations to json
-void Corpus::toJson() {
-  // ensure that we can replace already written characters (buffered output)
-  std::ios::sync_with_stdio(false);
-  std::cout << "{\n"
-            << " \"library\": \"" << library << "\",\n"
-            << " \"locations\":\n"
-            << " [\n";
+// Print abi type locations and a type
+void Corpus::printABILocation(std::vector<abi_function_description> descriptions, std::string name,
+                              bool moreAfter) {
+  for (auto &f : descriptions) {
+    std::string outerEndcomma;
 
-  // Parsing of variables first
-  for (auto &v : variables) {
-    std::string endcomma;
-
-    // If we are at the last variable AND there are no functions
-    if (&v == &variables.back() && functions.size() == 0)
-      endcomma = "";
+    // It's the last and we don't have more after!
+    if (&f == &functions.back() && !moreAfter)
+      outerEndcomma = "";
     else {
-      endcomma = ",";
-    }
-
-    // Add a new variable type here
-    std::cout << "   {\"variable\": {\n"
-              << "      \"name\": \"" << v.variable_name << "\",\n"
-              << "      \"type\": \"" << v.variable_type << "\",\n"
-              << "      \"size\": \"" << v.variable_size << "\"}}" << endcomma << "\n";
-  }
-
-  // Parsing of functions next
-  for (auto &f : functions) {
-    std::string endcomma;
-    if (&f == &functions.back())
-      endcomma = "";
-    else {
-      endcomma = ",";
+      outerEndcomma = ",";
     }
 
     // We have parameters
     if (f.parameters.size() > 0) {
       std::cout << "   {\n"
-                << "    \"function\": {\n"
+                << "    \"" << name << "\": {\n"
                 << "      \"name\": \"" << f.function_name << "\",\n"
                 << "      \"parameters\": [\n";
 
@@ -75,11 +52,56 @@ void Corpus::toJson() {
       // If we don't have parameters, don't add anything
     } else {
       std::cout << "   {\n"
-                << "    \"function\": {\n"
+                << "    \"" << name << "\": {\n"
                 << "      \"name\": \"" << f.function_name << "\"";
     }
-    std::cout << "   }}" << endcomma << "\n";
+    std::cout << "   }}" << outerEndcomma << "\n";
   }
+}
+
+// dump all Type Locations to json
+void Corpus::toJson() {
+  // ensure that we can replace already written characters (buffered output)
+  std::ios::sync_with_stdio(false);
+  std::cout << "{\n"
+            << " \"library\": \"" << library << "\",\n"
+            << " \"locations\":\n"
+            << " [\n";
+
+  // Total size of functions, callsites
+  int totalSize = functions.size() + callsites.size();
+
+  // Parsing of variables first
+  for (auto &v : variables) {
+    std::string endcomma;
+
+    // If we are at the last variable AND there are no functions
+    if (&v == &variables.back() && totalSize == 0)
+      endcomma = "";
+    else {
+      endcomma = ",";
+    }
+
+    // Add a new variable type here
+    std::cout << "   {\"variable\": {\n"
+              << "      \"name\": \"" << v.variable_name << "\",\n"
+              << "      \"type\": \"" << v.variable_type << "\",\n"
+              << "      \"size\": \"" << v.variable_size << "\"}}" << endcomma << "\n";
+  }
+
+  // We have functions AND callsites
+  bool moreAfter = false;
+  if (callsites.size() > 0) {
+    moreAfter = true;
+  }
+  if (functions.size() > 0) {
+    printABILocation(functions, "function", moreAfter);
+  }
+
+  if (callsites.size() > 0) {
+    printABILocation(callsites, "callsite", false);
+  }
+
   std::cout << "]\n"
             << "}" << std::endl;
 }
@@ -92,15 +114,14 @@ void Corpus::parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *symbol,
       functions.emplace_back(x86_64::parse_parameters(symbol), x86_64::parse_return_value(symbol),
                              symbol->getMangledName());
       // callsites
-      functions.emplace_back(x86_64::parse_callsites(symbol), x86_64::parse_return_value(symbol),
+      callsites.emplace_back(x86_64::parse_callsites(symbol), x86_64::parse_return_value(symbol),
                              symbol->getMangledName());
 
-      // inlines
-      //       st::Function *func = symbol->getFunction();
-      //     for (auto i: func->getInlines())  {
-      //       functions.emplace_back(x86_64::parse_inlines(symbol),
-      //       x86_64::parse_return_value(symbol),
-      //                       symbol->getMangledName());
+      // inlines TODO this is giving me ane error
+      // st::Function *func = symbol->getFunction();
+      // for (auto i: func->getInlines())  {
+      //    inlines.emplace_back(x86_64::parse_inline(i), "TODO-return-value", i->getName());
+      //}
       break;
     case Dyninst::Architecture::Arch_aarch64:
       break;
