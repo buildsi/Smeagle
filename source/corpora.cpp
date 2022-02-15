@@ -19,6 +19,8 @@ using namespace smeagle;
 
 Corpus::Corpus(std::string _library) : library(std::move(_library)){};
 
+namespace st = Dyninst::SymtabAPI;
+
 // dump all Type Locations to json
 void Corpus::toJson() {
   // ensure that we can replace already written characters (buffered output)
@@ -89,6 +91,16 @@ void Corpus::parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *symbol,
     case Dyninst::Architecture::Arch_x86_64:
       functions.emplace_back(x86_64::parse_parameters(symbol), x86_64::parse_return_value(symbol),
                              symbol->getMangledName());
+      // callsites
+      functions.emplace_back(x86_64::parse_callsites(symbol), x86_64::parse_return_value(symbol),
+                             symbol->getMangledName());
+
+      // inlines
+      //       st::Function *func = symbol->getFunction();
+      //     for (auto i: func->getInlines())  {
+      //       functions.emplace_back(x86_64::parse_inlines(symbol),
+      //       x86_64::parse_return_value(symbol),
+      //                       symbol->getMangledName());
       break;
     case Dyninst::Architecture::Arch_aarch64:
       break;

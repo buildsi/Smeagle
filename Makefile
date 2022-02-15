@@ -1,7 +1,7 @@
 .PHONY: all test standalone docs
 
 all:
-	cmake --log-level=VERBOSE -S all -B build
+	cmake -DDyninst_DIR=/opt/dyninst-env/build/dyninst/lib/cmake/Dyninst --log-level=VERBOSE -S all -B build
 	cmake --build build
 
 

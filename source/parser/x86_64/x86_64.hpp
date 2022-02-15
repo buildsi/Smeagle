@@ -13,6 +13,7 @@
 
 namespace smeagle::x86_64 {
 
+  std::vector<parameter> parse_callsites(Dyninst::SymtabAPI::Symbol* symbol);
   std::vector<parameter> parse_parameters(Dyninst::SymtabAPI::Symbol* symbol);
   parameter parse_return_value(Dyninst::SymtabAPI::Symbol const* symbol);
   smeagle::abi_variable_description parse_variable(Dyninst::SymtabAPI::Symbol* symbol);

@@ -40,6 +40,7 @@ CPMAddPackage(
 set(include_dirs smeagle/include source/parser)
 set(sources source/corpora.cpp source/smeagle.cpp source/parser/x86_64/x86_64.cpp
             source/parser/ppc64le/ppc64le.cpp source/parser/aarch64/aarch64.cpp
+            source/parser/x86_64/callsites.hpp source/parser/x86_64/types.hpp
 )
 
 # ---- Create library ----

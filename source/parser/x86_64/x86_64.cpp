@@ -11,6 +11,7 @@
 #include "Symtab.h"
 #include "Type.h"
 #include "allocators.hpp"
+#include "callsites.hpp"
 #include "classifiers.hpp"
 #include "smeagle/abi_description.h"
 #include "smeagle/parameter.h"
@@ -55,7 +56,7 @@ namespace smeagle::x86_64 {
 
   template <typename class_t, typename base_t, typename param_t, typename... Args>
   smeagle::parameter classify(std::string const &param_name, base_t *base_type, param_t *param_type,
-                              RegisterAllocator &allocator, int ptr_cnt, Args &&... args) {
+                              RegisterAllocator &allocator, int ptr_cnt, Args &&...args) {
     // If it's anonymous, we use the base type name
     auto base_type_name = is_anonymous(base_type) ? param_type->getName() : base_type->getName();
     auto direction = getDirectionalityFromType(param_type);
@@ -92,6 +93,16 @@ namespace smeagle::x86_64 {
     description.variable_type = variable->getType()->getName();
     description.variable_size = variable->getSize();
     return description;
+  }
+
+  std::vector<parameter> parse_callsites(st::Symbol *symbol) {
+    st::Function *func = symbol->getFunction();
+    std::vector<parameter> typelocs;
+
+    for (auto cs : func->getCallSites()) {
+      callsites::PrintCallSite(cs);
+    }
+    return typelocs;
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {

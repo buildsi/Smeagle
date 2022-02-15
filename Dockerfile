@@ -1,6 +1,11 @@
-FROM ghcr.io/autamus/dyninst:master
+ARG fromimage=ghcr.io/autamus/dyninst:master
+FROM $fromimage
+
+# docker build --build-arg fromimage=ghcr.io/dyninst/dyninst-branch-builder:callsites -t smeagle .
+
 # uncomment to use dyninst latest release
-#FROM ghcr.io/autamus/dyninst
+# FROM ghcr.io/autamus/dyninst
+
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y wget g++ libssl-dev libtbb-dev python3-dev build-essential \
@@ -12,12 +17,16 @@ RUN cd /tmp && \
     ./bootstrap && \
     make && \
     make install
-RUN cd /tmp && \
-    git clone https://github.com/cheshirekow/cmake_format && \
-    cd cmake_format && \
-    pip3 install .
+#RUN cd /tmp && \
+#    git clone https://github.com/cheshirekow/cmake_format && \
+#    cd cmake_format && \
+#    pip3 install .
+# Dyninst was here before (source)
+RUN rm -rf /code
 WORKDIR /code
-ADD . /code
-RUN make
+COPY . /code
+RUN . /opt/spack/share/spack/setup-env.sh && \
+    spack load dyninst && \
+    make
 ENV PATH /code/build/standalone:$PATH
 ENTRYPOINT ["/code/build/standalone/Smeagle"]
