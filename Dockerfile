@@ -25,8 +25,8 @@ RUN cd /tmp && \
 RUN rm -rf /code
 WORKDIR /code
 COPY . /code
-RUN . /opt/spack/share/spack/setup-env.sh && \
-    spack load dyninst && \
-    make
-ENV PATH /code/build/standalone:$PATH
-ENTRYPOINT ["/code/build/standalone/Smeagle"]
+#RUN . /opt/spack/share/spack/setup-env.sh && \
+#    spack load dyninst && \
+#    make
+#ENV PATH /code/build/standalone:$PATH
+#ENTRYPOINT ["/code/build/standalone/Smeagle"]
