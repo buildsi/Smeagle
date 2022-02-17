@@ -19,7 +19,6 @@ namespace smeagle {
   class Corpus {
     std::string library;
     std::vector<abi_function_description> functions;
-    std::vector<abi_function_description> inlines;
     std::vector<abi_variable_description> variables;
     std::vector<abi_function_description> callsites;
 
@@ -54,7 +53,6 @@ namespace smeagle {
      */
     void toJson();
 
-    std::vector<abi_function_description> const& getInlines() const { return inlines; }
     std::vector<abi_function_description> const& getCallsites() const { return callsites; }
     std::vector<abi_function_description> const& getFunctions() const { return functions; }
     std::vector<abi_variable_description> const& getVariables() const { return variables; }
