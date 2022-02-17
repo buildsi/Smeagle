@@ -99,7 +99,7 @@ namespace smeagle::x86_64 {
   // I think we might lose the state with this implementation
   std::vector<parameter> parse_parameter(st::Type *calledType, std::string calledTypeName,
                                          std::vector<parameter> *typelocs,
-                                         RegisterAllocator allocator) {
+                                         RegisterAllocator &allocator) {
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(calledType);
     if (auto *t = underlying_type->getScalarType()) {
       typelocs->push_back(
