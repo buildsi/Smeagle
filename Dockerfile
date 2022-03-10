@@ -1,7 +1,7 @@
 ARG fromimage=ghcr.io/autamus/dyninst:master
 FROM $fromimage
 
-# docker build --build-arg fromimage=ghcr.io/dyninst/dyninst-branch-builder:callsites -t smeagle .
+# docker build --build-arg fromimage=ghcr.io/dyninst/dyninst-branch-builder:callsites-2 -t smeagle .
 
 # uncomment to use dyninst latest release
 # FROM ghcr.io/autamus/dyninst
