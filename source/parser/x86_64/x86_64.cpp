@@ -55,7 +55,7 @@ namespace smeagle::x86_64 {
 
   template <typename class_t, typename base_t, typename param_t, typename... Args>
   smeagle::parameter classify(std::string const &param_name, base_t *base_type, param_t *param_type,
-                              RegisterAllocator &allocator, int ptr_cnt, Args &&... args) {
+                              RegisterAllocator &allocator, int ptr_cnt, Args &&...args) {
     // If it's anonymous, we use the base type name
     auto base_type_name = is_anonymous(base_type) ? param_type->getName() : base_type->getName();
     auto direction = getDirectionalityFromType(param_type);
@@ -94,10 +94,61 @@ namespace smeagle::x86_64 {
     return description;
   }
 
+  // Shared functions to parse a single parameter, add to typelocs
+  // TODO allocator needs to be a reference and passed correctly
+  // I think we might lose the state with this implementation
+  parameter parse_parameter(st::Type *calledType, std::string calledTypeName,
+                            RegisterAllocator &allocator) {
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(calledType);
+    if (auto *t = underlying_type->getScalarType()) {
+      return classify<types::scalar_t>(calledTypeName, t, calledType, allocator, ptr_cnt);
+    } else if (auto *t = underlying_type->getStructType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::struct_t<dyn_t>>(calledTypeName, t, calledType, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getUnionType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::union_t<dyn_t>>(calledTypeName, t, calledType, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getArrayType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::array_t<dyn_t>>(calledTypeName, t, calledType, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getEnumType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::enum_t<dyn_t>>(calledTypeName, t, calledType, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getFunctionType()) {
+      return classify<types::function_t>(calledTypeName, t, calledType, allocator, ptr_cnt);
+    }
+  }
+
+  // Parse callsites and inline functions of a function
+  // Probably should generalize the monster block of code below to do that :)
+  std::vector<parameter> parse_callsites(st::Symbol *symbol) {
+    st::Function *func = symbol->getFunction();
+    std::vector<parameter> typelocs;
+
+    for (auto cs : func->getCallSites()) {
+      if (auto called = cs->GetCalled()) {
+        // The name of the called function
+        std::string calledFunc = called->GetName();
+
+        // Create an allocator to get registers for params
+        RegisterAllocator allocator;
+
+        for (auto &param : cs->GetCallSiteParameters()) {
+          st::Type *calledType = param->type;
+          auto calledTypeName = param->name;
+          typelocs.push_back(parse_parameter(calledType, calledTypeName, allocator));
+        }
+
+        // TODO parse return value correctly
+        // called->GetReturnType()
+      }
+    }
+    return typelocs;
+  }
+
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
     st::Function *func = symbol->getFunction();
     std::vector<st::localVar *> params;
-
     std::vector<parameter> typelocs;
 
     // Get parameters with types and names
@@ -107,31 +158,7 @@ namespace smeagle::x86_64 {
       for (auto &param : params) {
         auto param_name = param->getName();
         st::Type *param_type = param->getType();
-        auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
-
-        if (auto *t = underlying_type->getScalarType()) {
-          typelocs.push_back(
-              classify<types::scalar_t>(param_name, t, param_type, allocator, ptr_cnt));
-        } else if (auto *t = underlying_type->getStructType()) {
-          using dyn_t = std::decay_t<decltype(*t)>;
-          typelocs.push_back(
-              classify<types::struct_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
-        } else if (auto *t = underlying_type->getUnionType()) {
-          using dyn_t = std::decay_t<decltype(*t)>;
-          typelocs.push_back(
-              classify<types::union_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
-        } else if (auto *t = underlying_type->getArrayType()) {
-          using dyn_t = std::decay_t<decltype(*t)>;
-          typelocs.push_back(
-              classify<types::array_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
-        } else if (auto *t = underlying_type->getEnumType()) {
-          using dyn_t = std::decay_t<decltype(*t)>;
-          typelocs.push_back(
-              classify<types::enum_t<dyn_t>>(param_name, t, param_type, allocator, ptr_cnt, t));
-        } else if (auto *t = underlying_type->getFunctionType()) {
-          typelocs.push_back(
-              classify<types::function_t>(param_name, t, param_type, allocator, ptr_cnt));
-        }
+        typelocs.push_back(parse_parameter(param_type, param_name, allocator));
       }
     }
     return typelocs;
