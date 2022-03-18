@@ -29,7 +29,7 @@ void Corpus::printABILocation(std::vector<abi_function_description> descriptions
     std::string outerEndcomma;
 
     // It's the last and we don't have more after!
-    if (&f == &functions.back() && !moreAfter)
+    if (&f == &descriptions.back() && !moreAfter)
       outerEndcomma = "";
     else {
       outerEndcomma = ",";
