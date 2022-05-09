@@ -76,20 +76,21 @@ namespace smeagle::x86_64 {
                                     direction,
                                     ptr_loc,
                                     param_type->getSize(),
-                                    ptr_cnt,
+                                    0, ptr_cnt,
                                     {"", base_type_name, base_class.name, "", "",
-                                     base_type->getSize(), std::forward<Args>(args)...}}};
+                                    base_type->getSize(), 0, std::forward<Args>(args)...}}};
     }
     auto loc = allocator.getRegisterString(base_class.lo, base_class.hi, base_type);
     return smeagle::parameter{class_t{param_name, base_type_name, base_class.name, direction, loc,
-                                      base_type->getSize(), std::forward<Args>(args)...}};
+             base_type->getSize(), 0, std::forward<Args>(args)...}};
   }
 
   smeagle::abi_variable_description parse_variable(st::Symbol *symbol) {
     smeagle::abi_variable_description description;
     auto variable = symbol->getVariable();
+    st::Type *vartype = variable->getType();
     description.variable_name = symbol->getMangledName();
-    description.variable_type = variable->getType()->getName();
+    description.variable_type = vartype ? vartype->getName() : "[UNKNOWN TYPE]";
     description.variable_size = variable->getSize();
     return description;
   }
@@ -118,32 +119,43 @@ namespace smeagle::x86_64 {
       return classify<types::function_t>(calledTypeName, t, calledType, allocator, ptr_cnt);
     }
   }
+  
 
   // Parse callsites and inline functions of a function
   // Probably should generalize the monster block of code below to do that :)
-  std::vector<parameter> parse_callsites(st::Symbol *symbol) {
-    st::Function *func = symbol->getFunction();
-    std::vector<parameter> typelocs;
+  std::vector<abi_function_description> parse_callsites(st::Symtab *symt) {
+     std::vector<std::pair<st::Symbol *, st::FunctionDescriptor *> > exts;
+     std::vector<abi_function_description> abi_descs;
+     bool result = symt->getExternalFunctionRefs(exts);
+     if (!result)
+        return abi_descs;
+     
 
-    for (auto cs : func->getCallSites()) {
-      if (auto called = cs->GetCalled()) {
-        // The name of the called function
-        std::string calledFunc = called->GetName();
+     for (auto calls : exts) {
+        st::Symbol *sym = calls.first;
+        st::FunctionDescriptor *desc = calls.second;
 
-        // Create an allocator to get registers for params
+        std::string calledFunc = sym->getMangledName();
+
+        std::vector<parameter> parameters;
+
         RegisterAllocator allocator;
-
-        for (auto &param : cs->GetCallSiteParameters()) {
-          st::Type *calledType = param->type;
-          auto calledTypeName = param->name;
-          typelocs.push_back(parse_parameter(calledType, calledTypeName, allocator));
+        for (unsigned int i = 0; i < desc->GetNumParams(); i++) {
+           st::Type *paramtype = desc->GetParamNType(i);
+           std::stringstream ss;
+           ss << "param_i" << i;
+           std::string paramname = ss.str();
+           parameters.push_back(parse_parameter(paramtype, paramname, allocator));
         }
 
-        // TODO parse return value correctly
-        // called->GetReturnType()
-      }
-    }
-    return typelocs;
+        st::Type *rettype = desc->GetReturnType();
+        RegisterAllocator retallocator(RegisterAllocator::ReturnAllocatorType);                                  
+        parameter retparam = parse_parameter(rettype, "[RETURN]", retallocator);
+
+        abi_descs.emplace_back(std::move(parameters), std::move(retparam), std::move(calledFunc));
+     }
+
+     return abi_descs;
   }
 
   std::vector<parameter> parse_parameters(st::Symbol *symbol) {
@@ -164,8 +176,13 @@ namespace smeagle::x86_64 {
     return typelocs;
   }
 
-  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) {
-    return smeagle::parameter{types::none_t{"None", "None", "None"}};
+  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *symbol) {
+    st::Function *func = symbol->getFunction();     
+    st::Type *ret_type = func->getReturnType();
+    if (!ret_type)
+       return smeagle::parameter{types::none_t{"None", "None", "None"}};
+    RegisterAllocator allocator(RegisterAllocator::ReturnAllocatorType);    
+    return parse_parameter(ret_type, "[RETURN]", allocator);
   }
 
 }  // namespace smeagle::x86_64

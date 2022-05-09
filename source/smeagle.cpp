@@ -79,6 +79,7 @@ smeagle::Corpus Smeagle::parse() {
       //}
     }
   }
+  corpus.parseCallsiteABILocations(obj, obj->getArchitecutre());
 
   // Return the corpus for further processing
   return corpus;
