@@ -120,9 +120,9 @@ namespace smeagle::x86_64 {
     }
   }
   
-
-  // Parse callsites and inline functions of a function
-  // Probably should generalize the monster block of code below to do that :)
+   /**
+    * Parse all function references in a symtab object
+    **/
   std::vector<abi_function_description> parse_callsites(st::Symtab *symt) {
      std::vector<std::pair<st::Symbol *, st::FunctionDescriptor *> > exts;
      std::vector<abi_function_description> abi_descs;
@@ -131,6 +131,7 @@ namespace smeagle::x86_64 {
         return abi_descs;
      
 
+     //for each reference to an external function in the symtab object
      for (auto calls : exts) {
         st::Symbol *sym = calls.first;
         st::FunctionDescriptor *desc = calls.second;
@@ -139,19 +140,22 @@ namespace smeagle::x86_64 {
 
         std::vector<parameter> parameters;
 
+        //collect the parameters
         RegisterAllocator allocator;
         for (unsigned int i = 0; i < desc->GetNumParams(); i++) {
            st::Type *paramtype = desc->GetParamNType(i);
            std::stringstream ss;
-           ss << "param_i" << i;
+           ss << "param_" << i;
            std::string paramname = ss.str();
            parameters.push_back(parse_parameter(paramtype, paramname, allocator));
         }
 
+        //collect the return value
         st::Type *rettype = desc->GetReturnType();
         RegisterAllocator retallocator(RegisterAllocator::ReturnAllocatorType);                                  
         parameter retparam = parse_parameter(rettype, "[RETURN]", retallocator);
 
+        //add to the list of callsites
         abi_descs.emplace_back(std::move(parameters), std::move(retparam), std::move(calledFunc));
      }
 
