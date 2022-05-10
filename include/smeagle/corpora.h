@@ -35,6 +35,12 @@ namespace smeagle {
     void parseFunctionABILocation(Dyninst::SymtabAPI::Symbol*, Dyninst::Architecture);
 
     /**
+     * @brief Parses a DSO's callsites and functionr eferences
+     * @param open symtab referring to the DSO to parse
+     */
+    void parseCallsiteABILocations(Dyninst::SymtabAPI::Symtab *, Dyninst::Architecture);
+    
+    /**
      * @brief Print an ABI type location (function, callsite, or inline)
      * @param descriptions: list of descriptions
      * @param name: type of component (function, inline, or callsite)

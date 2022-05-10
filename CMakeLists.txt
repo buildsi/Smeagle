@@ -37,7 +37,7 @@ CPMAddPackage(
 )
 
 # ---- Add source files ----
-set(include_dirs smeagle/include source/parser)
+#set(include_dirs smeagle/include source/parser)
 set(sources source/corpora.cpp source/smeagle.cpp source/parser/x86_64/x86_64.cpp
             source/parser/ppc64le/ppc64le.cpp source/parser/aarch64/aarch64.cpp
 )
@@ -53,8 +53,10 @@ target_link_libraries(Smeagle PUBLIC fmt::fmt Boost::boost TBB::tbb common symta
 target_include_directories(
   Smeagle
   PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}> ${Boost_INCLUDE_DIRS}
-         ${include_dirs} ${DYNINST_INCLUDE_DIR}
+         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+         ${Boost_INCLUDE_DIRS}
+         ${include_dirs}
+         ${DYNINST_INCLUDE_DIR}
 )
 
 target_include_directories(Smeagle PUBLIC ${DYNINST_INCLUDE_DIR})
@@ -77,3 +79,4 @@ packageProject(
   COMPATIBILITY SameMajorVersion
   DEPENDENCIES "fmt 7.1.3"
 )
+

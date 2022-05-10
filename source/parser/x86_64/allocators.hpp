@@ -46,8 +46,27 @@ namespace smeagle::x86_64 {
   class RegisterAllocator {
   public:
     // Constructor
-    RegisterAllocator() {
+    enum AllocatorType {
+       ParamAllocatorType,
+       ReturnAllocatorType
+    };
+    
+    RegisterAllocator(AllocatorType alloctype_ = ParamAllocatorType) :
+       alloctype(alloctype_)
+     {
       // Populate the sse register stack
+      if (alloctype == ReturnAllocatorType) {
+         intRegisters.push("%rdx");
+         intRegisters.push("%rax");
+      }
+      else {
+         intRegisters.push("%r9");
+         intRegisters.push("%r8");
+         intRegisters.push("%rcx");
+         intRegisters.push("%rdx");
+         intRegisters.push("%rsi");
+         intRegisters.push("%rdi");
+      }
       for (int i = 7; i >= 0; --i) {
         sseRegisters.push("%xmm" + std::to_string(i));
       }
@@ -112,8 +131,9 @@ namespace smeagle::x86_64 {
     }
 
   private:
+    AllocatorType alloctype;    
     FramebaseAllocator fallocator;
-    std::stack<std::string> intRegisters{{"%r9", "%r8", "%rcx", "%rdx", "%rsi", "%rdi"}};
+    std::stack<std::string> intRegisters;
     std::stack<std::string> sseRegisters;
     int framebase = 8;
 

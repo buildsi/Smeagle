@@ -36,20 +36,27 @@ void Corpus::printABILocation(std::vector<abi_function_description> descriptions
     }
 
     // We have parameters
-    if (f.parameters.size() > 0) {
+    bool has_return = f.return_value.name() == "[RETURN]";
+    if (f.parameters.size() > 0 || has_return) {
       std::cout << "   {\n"
                 << "    \"" << name << "\": {\n"
-                << "      \"name\": \"" << f.function_name << "\",\n"
-                << "      \"parameters\": [\n";
-
-      for (auto const &p : f.parameters) {
-        // Check if we are at the last entry (no comma) or not
-        auto endcomma = (&p == &f.parameters.back()) ? "" : ",";
-        p.toJson(std::cout, 8);
-        std::cout << endcomma << '\n';
+                << "      \"name\": \"" << f.function_name << "\",\n";
+      if (f.parameters.size()) {
+         std::cout << "      \"parameters\": [\n";
+         for (auto const &p : f.parameters) {
+            // Check if we are at the last entry (no comma) or not
+            auto endcomma = (&p == &f.parameters.back() && !has_return) ? "" : ",";
+            p.toJson(std::cout, 8);
+            std::cout << endcomma << '\n';
+            std::cout << "    ]\n";            
+         }
       }
-      std::cout << "    ]\n";
-
+      if (has_return) {
+         std::cout << "      \"return\": [\n";
+         f.return_value.toJson(std::cout, 8);
+         std::cout << "\n";
+         std::cout << "    ]\n";         
+      }
       // If we don't have parameters, don't add anything
     } else {
       std::cout << "   {\n"
@@ -114,9 +121,6 @@ void Corpus::parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *symbol,
     case Dyninst::Architecture::Arch_x86_64: {
       functions.emplace_back(x86_64::parse_parameters(symbol), x86_64::parse_return_value(symbol),
                              symbol->getMangledName());
-      // callsites (todo, return value)
-      callsites.emplace_back(x86_64::parse_callsites(symbol), x86_64::parse_return_value(symbol),
-                             symbol->getMangledName());
       break;
     }
     case Dyninst::Architecture::Arch_aarch64:
@@ -129,6 +133,21 @@ void Corpus::parseFunctionABILocation(Dyninst::SymtabAPI::Symbol *symbol,
   }
 }
 
+void Corpus::parseCallsiteABILocations(Dyninst::SymtabAPI::Symtab *symt, Dyninst::Architecture arch) {
+  switch (arch) {
+    case Dyninst::Architecture::Arch_x86_64: {
+      callsites = x86_64::parse_callsites(symt);
+      break;
+    }
+    case Dyninst::Architecture::Arch_aarch64:
+      break;
+    case Dyninst::Architecture::Arch_ppc64:
+      break;
+    default:
+      throw std::runtime_error{"Unsupported architecture: " + std::to_string(arch)};
+      break;
+  }   
+}
 // parse a variable (global) for parameters and abi location
 void Corpus::parseVariableABILocation(Dyninst::SymtabAPI::Symbol *symbol,
                                       Dyninst::Architecture arch) {

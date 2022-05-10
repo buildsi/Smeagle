@@ -22,6 +22,7 @@ namespace smeagle::x86_64::types {
       std::string direction_;
       std::string location_;
       size_t size_in_bytes_;
+      size_t offset;
 
       std::string name() const { return name_; }
       std::string type_name() const { return type_name_; }
@@ -38,13 +39,14 @@ namespace smeagle::x86_64::types {
       if (!p.class_name().empty()) out << buf << "\"class\":\"" << p.class_name() << "\",\n";
       if (!p.location().empty()) out << buf << "\"location\":\"" << p.location() << "\",\n";
       if (!p.direction().empty()) out << buf << "\"direction\":\"" << p.direction() << "\",\n";
+      out << buf << "\"offset\":\"" << p.offset << "\",\n";
       out << buf << "\"size\":\"" << p.size_in_bytes() << "\"";
     }
   }  // namespace detail
 
   // Parse a parameter into a Smeagle parameter
   // Note that this function cannot be named toJson as overload resolution won't work
-  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent);
+  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent, size_t field_offset);
 
   struct none_t final : detail::param {
     void toJson(std::ostream &out, int indent) const { out << "none"; }
@@ -104,7 +106,7 @@ namespace smeagle::x86_64::types {
             out << ",";
           }
           auto *field = *cur;
-          makeJson(field->getType(), field->getName(), out, indent + 3);
+          makeJson(field->getType(), field->getName(), out, indent + 3, field->getOffset());
         }
         out << "]\n";
       }
@@ -156,7 +158,7 @@ namespace smeagle::x86_64::types {
             out << ",";
           }
           auto *field = *cur;
-          makeJson(field->getType(), field->getName(), out, indent + 3);
+          makeJson(field->getType(), field->getName(), out, indent + 3, field->getOffset());
         }
         out << "]\n";
       }
@@ -225,19 +227,19 @@ namespace smeagle::x86_64::types {
   };
 
   // Parse a parameter into a Smeagle parameter
-  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent) {
+  void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent, size_t field_offset) {
     auto [underlying_type, ptr_cnt] = unwrap_underlying_type(param_type);
     std::string direction = "";
 
     // Scalar Type
     if (auto *t = underlying_type->getScalarType()) {
       auto param = types::scalar_t{param_name, param_type->getName(), "Scalar", direction,
-                                   "",         param_type->getSize()};
+                                   "",         param_type->getSize(), field_offset};
 
       if (ptr_cnt > 0) {
         auto ptr = types::pointer_t<decltype(param)>{
             param_name, underlying_type->getName(), "Pointer", "",
-            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+            "",         param_type->getSize(), field_offset, ptr_cnt, std::move(param)};
         ptr.toJson(out, indent);
       } else {
         param.toJson(out, indent);
@@ -248,12 +250,12 @@ namespace smeagle::x86_64::types {
       using dyn_t = std::decay_t<decltype(*t)>;
 
       auto param = types::struct_t<dyn_t>{param_name, param_type->getName(), "Struct", direction,
-                                          "",         param_type->getSize(), t};
+                                          "", field_offset, param_type->getSize(), t};
 
       if (ptr_cnt > 0) {
         auto ptr = types::pointer_t<decltype(param)>{
             param_name, underlying_type->getName(), "Pointer", "",
-            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+            "",         param_type->getSize(), field_offset, ptr_cnt, std::move(param)};
 
         ptr.toJson(out, indent, types::struct_t<dyn_t>::recursive_t{});
       } else {
@@ -265,11 +267,11 @@ namespace smeagle::x86_64::types {
       using dyn_t = std::decay_t<decltype(*t)>;
 
       auto param = types::union_t<dyn_t>{param_name, param_type->getName(), "Union", direction,
-                                         "",         param_type->getSize(), t};
+                                         "", field_offset, param_type->getSize(), t};
       if (ptr_cnt > 0) {
         auto ptr = types::pointer_t<decltype(param)>{
             param_name, underlying_type->getName(), "Pointer", "",
-            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+            "",         param_type->getSize(), field_offset, ptr_cnt, std::move(param)};
 
         ptr.toJson(out, indent, types::union_t<dyn_t>::recursive_t{});
       } else {
@@ -280,12 +282,12 @@ namespace smeagle::x86_64::types {
     } else if (auto *t = underlying_type->getArrayType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::array_t<dyn_t>{param_name, param_type->getName(), "Array", direction,
-                                         "",         param_type->getSize()};
+                                         "", field_offset, param_type->getSize()};
 
       if (ptr_cnt > 0) {
         auto ptr = types::pointer_t<decltype(param)>{
             param_name, underlying_type->getName(), "Pointer", "",
-            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+            "",         param_type->getSize(), field_offset, ptr_cnt, std::move(param)};
 
         ptr.toJson(out, indent);
       } else {
@@ -296,12 +298,12 @@ namespace smeagle::x86_64::types {
     } else if (auto *t = underlying_type->getEnumType()) {
       using dyn_t = std::decay_t<decltype(*t)>;
       auto param = types::enum_t<dyn_t>{param_name, param_type->getName(), "Enum", direction,
-                                        "",         param_type->getSize(), t};
+                                        "", field_offset, param_type->getSize(), t};
 
       if (ptr_cnt > 0) {
         auto ptr = types::pointer_t<decltype(param)>{
             param_name, underlying_type->getName(), "Pointer", "",
-            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+            "",         param_type->getSize(), field_offset, ptr_cnt,  std::move(param)};
 
         ptr.toJson(out, indent);
       } else {
@@ -311,17 +313,16 @@ namespace smeagle::x86_64::types {
       // Function Type
     } else if (auto *t = underlying_type->getFunctionType()) {
       auto param = types::function_t{param_name, param_type->getName(), "Function", direction,
-                                     "",         param_type->getSize()};
+                                     "",         param_type->getSize(), 0};
       if (ptr_cnt > 0) {
         auto ptr = types::pointer_t<decltype(param)>{
             param_name, underlying_type->getName(), "Pointer", "",
-            "",         param_type->getSize(),      ptr_cnt,   std::move(param)};
+            "",         param_type->getSize(), field_offset, ptr_cnt, std::move(param)};
 
         ptr.toJson(out, indent);
       } else {
         param.toJson(out, indent);
       }
-
     } else {
       throw std::runtime_error{"Unknown type " + param_type->getName()};
     }
