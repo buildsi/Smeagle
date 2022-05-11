@@ -7,6 +7,7 @@
 
 #include <string>
 #include <utility>
+#include <iostream>
 
 #include "Type.h"
 #include "register_class.hpp"
@@ -15,7 +16,7 @@
 namespace smeagle::x86_64 {
 
   struct classification {
-    RegisterClass lo, hi;
+    std::vector<RegisterClass> classes;
     std::string name;
     int pointer_indirections;
   };
@@ -185,17 +186,79 @@ namespace smeagle::x86_64 {
       return {RegisterClass::MEMORY, RegisterClass::NO_CLASS, "Struct"};
     }
 
-    RegisterClass hi = RegisterClass::NO_CLASS;
-    RegisterClass lo = RegisterClass::NO_CLASS;
+    struct eightbyte {
+    	std::vector<st::Field*> fields{};
+    	size_t size{};
+    	bool has_space_for(st::Field *f) const {
+    		return size + f->getSize() <= 8;
+    	}
+		void add(st::Field *f) {
+			size += f->getSize();
+			fields.push_back(f);
+    	}
+		eightbyte() = default;
+    	eightbyte(eightbyte&& b) {
+    		fields = std::move(b.fields);
+    		size = b.size;
+    		b.size = 0UL;
+    	}
+        void print() const {
+        	for(auto *f : fields) {
+        		std::cout << "{" << f->getName() << ", " << size << "}\n";
+        	}
+        }
+    };
+
+    std::vector<eightbyte> eightbytes;
+    eightbyte cur;
+    bool added = false;
     for (auto *f : *t->getFields()) {
-      auto c = classify(f);
-      hi = merge(hi, c.hi);
-      lo = merge(lo, c.lo);
+    	if(!cur.has_space_for(f)) {
+    		added = true;
+    		eightbytes.push_back(std::move(cur));
+    	}
+    	cur.add(f);
+    	added=false;
+    }
+    if(!added && cur.size > 0) {
+    	eightbytes.push_back(std::move(cur));
     }
 
-    // Pass a reference so they are updated here, and we also need size
-    post_merge(lo, hi, size);
-    return {lo, hi, "Struct"};
+    std::vector<RegisterClass> classes;
+    for(auto const& eb : eightbytes) {
+    	eb.print(); std::cout << "\n";
+
+//    	std::vector<classification> tmp;
+//    	for(auto *f : eb.fields) {
+//    		tmp.push_back(classify(f));
+//    	}
+
+    	if(eb.fields.size() > 1) {
+    		auto c1 = classify(eb.fields[0]);
+    		auto c2 = classify(eb.fields[1]);
+    		classes.push_back(merge(c1.lo,c2.lo));
+    	} else {
+    		classes.push_back(classify(eb.fields[0]).lo);
+    	}
+    }
+
+    for(auto c : classes) {
+    	std::cout << static_cast<std::underlying_type_t<decltype(c)>>(c) << "\n";
+    }
+
+    return {};
+
+//    RegisterClass hi = RegisterClass::NO_CLASS;
+//    RegisterClass lo = RegisterClass::NO_CLASS;
+//    for (auto *f : *t->getFields()) {
+//      auto c = classify(f);
+//      hi = merge(hi, c.hi);
+//      lo = merge(lo, c.lo);
+//    }
+//
+//    // Pass a reference so they are updated here, and we also need size
+//    post_merge(lo, hi, size);
+//    return {lo, hi, "Struct"};
   }
 
   // Classify the fields
