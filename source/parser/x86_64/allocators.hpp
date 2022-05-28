@@ -136,4 +136,51 @@ namespace smeagle::x86_64 {
     }
   };
 
+  class ReturnValueAllocator {
+  public:
+    std::string getRegisterString(RegisterClass cls, RegisterClass, st::Type *paramType) {
+      if (RegisterClass::MEMORY == cls) {
+        // If the type has class MEMORY, then the caller provides space for the return
+        // value and passes the address of this storage in %rdi as if it were the first
+        // argument to the function. In effect, this address becomes a “hidden” first ar-
+        // gument. This storage must not overlap any data visible to the callee through
+        // other names than this argument.
+        // On return %rax will contain the address that has been passed in by the
+        // caller in %rdi.
+        return "%rax";
+      }
+      if (RegisterClass::INTEGER == cls) {
+        // If the class is INTEGER, the next available register of the sequence %rax, %rdx is used.
+        if (paramType->getSize() > 64) {
+          return "%rax|%rdx";
+        }
+        return "%rax";
+      }
+      if (RegisterClass::SSE == cls) {
+        // If the class is SSE, the next available vector register of the sequence %xmm0, %xmm1 is
+        // used.
+        // TODO: larger vector types (ymm, zmm)
+        if (paramType->getSize() > 64) {
+          return "%xmm0|%xmm1";
+        }
+        return "%xmm0";
+      }
+      if (RegisterClass::SSEUP == cls) {
+        // If the class is SSEUP, the eightbyte is returned in the next available eightbyte
+        // chunk of the last used vector register.
+        return "SSEUP";
+      }
+      if (RegisterClass::X87 == cls || RegisterClass::X87UP == cls) {
+        // If the class is X87, the value is returned on the X87 stack in %st0 as 80-bit x87 number.
+        return "%st0";
+      }
+      if (RegisterClass::COMPLEX_X87 == cls) {
+        // If the class is COMPLEX_X87, the real part of the value is returned in
+        // %st0 and the imaginary part in %st1.
+        return "%st0|%st1";
+      }
+      // This should never be reached
+      throw std::runtime_error{"Unable to allocate return value"};
+    }
+  };
 }  // namespace smeagle::x86_64

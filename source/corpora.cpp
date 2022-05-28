@@ -69,13 +69,17 @@ void Corpus::toJson() {
         std::cout << endcomma << '\n';
       }
       std::cout << "    ]\n";
-
-      // If we don't have parameters, don't add anything
     } else {
+      // If we don't have parameters, don't add anything
       std::cout << "   {\n"
                 << "    \"function\": {\n"
                 << "      \"name\": \"" << f.function_name << "\"";
     }
+
+    std::cout << ",\n      \"return\": \n";
+    f.return_value.toJson(std::cout, 8);
+    std::cout << "\n    \n";
+
     std::cout << "   }}" << endcomma << "\n";
   }
   std::cout << "]\n"
