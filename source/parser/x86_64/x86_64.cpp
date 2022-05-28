@@ -56,7 +56,7 @@ namespace smeagle::x86_64 {
   template <typename class_t, typename base_t, typename param_t, typename Allocator,
             typename... Args>
   smeagle::parameter classify(std::string const &param_name, base_t *base_type, param_t *param_type,
-                              Allocator &allocator, int ptr_cnt, Args &&... args) {
+                              Allocator &allocator, int ptr_cnt, Args &&...args) {
     // If it's anonymous, we use the base type name
     auto base_type_name = is_anonymous(base_type) ? param_type->getName() : base_type->getName();
     auto direction = getDirectionalityFromType(param_type);

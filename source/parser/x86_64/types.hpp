@@ -49,10 +49,10 @@ namespace smeagle::x86_64::types {
   struct void_t final : detail::param {
     explicit void_t() : detail::param{"", "void", "Void"} {}
     void toJson(std::ostream &out, int indent) const {
-        auto buf = std::string(indent, ' ');
-        out << buf << "{\n";
-        detail::toJson(*this, out, indent + 2);
-        out << "\n" << buf << "}";
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
     }
   };
 
@@ -219,7 +219,7 @@ namespace smeagle::x86_64::types {
     int pointer_indirections;
     T underlying_type;
 
-    template <typename... Args> void toJson(std::ostream &out, int indent, Args &&... args) const {
+    template <typename... Args> void toJson(std::ostream &out, int indent, Args &&...args) const {
       auto buf = std::string(indent, ' ');
       out << buf << "{\n";
       detail::toJson(*this, out, indent + 2);
