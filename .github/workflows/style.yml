@@ -29,6 +29,11 @@ jobs:
           path: "**/cpm_modules"
           key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
 
+      - name: Mark Safe
+        run: |
+          git --version
+          git config --global --add safe.directory *
+
       - name: Install dependencies
         run: |
           apt-get update
