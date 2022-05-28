@@ -46,8 +46,14 @@ namespace smeagle::x86_64::types {
   // Note that this function cannot be named toJson as overload resolution won't work
   void makeJson(st::Type *param_type, std::string param_name, std::ostream &out, int indent);
 
-  struct none_t final : detail::param {
-    void toJson(std::ostream &out, int indent) const { out << "none"; }
+  struct void_t final : detail::param {
+    explicit void_t() : detail::param{"", "void", "Void"} {}
+    void toJson(std::ostream &out, int indent) const {
+      auto buf = std::string(indent, ' ');
+      out << buf << "{\n";
+      detail::toJson(*this, out, indent + 2);
+      out << "\n" << buf << "}";
+    }
   };
 
   struct scalar_t final : detail::param {

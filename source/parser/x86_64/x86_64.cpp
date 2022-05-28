@@ -53,9 +53,10 @@ namespace smeagle::x86_64 {
            || t->getName().find("anonymous union") != std::string::npos;
   }
 
-  template <typename class_t, typename base_t, typename param_t, typename... Args>
+  template <typename class_t, typename base_t, typename param_t, typename Allocator,
+            typename... Args>
   smeagle::parameter classify(std::string const &param_name, base_t *base_type, param_t *param_type,
-                              RegisterAllocator &allocator, int ptr_cnt, Args &&... args) {
+                              Allocator &allocator, int ptr_cnt, Args &&... args) {
     // If it's anonymous, we use the base type name
     auto base_type_name = is_anonymous(base_type) ? param_type->getName() : base_type->getName();
     auto direction = getDirectionalityFromType(param_type);
@@ -137,8 +138,35 @@ namespace smeagle::x86_64 {
     return typelocs;
   }
 
-  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *) {
-    return smeagle::parameter{types::none_t{"None", "None", "None"}};
+  parameter parse_return_value(Dyninst::SymtabAPI::Symbol const *sym) {
+    st::Function *func = sym->getFunction();
+    st::Type *ret_t = func->getReturnType();
+
+    if (!ret_t) {
+      return smeagle::parameter{types::void_t{}};
+    }
+
+    ReturnValueAllocator allocator;
+    auto [underlying_type, ptr_cnt] = unwrap_underlying_type(ret_t);
+    if (auto *t = underlying_type->getScalarType()) {
+      return classify<types::scalar_t>("", t, ret_t, allocator, ptr_cnt);
+    } else if (auto *t = underlying_type->getStructType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::struct_t<dyn_t>>("", t, ret_t, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getUnionType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::union_t<dyn_t>>("", t, ret_t, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getArrayType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::array_t<dyn_t>>("", t, ret_t, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getEnumType()) {
+      using dyn_t = std::decay_t<decltype(*t)>;
+      return classify<types::enum_t<dyn_t>>("", t, ret_t, allocator, ptr_cnt, t);
+    } else if (auto *t = underlying_type->getFunctionType()) {
+      return classify<types::function_t>("", t, ret_t, allocator, ptr_cnt);
+    }
+    // This should never be reached
+    throw std::runtime_error{"Unable to parse return value"};
   }
 
 }  // namespace smeagle::x86_64
