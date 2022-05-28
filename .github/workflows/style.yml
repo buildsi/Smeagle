@@ -14,4 +14,4 @@ jobs:
       - name: Build container
         run: docker build -t smeagle .
       - name: Check format
-        run: docker run -it --entrypoint make smeagle fmt
+        run: docker run -t --entrypoint make smeagle fmt
