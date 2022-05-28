@@ -6,63 +6,12 @@ on:
       - main
   pull_request: []
 
-env:
-  CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm_modules
-
 jobs:
   build:
-    container: ghcr.io/autamus/dyninst:master
     runs-on: ubuntu-latest
     steps:
-
-#      - name: Force Install GIT latest
-#        run: |
-#          apt-get update && apt-get install -y software-properties-common \
-#          && apt-get update \
-#          && add-apt-repository -y ppa:git-core/ppa \
-#          && apt-get update \
-#          && apt-get install -y git
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-
-      - name: Mark Safe
-        run: |
-          git --version
-          git config --global --add safe.directory *
-
       - uses: actions/checkout@v3
-      - uses: actions/cache@v2
-        with:
-          path: "**/cpm_modules"
-          key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-
-#      - name: Git Checkout Tag
-#        run: |
-#          cd ../
-#          rm -rf ${{ github.event.repository.name }}
-#          git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }}.git
-
-      - name: Install dependencies
-        run: |
-          apt-get update
-          apt-get install -y wget g++ libssl-dev git libtbb-dev python3-dev build-essential \
-              python3-jinja2 python3-pygments ghostscript doxygen python3-yaml python3-pip clang-format
-
-          cd /tmp
-          wget https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2.tar.gz
-          tar -xzvf cmake-3.20.2.tar.gz && \
-          cd cmake-3.20.2/
-          ./bootstrap
-          make
-          make install
-
-          cd /tmp
-          git clone https://github.com/cheshirekow/cmake_format
-          cd cmake_format
-          pip3 install .
-
+      - name: Build container
+        run: docker build -t smeagle .
       - name: Check format
-        run: |
-          alias python='python3'
-          make fmt
+        run: docker run -it --entrypoint make smeagle fmt
