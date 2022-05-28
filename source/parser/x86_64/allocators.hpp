@@ -139,6 +139,11 @@ namespace smeagle::x86_64 {
   class ReturnValueAllocator {
   public:
     std::string getRegisterString(RegisterClass cls, RegisterClass, st::Type *paramType) {
+      /*
+       *   TODO:
+       *   	The standard does not describe how to return aggregates and unions
+       */
+
       if (RegisterClass::MEMORY == cls) {
         // If the type has class MEMORY, then the caller provides space for the return
         // value and passes the address of this storage in %rdi as if it were the first
